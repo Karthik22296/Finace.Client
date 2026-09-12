@@ -4,10 +4,10 @@
   - [x] Implement standard Material Sidenav layout
   - [x] Implement Top Toolbar (with User Profile/Logout UI)
   - [x] Setup Angular routing structure
-- [ ] **Phase 2: Authentication & Authorization**
-  - [ ] Build Login Component (`/login`)
-  - [ ] Implement Auth Interceptor to handle tokens
-  - [ ] Implement Role-Based Route Guards (Manager vs. Collector)
+- [x] **Phase 2: Authentication & Authorization**
+  - [x] Build Login Component (`/login`)
+  - [x] Implement Auth Interceptor to handle tokens
+  - [x] Implement Role-Based Route Guards (Manager vs. Collector)
 - [ ] **Phase 3: Customer Management**
   - [ ] Build Customer List Table (with search and pagination)
   - [ ] Build Customer Creation Form

@@ -6,9 +6,9 @@
   <span class="spacer"></span>
   <button mat-button class="user-button">
     <mat-icon style="margin-right: 8px;">account_circle</mat-icon>
-    Manager
+    {{ authService.getRole() || 'User' }}
   </button>
-  <button mat-icon-button aria-label="Logout">
+  <button mat-icon-button aria-label="Logout" (click)="logout()">
     <mat-icon>exit_to_app</mat-icon>
   </button>
 </mat-toolbar>

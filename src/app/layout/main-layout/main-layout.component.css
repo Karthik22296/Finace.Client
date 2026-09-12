@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-sidenav-container {
+  flex: 1;
+}
+
+.app-sidenav {
+  width: 250px;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
+}
+
+.app-main-content {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.content-wrapper {
+  padding: 24px;
+  flex: 1;
+  box-sizing: border-box;
+}
