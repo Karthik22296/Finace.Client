@@ -1,0 +1,43 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-titles">
+      <h1>Daily Route</h1>
+      <p>Expected collections for today based on active loans.</p>
+    </div>
+  </div>
+
+  <div class="route-container" *ngIf="!isLoading">
+    <mat-card class="route-card" *ngFor="let loan of activeLoans">
+      <mat-card-header>
+        <div mat-card-avatar class="avatar">
+          {{ loan.customer?.fullName?.charAt(0) || '?' }}
+        </div>
+        <mat-card-title>{{ loan.customer?.fullName }}</mat-card-title>
+        <mat-card-subtitle>{{ loan.loanNumber }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content class="card-content">
+        <div class="due-info">
+          <span class="label">Expected Due</span>
+          <span class="amount">₹{{ loan.dailyDueAmount | number:'1.2-2' }}</span>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-flat-button color="primary" (click)="openCollectDialog(loan)">
+          <mat-icon>payment</mat-icon> Collect
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <div class="no-data" *ngIf="activeLoans.length === 0">
+      <mat-icon class="no-data-icon">done_all</mat-icon>
+      <h3>All caught up!</h3>
+      <p>No active loans require collection today.</p>
+    </div>
+  </div>
+
+  <div class="loading-shade" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+</div>

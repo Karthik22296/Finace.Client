@@ -14,6 +14,8 @@ import { customerGetAll } from '../../../../api/fn/customer/customer-get-all';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Customer } from '../../../../api/models/customer';
 import { CustomerCreateComponent } from '../customer-create/customer-create.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatMenuModule } from '@angular/material/menu';
 import { BaseTableComponent } from '../../../shared/components/base-table.component';
 
 @Component({
@@ -29,7 +31,9 @@ import { BaseTableComponent } from '../../../shared/components/base-table.compon
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    MatCheckboxModule,
+    MatMenuModule
   ],
   templateUrl: './customers-list.component.html',
   styleUrls: ['./customers-list.component.css']
@@ -67,8 +71,6 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
           const text = await response.body.text();
           const customers: Customer[] = text ? JSON.parse(text) : [];
           this.dataSource.data = customers;
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
         } catch (e) {
           console.error('Failed to parse customers', e);
         }

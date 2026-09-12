@@ -1,0 +1,71 @@
+.route-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.route-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important;
+  border: 1px solid #eaeaea;
+}
+
+.avatar {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.card-content {
+  padding: 16px 16px 0 16px;
+}
+
+.due-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+}
+
+.due-info .label {
+  font-size: 14px;
+  color: #555;
+}
+
+.due-info .amount {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.no-data {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 16px;
+  text-align: center;
+  color: #666;
+}
+
+.no-data-icon {
+  font-size: 64px;
+  height: 64px;
+  width: 64px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.no-data h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+}

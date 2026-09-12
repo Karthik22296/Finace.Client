@@ -1,16 +1,21 @@
-import { Directive, ViewChild } from '@angular/core';
+import { Directive, ViewChild, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 @Directive()
-export abstract class BaseTableComponent<T> {
+export abstract class BaseTableComponent<T> implements AfterViewInit {
   dataSource = new MatTableDataSource<T>();
   isLoading = true;
   filterValues: Record<string, string> = {};
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
 
   /**
    * Applies filter to the MatTableDataSource.

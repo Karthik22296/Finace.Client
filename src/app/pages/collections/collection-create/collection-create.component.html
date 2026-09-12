@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>Record Collection</h2>
+
+<mat-dialog-content>
+  <div class="form-container">
+    <div class="loading-shade" *ngIf="isLoading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <form [formGroup]="collectionForm" class="customer-form">
+      <div class="loan-summary">
+        <p><strong>Customer:</strong> {{ loan.customer?.fullName }}</p>
+        <p><strong>Loan Number:</strong> {{ loan.loanNumber }}</p>
+        <p><strong>Expected Daily Due:</strong> ₹{{ loan.dailyDueAmount | number:'1.2-2' }}</p>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Amount Paid</mat-label>
+          <input matInput type="number" formControlName="amountPaid" placeholder="Amount collected" min="1">
+          <mat-error *ngIf="collectionForm.get('amountPaid')?.hasError('required')">Amount is required</mat-error>
+          <mat-error *ngIf="collectionForm.get('amountPaid')?.hasError('min')">Amount must be greater than 0</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Payment Mode</mat-label>
+          <mat-select formControlName="paymentMode">
+            <mat-option [value]="0">Cash</mat-option>
+            <mat-option [value]="1">UPI</mat-option>
+            <mat-option [value]="2">Bank Transfer</mat-option>
+            <mat-option [value]="3">Cheque</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Remarks (Optional)</mat-label>
+          <textarea matInput formControlName="remarks" rows="2" placeholder="Any comments..."></textarea>
+        </mat-form-field>
+      </div>
+    </form>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="isLoading">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="collectionForm.invalid || isLoading">
+    Record Payment
+  </button>
+</mat-dialog-actions>

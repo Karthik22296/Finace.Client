@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatMenuModule } from '@angular/material/menu';
 import { loanGetAll } from '../../../../api/fn/loan/loan-get-all';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Loan } from '../../../../api/models/loan';
@@ -27,7 +29,9 @@ import { BaseTableComponent } from '../../../shared/components/base-table.compon
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    MatCheckboxModule,
+    MatMenuModule
   ],
   templateUrl: './loans-list.component.html',
   styleUrls: ['./loans-list.component.css']
@@ -53,6 +57,14 @@ export class LoansListComponent extends BaseTableComponent<Loan> implements OnIn
       return (data.loanNumber || '').toLowerCase().includes(searchTerms.loanNumber)
           && customerName.toLowerCase().includes(searchTerms.customerName);
     };
+    
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch(property) {
+        case 'customerName': return item.customer?.fullName?.toLowerCase() || '';
+        case 'status': return item.isClosed ? 1 : 0;
+        default: return (item as any)[property];
+      }
+    };
     this.loadLoans();
   }
 
@@ -64,8 +76,6 @@ export class LoansListComponent extends BaseTableComponent<Loan> implements OnIn
           const text = await response.body.text();
           const loans: Loan[] = text ? JSON.parse(text) : [];
           this.dataSource.data = loans;
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
         } catch (e) {
           console.error('Failed to parse loans', e);
         }

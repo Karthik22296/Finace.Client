@@ -42,7 +42,7 @@
       <!-- Principal & Interest -->
       <div class="form-row split-row">
         <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Principal Amount ($)</mat-label>
+          <mat-label>Principal Amount (₹)</mat-label>
           <input matInput type="number" formControlName="loanAmount" placeholder="e.g. 10000">
           <mat-error *ngIf="loanForm.get('loanAmount')?.hasError('required')">
             Required

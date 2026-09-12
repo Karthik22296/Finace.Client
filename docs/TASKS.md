@@ -19,10 +19,10 @@
   - [x] Build Loan Creation Wizard (Select Customer, Branch, Principal)
   - [x] Implement auto-calculator for 100-day payment schedule
   - [x] Build Loan Status Tracker View
-- [ ] **Phase 5: Daily Collection Module**
-  - [ ] Build Collector's Route List (Mobile-optimized View)
-  - [ ] Build Payment Entry Screen
-  - [ ] Build Manager Verification Pipeline (Grid with Verify/Approve/Reject actions)
+- [x] **Phase 5: Daily Collection Module**
+  - [x] Build Collector's Route List (Mobile-optimized View)
+  - [x] Build Payment Entry Screen
+  - [x] Build Manager Verification Pipeline (Grid with Verify/Approve/Reject actions)
 - [ ] **Phase 6: Analytics & Reports**
   - [ ] Build Main Dashboard (KPIs: Today's Target, Collected Amount)
   - [ ] Build High-Risk / Defaulters List

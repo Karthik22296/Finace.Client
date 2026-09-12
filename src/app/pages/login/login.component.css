@@ -10,19 +10,6 @@
   }
 }
 
-/* Mesh Gradient Animation */
-@keyframes gradientMesh {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
 .login-split-container {
   display: flex;
   height: 100vh;
@@ -30,14 +17,11 @@
   overflow: hidden;
 }
 
-/* Left Panel: Soft Animated Mesh Gradient */
+/* Left Panel: Clean Light Gray */
 .login-brand-panel {
   flex: 1;
-  /* Modern trust colors: Pale blue and mint green */
-  background: linear-gradient(-45deg, #e0f2fe, #d1fae5, #f0fdf4, #e0f2fe);
-  background-size: 400% 400%;
-  animation: gradientMesh 15s ease infinite;
-  color: #0f172a; /* Dark slate text for high contrast on light bg */
+  background: var(--color-header);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,7 +45,7 @@
   height: 56px;
   width: 56px;
   margin-bottom: 24px;
-  color: #2563eb; /* Trust blue icon */
+  color: var(--color-text);
 }
 
 .brand-content h2 {
@@ -74,32 +58,28 @@
 
 .brand-content p {
   font-size: 20px;
-  color: #475569; /* Slate gray text */
+  color: var(--color-text-secondary);
   line-height: 1.5;
   margin: 0;
 }
 
-/* Right Panel: White login form with Dot Grid */
+/* Right Panel: White login form */
 .login-form-panel {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
-  /* Modern subtle dot grid */
-  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-color: var(--color-surface);
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
   padding: 48px 40px;
-  background: #ffffff;
-  /* Add a soft shadow so it pops off the dot grid slightly */
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0,0,0,0.02);
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
   animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -112,13 +92,13 @@
   font-size: 28px;
   font-weight: 600;
   margin: 0 0 8px 0;
-  color: #111111;
+  color: var(--color-text);
   letter-spacing: -0.5px;
 }
 
 .elegant-subtitle {
   font-size: 15px;
-  color: #666666;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
@@ -136,18 +116,13 @@ mat-form-field {
 .login-btn {
   margin-top: 16px;
   padding: 24px 0;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  /* Rich Trust-Blue Gradient */
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  color: #ffffff !important;
-  border-radius: 8px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .login-btn:hover:not([disabled]) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
 }
 
 .btn-content {

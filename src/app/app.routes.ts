@@ -8,6 +8,9 @@ import { CustomerDetailComponent } from './pages/customers/customer-detail/custo
 import { LoansListComponent } from './pages/loans/loans-list/loans-list.component';
 import { AuthGuard } from './core/guards/auth.guard';
 
+import { CollectionRouteComponent } from './pages/collections/collection-route/collection-route.component';
+import { CollectionVerifyComponent } from './pages/collections/collection-verify/collection-verify.component';
+
 export const routes: Routes = [
   {
     path: 'login',
@@ -24,7 +27,8 @@ export const routes: Routes = [
       { path: 'customers/new', component: CustomerCreateComponent },
       { path: 'customers/:id', component: CustomerDetailComponent },
       { path: 'loans', component: LoansListComponent },
-      // { path: 'collections', component: CollectionsComponent },
+      { path: 'collections/route', component: CollectionRouteComponent },
+      { path: 'collections/verify', component: CollectionVerifyComponent },
       // { path: 'reports', component: ReportsComponent },
     ]
   },

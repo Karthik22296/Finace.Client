@@ -11,9 +11,13 @@
     <mat-icon matListItemIcon>monetization_on</mat-icon>
     <span matListItemTitle>Loans</span>
   </a>
-  <a mat-list-item routerLink="/collections" routerLinkActive="active-link" (click)="onNavClick()">
-    <mat-icon matListItemIcon>receipt</mat-icon>
-    <span matListItemTitle>Collections</span>
+  <a mat-list-item routerLink="/collections/route" routerLinkActive="active-link" (click)="onNavClick()">
+    <mat-icon matListItemIcon>directions_run</mat-icon>
+    <span matListItemTitle>Daily Route</span>
+  </a>
+  <a mat-list-item routerLink="/collections/verify" routerLinkActive="active-link" (click)="onNavClick()">
+    <mat-icon matListItemIcon>fact_check</mat-icon>
+    <span matListItemTitle>Verifications</span>
   </a>
   <a mat-list-item routerLink="/reports" routerLinkActive="active-link" (click)="onNavClick()">
     <mat-icon matListItemIcon>bar_chart</mat-icon>
