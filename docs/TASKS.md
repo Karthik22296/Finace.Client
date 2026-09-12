@@ -1,0 +1,26 @@
+# 100-Day Microfinance Loan Application Tasks
+
+- [ ] **Phase 1: Setup & Base Layout**
+  - [ ] Implement standard Material Sidenav layout
+  - [ ] Implement Top Toolbar (with User Profile/Logout UI)
+  - [ ] Setup Angular routing structure
+- [ ] **Phase 2: Authentication & Authorization**
+  - [ ] Build Login Component (`/login`)
+  - [ ] Implement Auth Interceptor to handle tokens
+  - [ ] Implement Role-Based Route Guards (Manager vs. Collector)
+- [ ] **Phase 3: Customer Management**
+  - [ ] Build Customer List Table (with search and pagination)
+  - [ ] Build Customer Creation Form
+  - [ ] Build Customer Profile Detail View
+- [ ] **Phase 4: Loan Origination & Management**
+  - [ ] Build Loan Creation Wizard (Select Customer, Branch, Principal)
+  - [ ] Implement auto-calculator for 100-day payment schedule
+  - [ ] Build Loan Status Tracker View
+- [ ] **Phase 5: Daily Collection Module**
+  - [ ] Build Collector's Route List (Mobile-optimized View)
+  - [ ] Build Payment Entry Screen
+  - [ ] Build Manager Verification Pipeline (Grid with Verify/Approve/Reject actions)
+- [ ] **Phase 6: Analytics & Reports**
+  - [ ] Build Main Dashboard (KPIs: Today's Target, Collected Amount)
+  - [ ] Build High-Risk / Defaulters List
+  - [ ] Build Customer Ledger Statement View
