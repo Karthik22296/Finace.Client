@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>Create 100-Day Loan</h2>
+
+<mat-dialog-content>
+  <div class="form-container">
+
+    <form [formGroup]="loanForm" (ngSubmit)="onSubmit()" class="loan-form">
+      
+      <!-- Customer Select -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Customer</mat-label>
+          <mat-select formControlName="customerId" placeholder="Select Customer">
+            <mat-option *ngFor="let customer of customers" [value]="customer.customerId">
+              {{ customer.fullName }} ({{ customer.customerCode }})
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="loanForm.get('customerId')?.hasError('required')">
+            Customer is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Loan Number & Start Date -->
+      <div class="form-row split-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Loan Number</mat-label>
+          <input matInput formControlName="loanNumber" placeholder="e.g. LN-001">
+          <mat-error *ngIf="loanForm.get('loanNumber')?.hasError('required')">
+            Required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Start Date</mat-label>
+          <input matInput type="date" formControlName="startDate">
+          <mat-error *ngIf="loanForm.get('startDate')?.hasError('required')">
+            Required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Principal & Interest -->
+      <div class="form-row split-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Principal Amount ($)</mat-label>
+          <input matInput type="number" formControlName="loanAmount" placeholder="e.g. 10000">
+          <mat-error *ngIf="loanForm.get('loanAmount')?.hasError('required')">
+            Required
+          </mat-error>
+          <mat-error *ngIf="loanForm.get('loanAmount')?.hasError('min')">
+            Min amount is 100
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Flat Interest Rate (%)</mat-label>
+          <input matInput type="number" formControlName="interestRate" placeholder="20">
+          <mat-error *ngIf="loanForm.get('interestRate')?.hasError('required')">
+            Required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Calculation Summary Panel -->
+      <div class="calculation-panel">
+        <div class="calc-row">
+          <span>Repayment Scheme:</span>
+          <strong>100 Days</strong>
+        </div>
+        <div class="calc-row highlight">
+          <span>Expected Daily Due:</span>
+          <strong class="daily-due">{{ dailyDueAmount | currency }} / day</strong>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="loanForm.invalid || isLoading">
+    <mat-icon>monetization_on</mat-icon>
+    Create Loan
+  </button>
+</mat-dialog-actions>

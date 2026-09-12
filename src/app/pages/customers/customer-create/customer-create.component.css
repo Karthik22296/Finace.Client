@@ -1,46 +1,6 @@
-.form-container {
-  padding-top: 8px; /* Fixes floating label cut-off at the top boundary */
-  position: relative;
-}
-
-.loading-shade {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.7);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* Dialog layout styles have been refactored to src/styles/dialog-layout.css */
 
 .customer-form {
   display: flex;
   flex-direction: column;
-}
-
-.form-row {
-  margin-bottom: 8px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-::ng-deep .mat-mdc-dialog-title {
-  margin: 0 !important;
-  padding: 24px 24px 16px 24px !important;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-}
-
-::ng-deep .mat-mdc-dialog-content {
-  padding: 0 24px !important;
-}
-
-::ng-deep .mat-mdc-dialog-actions {
-  padding: 16px 24px 24px 24px !important;
 }

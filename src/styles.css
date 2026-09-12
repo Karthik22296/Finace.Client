@@ -1,9 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('./styles/table-layout.css');
+@import url('./styles/dialog-layout.css');
 
 html, body { height: 100%; }
 body { 
     margin: 0; 
     font-family: Roboto, "Helvetica Neue", sans-serif; 
-    background-color: #ffffff !important; 
-    color: #000000 !important; 
+    background-color: #ffffff; 
+    color: #000000; 
 }

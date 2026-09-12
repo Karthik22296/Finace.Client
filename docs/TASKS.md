@@ -15,10 +15,10 @@
   - [x] Build Customer Profile Detail View
   - [x] Integrate backend API endpoints seamlessly (`customerGetAll`, `customerCreate`)
   - [x] Upgrade UI to modern premium SaaS design (avatars, inline column filters, popup dialogs)
-- [ ] **Phase 4: Loan Origination & Management**
-  - [ ] Build Loan Creation Wizard (Select Customer, Branch, Principal)
-  - [ ] Implement auto-calculator for 100-day payment schedule
-  - [ ] Build Loan Status Tracker View
+- [x] **Phase 4: Loan Origination & Management**
+  - [x] Build Loan Creation Wizard (Select Customer, Branch, Principal)
+  - [x] Implement auto-calculator for 100-day payment schedule
+  - [x] Build Loan Status Tracker View
 - [ ] **Phase 5: Daily Collection Module**
   - [ ] Build Collector's Route List (Mobile-optimized View)
   - [ ] Build Payment Entry Screen
