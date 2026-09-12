@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, from, throwError } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { ApiConfiguration } from '../../../api/api-configuration';
+import { authLogin } from '../../../api/fn/auth/auth-login';
 
 @Injectable({
   providedIn: 'root'
@@ -13,16 +16,28 @@ export class AuthService {
   private authStatusSubject = new BehaviorSubject<boolean>(this.hasToken());
   public authStatus$ = this.authStatusSubject.asObservable();
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private config: ApiConfiguration
+  ) { }
 
-  // Mock login for UI development
   login(username: string, password: string): Observable<boolean> {
-    // Replace this with actual API call to api/fn/auth/auth-login later
-    return of(true).pipe(
-      delay(500),
-      tap(() => {
-        this.setToken('mock-jwt-token');
-        this.setRole(username === 'admin' ? 'Admin' : 'Collector');
+    return authLogin(this.http, this.config.rootUrl, { 
+      body: { usernameOrEmail: username, password } 
+    }).pipe(
+      switchMap(async (response) => {
+        // The generated client treats text/plain or binary responses as Blobs
+        const token = await response.body.text();
+        this.setToken(token);
+        
+        // Basic role assignment (can be upgraded to JWT decoding later)
+        this.setRole(username.toLowerCase().includes('admin') ? 'Admin' : 'Collector');
+        return true;
+      }),
+      catchError(error => {
+        console.error('Login failed', error);
+        return throwError(() => new Error('Invalid credentials or server error'));
       })
     );
   }
