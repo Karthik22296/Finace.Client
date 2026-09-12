@@ -28,8 +28,25 @@ export class AuthService {
     }).pipe(
       switchMap(async (response) => {
         // The generated client treats text/plain or binary responses as Blobs
-        const token = await response.body.text();
-        this.setToken(token);
+        let tokenStr = await response.body.text();
+        console.log('Raw token string from backend:', tokenStr);
+        
+        try {
+          // Sometimes the backend returns a JSON object like { "token": "..." }
+          const parsed = JSON.parse(tokenStr);
+          if (parsed && parsed.token) {
+            tokenStr = parsed.token;
+          } else if (parsed && parsed.accessToken) {
+            tokenStr = parsed.accessToken;
+          }
+        } catch (e) {
+          // It's just a raw string, continue
+        }
+
+        // Strip any surrounding quotes and whitespace
+        const finalToken = tokenStr.replace(/^"|"$/g, '').trim();
+        console.log('Final extracted token:', finalToken.substring(0, 20) + '...');
+        this.setToken(finalToken);
         
         // Basic role assignment (can be upgraded to JWT decoding later)
         this.setRole(username.toLowerCase().includes('admin') ? 'Admin' : 'Collector');

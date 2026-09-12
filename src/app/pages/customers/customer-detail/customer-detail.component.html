@@ -1,0 +1,70 @@
+<div class="page-container">
+  <div class="page-header">
+    <button mat-icon-button routerLink="/customers" class="back-btn" aria-label="Back to customers">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-titles" *ngIf="customer; else loadingTitle">
+      <h1>{{ customer.fullName }}</h1>
+      <p>{{ customer.customerCode }} • {{ customer.isActive ? 'Active' : 'Inactive' }}</p>
+    </div>
+    <ng-template #loadingTitle>
+      <div class="header-titles">
+        <h1>Loading...</h1>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="loading-shade" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="error-shade" *ngIf="error">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button routerLink="/customers">Go Back</button>
+  </div>
+
+  <div *ngIf="!isLoading && customer" class="detail-content">
+    
+    <!-- Customer Info Card -->
+    <mat-card class="profile-card mat-elevation-z1">
+      <mat-card-content>
+        <div class="profile-grid">
+          <div class="info-group">
+            <label>Mobile Number</label>
+            <p>{{ customer.mobileNumber }}</p>
+          </div>
+          <div class="info-group">
+            <label>Registered Date</label>
+            <p>{{ customer.createdAt | date:'mediumDate' }}</p>
+          </div>
+          <div class="info-group full-width">
+            <label>Address</label>
+            <p>{{ customer.address || 'No address provided' }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tabs for Loans and Ledger -->
+    <mat-card class="tabs-card mat-elevation-z1">
+      <mat-tab-group animationDuration="0ms">
+        <mat-tab label="Active Loans">
+          <div class="tab-content placeholder-content">
+            <mat-icon class="placeholder-icon">monetization_on</mat-icon>
+            <h3>Loan Management</h3>
+            <p>Loan origination and status tracking will be implemented in Phase 4.</p>
+          </div>
+        </mat-tab>
+        <mat-tab label="Ledger & Statements">
+          <div class="tab-content placeholder-content">
+            <mat-icon class="placeholder-icon">receipt</mat-icon>
+            <h3>Ledger Statements</h3>
+            <p>Detailed day-by-day ledgers will be available in Phase 6.</p>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+
+  </div>
+</div>

@@ -1,0 +1,64 @@
+<h2 mat-dialog-title>New Customer</h2>
+
+<mat-dialog-content>
+  <div class="form-container">
+    <div class="loading-shade" *ngIf="isLoading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()" class="customer-form">
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Customer Code</mat-label>
+          <input matInput formControlName="customerCode" placeholder="e.g. CUST-001">
+          <mat-error *ngIf="customerForm.get('customerCode')?.hasError('required')">
+            Customer Code is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="fullName" placeholder="e.g. John Doe">
+          <mat-error *ngIf="customerForm.get('fullName')?.hasError('required')">
+            Full Name is required
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('fullName')?.hasError('minlength')">
+            Minimum 3 characters required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mobile Number</mat-label>
+          <input matInput formControlName="mobileNumber" placeholder="10-digit number">
+          <mat-error *ngIf="customerForm.get('mobileNumber')?.hasError('required')">
+            Mobile Number is required
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('mobileNumber')?.hasError('pattern')">
+            Must be exactly 10 digits
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Address (Optional)</mat-label>
+          <textarea matInput formControlName="address" rows="3" placeholder="Full residential address"></textarea>
+        </mat-form-field>
+      </div>
+
+    </form>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="customerForm.invalid || isLoading">
+    <mat-icon>save</mat-icon>
+    Save Customer
+  </button>
+</mat-dialog-actions>
