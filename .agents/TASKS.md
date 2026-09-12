@@ -1,9 +1,9 @@
 # 100-Day Microfinance Loan Application Tasks
 
-- [ ] **Phase 1: Setup & Base Layout**
-  - [ ] Implement standard Material Sidenav layout
-  - [ ] Implement Top Toolbar (with User Profile/Logout UI)
-  - [ ] Setup Angular routing structure
+- [x] **Phase 1: Setup & Base Layout**
+  - [x] Implement standard Material Sidenav layout
+  - [x] Implement Top Toolbar (with User Profile/Logout UI)
+  - [x] Setup Angular routing structure
 - [ ] **Phase 2: Authentication & Authorization**
   - [ ] Build Login Component (`/login`)
   - [ ] Implement Auth Interceptor to handle tokens
