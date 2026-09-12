@@ -13,7 +13,7 @@ export class AuthService {
   private authStatusSubject = new BehaviorSubject<boolean>(this.hasToken());
   public authStatus$ = this.authStatusSubject.asObservable();
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   // Mock login for UI development
   login(username: string, password: string): Observable<boolean> {

@@ -1,32 +1,128 @@
-.login-container {
+/* Subtle fade-in and slide-up animation */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mesh Gradient Animation */
+@keyframes gradientMesh {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.login-split-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
-  background-color: #fafafa;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Left Panel: Soft Animated Mesh Gradient */
+.login-brand-panel {
+  flex: 1;
+  /* Modern trust colors: Pale blue and mint green */
+  background: linear-gradient(-45deg, #e0f2fe, #d1fae5, #f0fdf4, #e0f2fe);
+  background-size: 400% 400%;
+  animation: gradientMesh 15s ease infinite;
+  color: #0f172a; /* Dark slate text for high contrast on light bg */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* Hide on tablet/mobile so form takes full width */
+@media (max-width: 900px) {
+  .login-brand-panel {
+    display: none;
+  }
+}
+
+.brand-content {
+  max-width: 440px;
+  animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.brand-icon {
+  font-size: 56px;
+  height: 56px;
+  width: 56px;
+  margin-bottom: 24px;
+  color: #2563eb; /* Trust blue icon */
+}
+
+.brand-content h2 {
+  font-size: 42px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+
+.brand-content p {
+  font-size: 20px;
+  color: #475569; /* Slate gray text */
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Right Panel: White login form with Dot Grid */
+.login-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  /* Modern subtle dot grid */
+  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  max-width: 420px;
+  padding: 48px 40px;
+  background: #ffffff;
+  /* Add a soft shadow so it pops off the dot grid slightly */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0,0,0,0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-mat-card-title {
-  font-size: 24px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  text-align: center;
+/* Elegant Header Styling */
+.elegant-header {
+  margin-bottom: 40px;
 }
 
-mat-card-subtitle {
-  text-align: center;
-  margin-bottom: 24px;
+.elegant-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #111111;
+  letter-spacing: -0.5px;
 }
 
+.elegant-subtitle {
+  font-size: 15px;
+  color: #666666;
+  margin: 0;
+}
+
+/* Form layout */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -39,11 +135,19 @@ mat-form-field {
 
 .login-btn {
   margin-top: 16px;
-  padding: 8px 0;
-  font-size: 16px;
+  padding: 24px 0;
+  font-size: 15px;
   font-weight: 500;
-  background-color: #000000 !important;
+  /* Rich Trust-Blue Gradient */
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
   color: #ffffff !important;
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-btn:hover:not([disabled]) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
 }
 
 .btn-content {
