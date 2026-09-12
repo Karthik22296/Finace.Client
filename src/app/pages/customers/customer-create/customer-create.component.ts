@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { customerCreate } from '../../../../api/fn/customer/customer-create';
 import { ApiConfiguration } from '../../../../api/api-configuration';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-customer-create',
@@ -36,7 +37,7 @@ export class CustomerCreateComponent {
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
   private dialogRef = inject(MatDialogRef<CustomerCreateComponent>);
-  private snackBar = inject(MatSnackBar);
+  private toastService = inject(ToastService);
 
   isLoading = false;
 
@@ -65,22 +66,13 @@ export class CustomerCreateComponent {
       }).subscribe({
         next: () => {
           this.isLoading = false;
-          this.snackBar.open('Customer created successfully', 'Close', { 
-            duration: 10000, 
-            horizontalPosition: 'center', 
-            verticalPosition: 'top' 
-          });
+          this.toastService.success('Customer created successfully');
           this.dialogRef.close(true);
         },
         error: (err) => {
           this.isLoading = false;
           console.error('Error creating customer', err);
-          this.snackBar.open('Failed to create customer', 'Close', { 
-            duration: 10000, 
-            horizontalPosition: 'center', 
-            verticalPosition: 'top',
-            panelClass: ['error-snackbar'] 
-          });
+          this.toastService.error('Failed to create customer');
         }
       });
     }

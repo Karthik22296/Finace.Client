@@ -5,7 +5,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CustomersListComponent } from './pages/customers/customers-list/customers-list.component';
 import { CustomerCreateComponent } from './pages/customers/customer-create/customer-create.component';
 import { CustomerDetailComponent } from './pages/customers/customer-detail/customer-detail.component';
-import { AuthGuard } from './core/auth/auth.guard';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
