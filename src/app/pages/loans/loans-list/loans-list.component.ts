@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatCardModule } from '@angular/material/card';
 import { loanGetAll } from '../../../../api/fn/loan/loan-get-all';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Loan } from '../../../../api/models/loan';
@@ -31,7 +32,8 @@ import { BaseTableComponent } from '../../../shared/components/base-table.compon
     MatIconModule,
     MatDialogModule,
     MatCheckboxModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCardModule
   ],
   templateUrl: './loans-list.component.html',
   styleUrls: ['./loans-list.component.css']

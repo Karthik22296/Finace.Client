@@ -12,6 +12,7 @@ import { ApiConfiguration } from '../../../../api/api-configuration';
 import { collectionCreate } from '../../../../api/fn/collection/collection-create';
 import { Loan } from '../../../../api/models/loan';
 import { ToastService } from '../../../core/services/toast.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-collection-create',
@@ -24,7 +25,8 @@ import { ToastService } from '../../../core/services/toast.service';
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatIconModule
   ],
   templateUrl: './collection-create.component.html',
   styleUrls: ['./collection-create.component.css']

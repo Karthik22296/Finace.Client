@@ -3,9 +3,9 @@
 .calculation-panel {
   margin-top: 16px;
   padding: 16px;
-  background-color: #f8f9fa;
+  background-color: var(--color-surface, #f8f9fa);
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border, #e0e0e0);
 }
 
 .calc-row {
@@ -23,11 +23,11 @@
 .calc-row.highlight {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px dashed #ccc;
+  border-top: 1px dashed var(--color-border, #ccc);
   font-size: 16px;
 }
 
 .daily-due {
-  color: #1976d2; /* Primary blue color */
+  color: #111111; /* Changed from blue to match monochrome theme */
   font-size: 20px;
 }

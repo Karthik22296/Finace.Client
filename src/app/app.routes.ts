@@ -10,6 +10,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 
 import { CollectionRouteComponent } from './pages/collections/collection-route/collection-route.component';
 import { CollectionVerifyComponent } from './pages/collections/collection-verify/collection-verify.component';
+import { ReportsComponent } from './pages/reports/reports.component';
 
 export const routes: Routes = [
   {
@@ -29,9 +30,8 @@ export const routes: Routes = [
       { path: 'loans', component: LoansListComponent },
       { path: 'collections/route', component: CollectionRouteComponent },
       { path: 'collections/verify', component: CollectionVerifyComponent },
-      // { path: 'reports', component: ReportsComponent },
+      { path: 'reports', component: ReportsComponent },
     ]
   },
   { path: '**', redirectTo: '' }
 ];
-

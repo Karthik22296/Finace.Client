@@ -54,8 +54,9 @@
 
 <mat-dialog-actions align="end">
   <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
-  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="customerForm.invalid || isLoading">
-    <mat-icon>save</mat-icon>
-    Save Customer
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="customerForm.invalid || isLoading" class="action-button-with-spinner">
+    <mat-spinner *ngIf="isLoading" diameter="20" class="btn-spinner"></mat-spinner>
+    <mat-icon *ngIf="!isLoading">save</mat-icon>
+    <span>{{ isLoading ? 'Saving...' : 'Save Customer' }}</span>
   </button>
 </mat-dialog-actions>

@@ -1,8 +1,8 @@
 .app-footer {
   text-align: center;
   padding: 16px;
-  background-color: #ffffff;
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 0.875rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: var(--color-surface, #ffffff);
+  color: var(--color-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: 14px;
+  border-top: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
 }

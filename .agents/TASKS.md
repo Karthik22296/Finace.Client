@@ -13,15 +13,15 @@
   - [x] Build Customer List Table (with search and pagination)
   - [x] Build Customer Creation Form
   - [x] Build Customer Profile Detail View
-- [ ] **Phase 4: Loan Origination & Management**
-  - [ ] Build Loan Creation Wizard (Select Customer, Branch, Principal)
-  - [ ] Implement auto-calculator for 100-day payment schedule
-  - [ ] Build Loan Status Tracker View
-- [ ] **Phase 5: Daily Collection Module**
-  - [ ] Build Collector's Route List (Mobile-optimized View)
-  - [ ] Build Payment Entry Screen
-  - [ ] Build Manager Verification Pipeline (Grid with Verify/Approve/Reject actions)
-- [ ] **Phase 6: Analytics & Reports**
-  - [ ] Build Main Dashboard (KPIs: Today's Target, Collected Amount)
-  - [ ] Build High-Risk / Defaulters List
-  - [ ] Build Customer Ledger Statement View
+- [x] **Phase 4: Loan Origination & Management**
+  - [x] Build Loan Creation Wizard (Select Customer, Branch, Principal)
+  - [x] Implement auto-calculator for 100-day payment schedule
+  - [x] Build Loan Status Tracker View
+- [x] **Phase 5: Daily Collection Module**
+  - [x] Build Collector's Route List (Mobile-optimized View)
+  - [x] Build Payment Entry Screen
+  - [x] Build Manager Verification Pipeline (Grid with Verify/Approve/Reject actions)
+- [x] **Phase 6: Analytics & Reports**
+  - [x] Build Main Dashboard (KPIs: Today's Target, Collected Amount)
+  - [x] Build High-Risk / Defaulters List
+  - [x] Build Customer Ledger Statement View

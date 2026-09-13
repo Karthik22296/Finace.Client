@@ -10,12 +10,13 @@
 
   <!-- Right Side: Login Form -->
   <div class="login-form-panel">
-    <div class="login-card">
-      <div class="elegant-header">
-        <h1 class="elegant-title">Welcome Back</h1>
-        <p class="elegant-subtitle">Please enter your details to sign in.</p>
-      </div>
+    <mat-card class="login-card">
+      <mat-card-header class="elegant-header">
+        <mat-card-title class="elegant-title">Welcome Back</mat-card-title>
+        <mat-card-subtitle class="elegant-subtitle">Please enter your details to sign in.</mat-card-subtitle>
+      </mat-card-header>
       
+      <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <mat-form-field appearance="outline">
           <mat-label>Username</mat-label>
@@ -34,7 +35,8 @@
         </mat-form-field>
 
         <div *ngIf="error" class="error-message">
-          {{ error }}
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error }}</span>
         </div>
 
         <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid || isLoading" class="login-btn">
@@ -44,6 +46,7 @@
           </div>
         </button>
       </form>
-    </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

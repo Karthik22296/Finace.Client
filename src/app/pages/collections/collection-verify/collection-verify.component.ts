@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatCardModule } from '@angular/material/card';
 import { collectionGetAll } from '../../../../api/fn/collection/collection-get-all';
 import { collectionVerify } from '../../../../api/fn/collection/collection-verify';
 import { collectionApprove } from '../../../../api/fn/collection/collection-approve';
@@ -32,7 +33,8 @@ import { ToastService } from '../../../core/services/toast.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatCheckboxModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCardModule
   ],
   templateUrl: './collection-verify.component.html',
   styleUrls: ['./collection-verify.component.css']

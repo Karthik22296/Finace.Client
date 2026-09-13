@@ -46,7 +46,9 @@
 
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close [disabled]="isLoading">Cancel</button>
-  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="collectionForm.invalid || isLoading">
-    Record Payment
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="collectionForm.invalid || isLoading" class="action-button-with-spinner">
+    <mat-spinner *ngIf="isLoading" diameter="20" class="btn-spinner"></mat-spinner>
+    <mat-icon *ngIf="!isLoading">receipt</mat-icon>
+    <span>{{ isLoading ? 'Recording...' : 'Record Payment' }}</span>
   </button>
 </mat-dialog-actions>

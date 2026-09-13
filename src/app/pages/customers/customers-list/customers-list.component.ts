@@ -16,6 +16,7 @@ import { Customer } from '../../../../api/models/customer';
 import { CustomerCreateComponent } from '../customer-create/customer-create.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatCardModule } from '@angular/material/card';
 import { BaseTableComponent } from '../../../shared/components/base-table.component';
 
 @Component({
@@ -33,7 +34,8 @@ import { BaseTableComponent } from '../../../shared/components/base-table.compon
     MatProgressSpinnerModule,
     MatDialogModule,
     MatCheckboxModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCardModule
   ],
   templateUrl: './customers-list.component.html',
   styleUrls: ['./customers-list.component.css']

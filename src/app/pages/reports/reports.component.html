@@ -1,0 +1,110 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Analytics & Reports</h1>
+    <p class="page-subtitle">Generate and download operational reports in PDF format.</p>
+  </div>
+
+  <mat-card class="app-card no-padding">
+    <mat-tab-group animationDuration="0ms">
+      
+      <!-- Tab 1: Customer Ledger Statement -->
+      <mat-tab label="Customer Ledger">
+        <div class="tab-content">
+          <div class="report-description">
+            <h3>Customer Ledger Statement</h3>
+            <p>Generates a detailed transaction statement for a specific customer over a given date range.</p>
+          </div>
+
+          <div class="form-container">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Customer ID *</mat-label>
+              <input matInput type="number" [(ngModel)]="ledgerForm.customerId" placeholder="e.g. 1042">
+            </mat-form-field>
+
+            <div class="date-row">
+              <mat-form-field appearance="outline" class="form-field half-width">
+                <mat-label>Start Date</mat-label>
+                <input matInput [matDatepicker]="pickerStart" [(ngModel)]="ledgerForm.fromDate">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerStart"></mat-datepicker-toggle>
+                <mat-datepicker #pickerStart></mat-datepicker>
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline" class="form-field half-width">
+                <mat-label>End Date</mat-label>
+                <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="ledgerForm.toDate">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+                <mat-datepicker #pickerEnd></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-flat-button color="primary" (click)="downloadCustomerLedger()" [disabled]="isLedgerLoading || !ledgerForm.customerId">
+                <mat-icon *ngIf="!isLedgerLoading">download</mat-icon>
+                <mat-spinner *ngIf="isLedgerLoading" diameter="20" class="btn-spinner"></mat-spinner>
+                <span>{{ isLedgerLoading ? 'Generating...' : 'Download PDF' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 2: High Risk / Defaulters -->
+      <mat-tab label="High Risk / Defaulters">
+        <div class="tab-content">
+          <div class="report-description">
+            <h3>High Risk & Defaulters List</h3>
+            <p>Generates a report of customers who have missed 3 or more consecutive daily payments.</p>
+          </div>
+
+          <div class="form-container">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Branch ID (Optional)</mat-label>
+              <input matInput type="number" [(ngModel)]="highRiskForm.branchId" placeholder="Leave empty for all branches">
+            </mat-form-field>
+
+            <div class="form-actions">
+              <button mat-flat-button color="primary" (click)="downloadHighRisk()" [disabled]="isHighRiskLoading">
+                <mat-icon *ngIf="!isHighRiskLoading">download</mat-icon>
+                <mat-spinner *ngIf="isHighRiskLoading" diameter="20" class="btn-spinner"></mat-spinner>
+                <span>{{ isHighRiskLoading ? 'Generating...' : 'Download PDF' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 3: Daily Collection -->
+      <mat-tab label="Daily Collection">
+        <div class="tab-content">
+          <div class="report-description">
+            <h3>Daily Collection Report</h3>
+            <p>Generates a summary of all collections received on a specific date, grouped by collector.</p>
+          </div>
+
+          <div class="form-container">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Collection Date *</mat-label>
+              <input matInput [matDatepicker]="pickerCollection" [(ngModel)]="dailyCollectionForm.date">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerCollection"></mat-datepicker-toggle>
+              <mat-datepicker #pickerCollection></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Branch ID (Optional)</mat-label>
+              <input matInput type="number" [(ngModel)]="dailyCollectionForm.branchId" placeholder="Leave empty for all branches">
+            </mat-form-field>
+
+            <div class="form-actions">
+              <button mat-flat-button color="primary" (click)="downloadDailyCollection()" [disabled]="isDailyCollectionLoading || !dailyCollectionForm.date">
+                <mat-icon *ngIf="!isDailyCollectionLoading">download</mat-icon>
+                <mat-spinner *ngIf="isDailyCollectionLoading" diameter="20" class="btn-spinner"></mat-spinner>
+                <span>{{ isDailyCollectionLoading ? 'Generating...' : 'Download PDF' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </mat-card>
+</div>

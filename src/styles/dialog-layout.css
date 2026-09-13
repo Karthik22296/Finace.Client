@@ -35,25 +35,35 @@
   flex: 1;
 }
 
-::ng-deep .mat-mdc-dialog-title {
-  margin: 0 !important;
-  padding: 24px 24px 16px 24px !important;
+body .mat-mdc-dialog-title {
+  margin: 0;
+  padding: 24px 24px 16px 24px;
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.5px;
 }
 
-::ng-deep .mat-mdc-dialog-content {
-  padding: 0 24px !important;
+body .mat-mdc-dialog-content {
+  padding: 0 24px;
 }
 
-::ng-deep .mat-mdc-dialog-actions {
-  padding: 16px 24px 24px 24px !important;
+body .mat-mdc-dialog-actions {
+  padding: 16px 24px 24px 24px;
   gap: 8px; /* SM spacing */
 }
 
 /* Dialog Container overrides */
-::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
-  border-radius: 10px !important;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+body .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.action-button-with-spinner .mdc-button__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-spinner circle {
+  stroke: #ffffff;
 }

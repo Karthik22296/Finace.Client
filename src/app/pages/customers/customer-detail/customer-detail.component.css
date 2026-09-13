@@ -7,12 +7,19 @@
 .page-header {
   display: flex;
   align-items: center;
+  justify-content: flex-start !important; /* Override global table-layout.css space-between */
   margin-bottom: 32px;
 }
 
 .back-btn {
   margin-right: 16px;
-  background-color: #f5f5f5;
+  background-color: var(--color-hover, #f5f5f5);
+}
+
+/* Use standard soft shadow from design rules */
+.profile-card, .tabs-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+  border: 1px solid var(--color-border, #e2e2e2) !important;
 }
 
 .header-titles h1 {
@@ -20,12 +27,12 @@
   font-size: 28px;
   font-weight: 600;
   letter-spacing: -0.5px;
-  color: #111111;
+  color: var(--color-text, #111111);
 }
 
 .header-titles p {
   margin: 4px 0 0 0;
-  color: #666666;
+  color: var(--color-text-secondary, #666666);
   font-size: 15px;
 }
 
@@ -52,7 +59,7 @@
 
 .profile-card {
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--color-surface, #ffffff);
 }
 
 .profile-grid {
@@ -65,7 +72,7 @@
 .info-group label {
   display: block;
   font-size: 13px;
-  color: #666666;
+  color: var(--color-text-secondary, #666666);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -75,7 +82,7 @@
 .info-group p {
   margin: 0;
   font-size: 16px;
-  color: #111111;
+  color: var(--color-text, #111111);
   font-weight: 500;
 }
 
@@ -85,7 +92,7 @@
 
 .tabs-card {
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--color-surface, #ffffff);
   overflow: hidden;
 }
 
@@ -100,10 +107,10 @@
   justify-content: center;
   padding: 64px 24px;
   text-align: center;
-  background-color: #fafafa;
+  background-color: var(--color-surface, #fafafa);
   border-radius: 8px;
   margin: 16px;
-  border: 1px dashed #e0e0e0;
+  border: 1px dashed var(--color-border, #e0e0e0);
 }
 
 .placeholder-icon {
@@ -117,12 +124,12 @@
 .placeholder-content h3 {
   margin: 0 0 8px 0;
   font-size: 20px;
-  color: #333333;
+  color: var(--color-text, #333333);
 }
 
 .placeholder-content p {
   margin: 0;
-  color: #666666;
+  color: var(--color-text-secondary, #666666);
 }
 
 /* Mobile responsive */

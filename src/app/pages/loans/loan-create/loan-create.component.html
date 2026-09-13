@@ -79,8 +79,9 @@
 
 <mat-dialog-actions align="end">
   <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
-  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="loanForm.invalid || isLoading">
-    <mat-icon>monetization_on</mat-icon>
-    Create Loan
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="loanForm.invalid || isLoading" class="action-button-with-spinner">
+    <mat-spinner *ngIf="isLoading" diameter="20" class="btn-spinner"></mat-spinner>
+    <mat-icon *ngIf="!isLoading">monetization_on</mat-icon>
+    <span>{{ isLoading ? 'Creating...' : 'Create Loan' }}</span>
   </button>
 </mat-dialog-actions>

@@ -1,1 +1,50 @@
-<p>dashboard works!</p>
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Overview of today's collection targets and progress.</p>
+  </div>
+
+  <div class="dashboard-grid">
+    <mat-card class="kpi-card">
+      <mat-card-content>
+        <div class="kpi-title">Active Loans</div>
+        <div class="kpi-value">{{ isLoading ? '--' : totalActiveLoans }}</div>
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="kpi-card">
+      <mat-card-content>
+        <div class="kpi-title">Today's Target</div>
+        <div class="kpi-value">{{ isLoading ? '--' : (todaysTarget | currency:'INR':'symbol':'1.0-0') }}</div>
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="kpi-card">
+      <mat-card-content>
+        <div class="kpi-title">Collected Amount</div>
+        <div class="kpi-value highlight-value">
+          <mat-icon class="kpi-icon">trending_up</mat-icon>
+          {{ isLoading ? '--' : (collectedAmount | currency:'INR':'symbol':'1.0-0') }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="kpi-card">
+      <mat-card-content>
+        <div class="kpi-title">Shortfall</div>
+        <div class="kpi-value danger-value">
+          <mat-icon class="kpi-icon">trending_down</mat-icon>
+          {{ isLoading ? '--' : (shortfall | currency:'INR':'symbol':'1.0-0') }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-title">Collection Progress</span>
+      <span class="progress-percentage">{{ collectionProgress }}%</span>
+    </div>
+    <mat-progress-bar mode="determinate" [value]="collectionProgress"></mat-progress-bar>
+  </div>
+</div>

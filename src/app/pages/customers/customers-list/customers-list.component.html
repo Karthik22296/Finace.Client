@@ -12,14 +12,14 @@
     </div>
   </div>
 
-  <div class="table-card mat-elevation-z2">
+  <mat-card class="table-card">
     <!-- Top action bar -->
     <div class="table-header-bar">
       <div class="record-count">{{ dataSource.data.length }} customers</div>
       <div class="action-buttons">
-        <button><mat-icon>view_column</mat-icon> Columns</button>
-        <button><mat-icon>filter_list_off</mat-icon> Clear Filters</button>
-        <button><mat-icon>download</mat-icon> Export <mat-icon>expand_more</mat-icon></button>
+        <button mat-stroked-button><mat-icon>view_column</mat-icon> Columns</button>
+        <button mat-stroked-button><mat-icon>filter_list_off</mat-icon> Clear Filters</button>
+        <button mat-stroked-button><mat-icon>download</mat-icon> Export <mat-icon>expand_more</mat-icon></button>
       </div>
     </div>
 
@@ -135,12 +135,16 @@
         <!-- Row shown when there is no matching data. -->
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell no-data-cell" colspan="5">
-            <div *ngIf="!isLoading">No customers found matching the current filter</div>
+            <div class="empty-state" *ngIf="!isLoading">
+              <mat-icon class="empty-icon">search_off</mat-icon>
+              <h3>No Customers Found</h3>
+              <p>Try adjusting your search filters.</p>
+            </div>
           </td>
         </tr>
       </table>
     </div>
 
     <mat-paginator [pageSizeOptions]="[10, 25, 100]" aria-label="Select page of customers"></mat-paginator>
-  </div>
+  </mat-card>
 </div>

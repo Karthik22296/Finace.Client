@@ -37,67 +37,83 @@ body {
 /* --- ANGULAR MATERIAL OVERRIDES --- */
 
 /* Primary Button (Black) */
-.mat-mdc-unelevated-button[color="primary"], 
-.mat-mdc-raised-button[color="primary"],
-.mat-mdc-fab[color="primary"],
-.mat-mdc-mini-fab[color="primary"] {
-  background-color: #111111 !important;
-  color: #ffffff !important;
-  border-radius: var(--radius-md) !important;
+body .mat-mdc-unelevated-button.mat-primary, 
+body .mat-mdc-raised-button.mat-primary,
+body .mat-mdc-fab.mat-primary,
+body .mat-mdc-mini-fab.mat-primary {
+  background-color: #111111;
+  color: #ffffff;
+  border-radius: var(--radius-md);
 }
 
 /* Secondary Button (Bordered) */
-.mat-mdc-button:not([color="primary"]) {
-  border: 1px solid var(--color-border) !important;
-  background-color: var(--color-surface) !important;
-  color: #222222 !important;
-  border-radius: var(--radius-md) !important;
+body .mat-mdc-button:not(.mat-primary) {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: #222222;
+  border-radius: var(--radius-md);
 }
 
 /* Flat Form Fields */
-.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-notched-outline__leading,
-.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-notched-outline__notch,
-.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-notched-outline__trailing {
-  border-color: var(--color-border) !important;
-  border-width: 1px !important;
+body .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-notched-outline__leading,
+body .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-notched-outline__notch,
+body .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-notched-outline__trailing {
+  border-color: var(--color-border);
+  border-width: 1px;
 }
-.mat-mdc-text-field-wrapper.mdc-text-field--outlined:hover .mdc-notched-outline--upgraded .mdc-notched-outline__leading,
-.mat-mdc-text-field-wrapper.mdc-text-field--outlined:hover .mdc-notched-outline--upgraded .mdc-notched-outline__notch,
-.mat-mdc-text-field-wrapper.mdc-text-field--outlined:hover .mdc-notched-outline--upgraded .mdc-notched-outline__trailing {
-  border-color: #999999 !important;
+
+body .mat-mdc-text-field-wrapper.mdc-text-field--outlined:hover .mdc-notched-outline--upgraded .mdc-notched-outline__leading,
+body .mat-mdc-text-field-wrapper.mdc-text-field--outlined:hover .mdc-notched-outline--upgraded .mdc-notched-outline__notch,
+body .mat-mdc-text-field-wrapper.mdc-text-field--outlined:hover .mdc-notched-outline--upgraded .mdc-notched-outline__trailing {
+  border-color: #999999;
 }
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
-  border-color: #111111 !important;
-  border-width: 1px !important; /* No thick focus ring */
+
+body .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+body .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+body .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: #111111;
+  border-width: 1px;
 }
-.mat-mdc-text-field-wrapper.mdc-text-field--outlined {
-  border-radius: var(--radius-sm) !important;
+
+body .mat-mdc-text-field-wrapper.mdc-text-field--outlined {
+  border-radius: var(--radius-sm);
 }
-.mdc-text-field--outlined .mdc-notched-outline {
-  z-index: 1 !important;
+
+body .mdc-text-field--outlined .mdc-notched-outline {
+  z-index: 1;
 }
 
 /* Labels */
-.mat-mdc-form-field-has-floating-label.mat-form-field-should-float .mat-mdc-form-field-label {
-  color: #111111 !important;
+body .mat-mdc-form-field-has-floating-label.mat-form-field-should-float .mat-mdc-form-field-label {
+  color: #111111;
 }
 
-/* Selection Controls (Checkbox, Radio, Slide Toggle) mapped to Black */
-.mat-mdc-checkbox.mat-primary .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background, 
-.mat-mdc-checkbox.mat-primary .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background,
-.mat-mdc-checkbox.mat-accent .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background, 
-.mat-mdc-checkbox.mat-accent .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {
-  border-color: #111111 !important;
-  background-color: #111111 !important;
+/* Selection Controls (Checkbox, Radio) mapped to Black */
+body .mat-mdc-checkbox.mat-primary .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background, 
+body .mat-mdc-checkbox.mat-primary .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background,
+body .mat-mdc-checkbox.mat-accent .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background, 
+body .mat-mdc-checkbox.mat-accent .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {
+  border-color: #111111;
+  background-color: #111111;
 }
 
-.mat-mdc-radio-button.mat-primary .mdc-radio__native-control:checked + .mdc-radio__background .mdc-radio__outer-circle,
-.mat-mdc-radio-button.mat-accent .mdc-radio__native-control:checked + .mdc-radio__background .mdc-radio__outer-circle {
-  border-color: #111111 !important;
+body .mat-mdc-radio-button.mat-primary .mdc-radio__native-control:checked + .mdc-radio__background .mdc-radio__outer-circle,
+body .mat-mdc-radio-button.mat-accent .mdc-radio__native-control:checked + .mdc-radio__background .mdc-radio__outer-circle {
+  border-color: #111111;
 }
-.mat-mdc-radio-button.mat-primary .mdc-radio__native-control:checked + .mdc-radio__background .mdc-radio__inner-circle,
-.mat-mdc-radio-button.mat-accent .mdc-radio__native-control:checked + .mdc-radio__background .mdc-radio__inner-circle {
-  border-color: #111111 !important;
+body .mat-mdc-radio-button.mat-primary .mdc-radio__native-control:checked + .mdc-radio__background .mdc-radio__inner-circle,
+body .mat-mdc-radio-button.mat-accent .mdc-radio__native-control:checked + .mdc-radio__background .mdc-radio__inner-circle {
+  border-color: #111111;
+}
+
+/* Force monochrome theme for tabs */
+body .mat-mdc-tab .mdc-tab__text-label {
+  color: var(--color-text-secondary, #666666);
+  font-weight: 500;
+}
+body .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: #111111;
+}
+body .mat-mdc-tab .mdc-tab-indicator__content--underline {
+  border-color: #111111;
 }

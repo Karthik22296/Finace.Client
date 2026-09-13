@@ -2338,7 +2338,6 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "customerCode",
           "fullName",
           "mobileNumber"
         ],
@@ -2347,9 +2346,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "customerCode": {
-            "type": "string"
-          },
           "fullName": {
             "type": "string"
           },
@@ -2357,6 +2353,31 @@
             "type": "string"
           },
           "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true
+          },
+          "alternateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "occupationType": {
+            "type": "string",
+            "nullable": true
+          },
+          "idProofType": {
+            "type": "string",
+            "nullable": true
+          },
+          "idProofNumber": {
             "type": "string",
             "nullable": true
           },
@@ -3027,9 +3048,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "customerCode": {
-            "type": "string"
-          },
           "fullName": {
             "type": "string"
           },
@@ -3037,6 +3055,31 @@
             "type": "string"
           },
           "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true
+          },
+          "alternateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "occupationType": {
+            "type": "string",
+            "nullable": true
+          },
+          "idProofType": {
+            "type": "string",
+            "nullable": true
+          },
+          "idProofNumber": {
             "type": "string",
             "nullable": true
           },
@@ -3057,6 +3100,31 @@
             "type": "string"
           },
           "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true
+          },
+          "alternateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "occupationType": {
+            "type": "string",
+            "nullable": true
+          },
+          "idProofType": {
+            "type": "string",
+            "nullable": true
+          },
+          "idProofNumber": {
             "type": "string",
             "nullable": true
           },

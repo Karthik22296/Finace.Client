@@ -6,14 +6,14 @@
     </div>
   </div>
 
-  <div class="table-card mat-elevation-z2">
+  <mat-card class="table-card">
     <!-- Top action bar -->
     <div class="table-header-bar">
       <div class="record-count">{{ dataSource.data.length }} verifications</div>
       <div class="action-buttons">
-        <button><mat-icon>view_column</mat-icon> Columns</button>
-        <button><mat-icon>filter_list_off</mat-icon> Clear Filters</button>
-        <button><mat-icon>download</mat-icon> Export <mat-icon>expand_more</mat-icon></button>
+        <button mat-stroked-button><mat-icon>view_column</mat-icon> Columns</button>
+        <button mat-stroked-button><mat-icon>filter_list_off</mat-icon> Clear Filters</button>
+        <button mat-stroked-button><mat-icon>download</mat-icon> Export <mat-icon>expand_more</mat-icon></button>
       </div>
     </div>
 
@@ -139,13 +139,17 @@
         
         <!-- Empty State -->
         <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell no-data-cell" colspan="7" *ngIf="!isLoading">
-            No collections found matching the filter.
+          <td class="mat-cell no-data-cell" colspan="7">
+            <div class="empty-state" *ngIf="!isLoading">
+              <mat-icon class="empty-icon">check_circle_outline</mat-icon>
+              <h3>No Collections Found</h3>
+              <p>There are no collections matching your filters.</p>
+            </div>
           </td>
         </tr>
       </table>
     </div>
     
     <mat-paginator [pageSizeOptions]="[10, 25, 50]" aria-label="Select page"></mat-paginator>
-  </div>
+  </mat-card>
 </div>
