@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -42,6 +42,16 @@ export class LoansListComponent extends BaseTableComponent<Loan> implements OnIn
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
   private dialog = inject(MatDialog);
+  private location = inject(Location);
+  private router = inject(Router);
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   displayedColumns: string[] = ['loanNumber', 'customerName', 'loanAmount', 'balanceAmount', 'startDate', 'status', 'actions'];
   filterColumns: string[] = ['loanNumberFilter', 'customerNameFilter', 'loanAmountFilter', 'balanceAmountFilter', 'startDateFilter', 'statusFilter', 'actionsFilter'];

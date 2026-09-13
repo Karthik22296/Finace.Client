@@ -1,50 +1,259 @@
-<div class="page-container">
-  <div class="page-header">
-    <h1 class="page-title">Dashboard</h1>
-    <p class="page-subtitle">Overview of today's collection targets and progress.</p>
-  </div>
+<div class="dashboard-root">
 
-  <div class="dashboard-grid">
-    <mat-card class="kpi-card">
-      <mat-card-content>
-        <div class="kpi-title">Active Loans</div>
-        <div class="kpi-value">{{ isLoading ? '--' : totalActiveLoans }}</div>
-      </mat-card-content>
-    </mat-card>
-    
-    <mat-card class="kpi-card">
-      <mat-card-content>
-        <div class="kpi-title">Today's Target</div>
-        <div class="kpi-value">{{ isLoading ? '--' : (todaysTarget | currency:'INR':'symbol':'1.0-0') }}</div>
-      </mat-card-content>
-    </mat-card>
-    
-    <mat-card class="kpi-card">
-      <mat-card-content>
-        <div class="kpi-title">Collected Amount</div>
-        <div class="kpi-value highlight-value">
-          <mat-icon class="kpi-icon">trending_up</mat-icon>
-          {{ isLoading ? '--' : (collectedAmount | currency:'INR':'symbol':'1.0-0') }}
-        </div>
-      </mat-card-content>
-    </mat-card>
-    
-    <mat-card class="kpi-card">
-      <mat-card-content>
-        <div class="kpi-title">Shortfall</div>
-        <div class="kpi-value danger-value">
-          <mat-icon class="kpi-icon">trending_down</mat-icon>
-          {{ isLoading ? '--' : (shortfall | currency:'INR':'symbol':'1.0-0') }}
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <div class="progress-section">
-    <div class="progress-header">
-      <span class="progress-title">Collection Progress</span>
-      <span class="progress-percentage">{{ collectionProgress }}%</span>
+  <!-- ── TOP ROW: Greeting + Date ───────────────────────────── -->
+  <div class="dash-top-row">
+    <div class="dash-greeting">
+      <h1 class="greeting-title">{{ greeting }}, {{ userName }}!</h1>
+      <p class="greeting-sub">Here's what's happening at Finance.Client today.</p>
     </div>
-    <mat-progress-bar mode="determinate" [value]="collectionProgress"></mat-progress-bar>
+    <div class="dash-date-box">
+      <mat-icon class="date-icon">calendar_today</mat-icon>
+      <div>
+        <div class="date-label">{{ todayFormatted }}</div>
+        <div class="date-sub">Have a productive day!</div>
+      </div>
+    </div>
   </div>
+
+  <!-- ── KPI CARDS ─────────────────────────────────────────── -->
+  <div class="kpi-row">
+
+    <!-- Total Customers -->
+    <mat-card class="kpi-card" (click)="onKpiClick('customers')" style="cursor: pointer;">
+      <mat-card-content class="kpi-content">
+        <div class="kpi-icon-wrap kpi-blue">
+          <mat-icon>people_alt</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-label">Total Customers</div>
+          <div class="kpi-value">{{ isLoading ? '—' : totalCustomers | number }}</div>
+          <div class="kpi-trend kpi-trend--up">
+            <mat-icon>arrow_upward</mat-icon>12% <span>vs last month</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Active Loans -->
+    <mat-card class="kpi-card" (click)="onKpiClick('loans')" style="cursor: pointer;">
+      <mat-card-content class="kpi-content">
+        <div class="kpi-icon-wrap kpi-green">
+          <mat-icon>description</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-label">Active Loans</div>
+          <div class="kpi-value">{{ isLoading ? '—' : totalActiveLoans | number }}</div>
+          <div class="kpi-trend kpi-trend--up">
+            <mat-icon>arrow_upward</mat-icon>8% <span>vs last month</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Collection Today -->
+    <mat-card class="kpi-card" (click)="onKpiClick('collections')" style="cursor: pointer;">
+      <mat-card-content class="kpi-content">
+        <div class="kpi-icon-wrap kpi-orange">
+          <mat-icon>currency_rupee</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-label">Collection Today</div>
+          <div class="kpi-value">{{ isLoading ? '—' : (collectedAmount | currency:'INR':'symbol':'1.0-0') }}</div>
+          <div class="kpi-trend kpi-trend--up">
+            <mat-icon>arrow_upward</mat-icon>15% <span>vs yesterday</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Portfolio Outstanding -->
+    <mat-card class="kpi-card" (click)="onKpiClick('portfolio')" style="cursor: pointer;">
+      <mat-card-content class="kpi-content">
+        <div class="kpi-icon-wrap kpi-purple">
+          <mat-icon>bar_chart</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-label">Portfolio Outstanding</div>
+          <div class="kpi-value">{{ isLoading ? '—' : (todaysTarget | currency:'INR':'symbol':'1.0-0') }}</div>
+          <div class="kpi-trend kpi-trend--up">
+            <mat-icon>arrow_upward</mat-icon>6% <span>vs last month</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- ── MIDDLE ROW: Chart + Portfolio + Quick Actions ─────── -->
+  <div class="mid-row">
+
+    <!-- Collection Trend Chart -->
+    <mat-card class="chart-card">
+      <mat-card-content>
+        <div class="chart-header">
+          <span class="chart-title">Collection Trend</span>
+          <div class="chart-tabs">
+            <button *ngFor="let tab of trendTabs"
+                    class="chart-tab"
+                    [class.chart-tab--active]="activeTrendTab === tab"
+                    (click)="onSelectTrendTab(tab)">{{ tab }}</button>
+          </div>
+        </div>
+        <div class="bar-chart">
+          <div class="bar-y-axis">
+            <span>20</span><span>15</span><span>10</span><span>5</span><span>0</span>
+          </div>
+          <div class="bars-area">
+            <div class="bar-group" *ngFor="let bar of chartBars">
+              <div class="bar-pair">
+                <div class="bar bar--collection" [style.height.%]="bar.collection"></div>
+                <div class="bar bar--target" [style.height.%]="bar.target"></div>
+              </div>
+              <span class="bar-label">{{ bar.label }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-dot legend-dot--collection"></span> Collections
+          <span class="legend-dot legend-dot--target" style="margin-left:16px"></span> Target
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Loan Portfolio Donut -->
+    <mat-card class="portfolio-card">
+      <mat-card-content>
+        <div class="chart-title" style="margin-bottom:16px">Loan Portfolio</div>
+        <div class="donut-wrap">
+          <div class="donut-chart" [style.background]="donutGradient">
+            <div class="donut-hole">
+              <span class="donut-value">{{ totalPortfolioValue ? (totalPortfolioValue | currency:'INR':'symbol':'1.0-0') : '₹0' }}</span>
+              <span class="donut-sub">Total Portfolio</span>
+            </div>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="donut-legend-item">
+            <span class="donut-dot donut-dot--active"></span>
+            <span class="dl-label">Active</span>
+            <span class="dl-pct">{{ activeLoanPct }}%</span>
+          </div>
+          <div class="donut-legend-item">
+            <span class="donut-dot donut-dot--overdue"></span>
+            <span class="dl-label">Overdue</span>
+            <span class="dl-pct">{{ overdueLoanPct }}%</span>
+          </div>
+          <div class="donut-legend-item">
+            <span class="donut-dot donut-dot--npa"></span>
+            <span class="dl-label">NPA</span>
+            <span class="dl-pct">{{ npaLoanPct }}%</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Quick Actions -->
+    <mat-card class="quick-actions-card">
+      <mat-card-content>
+        <div class="chart-title" style="margin-bottom:12px">Quick Actions</div>
+        <div class="qa-list">
+          <button class="qa-btn" (click)="openNewCustomerDialog()">
+            <div class="qa-icon-wrap qa-blue"><mat-icon>person_add</mat-icon></div>
+            <span class="qa-label">Add New Customer</span>
+            <mat-icon class="qa-arrow">chevron_right</mat-icon>
+          </button>
+          <button class="qa-btn" (click)="openNewLoanDialog()">
+            <div class="qa-icon-wrap qa-green"><mat-icon>description</mat-icon></div>
+            <span class="qa-label">New Loan Application</span>
+            <mat-icon class="qa-arrow">chevron_right</mat-icon>
+          </button>
+          <button class="qa-btn" routerLink="/collections/route">
+            <div class="qa-icon-wrap qa-orange"><mat-icon>currency_rupee</mat-icon></div>
+            <span class="qa-label">Record Collection</span>
+            <mat-icon class="qa-arrow">chevron_right</mat-icon>
+          </button>
+          <button class="qa-btn" routerLink="/collections/verify">
+            <div class="qa-icon-wrap qa-purple"><mat-icon>upload</mat-icon></div>
+            <span class="qa-label">Loan Disbursement</span>
+            <mat-icon class="qa-arrow">chevron_right</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- ── BOTTOM ROW: Recent Activities + Reminders ─────────── -->
+  <div class="bottom-row">
+
+    <!-- Recent Activities -->
+    <mat-card class="activities-card">
+      <mat-card-content>
+        <div class="section-header">
+          <span class="chart-title">Recent Activities</span>
+          <a class="view-all-link" routerLink="/reports">View All</a>
+        </div>
+        <table class="activity-table">
+          <thead>
+            <tr>
+              <th>Date &amp; Time</th>
+              <th>Customer Name</th>
+              <th>Activity</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let act of recentActivities">
+              <td class="act-date">{{ act.date }}</td>
+              <td>
+                <a class="cust-link" [routerLink]="['/customers', act.customerId]">{{ act.customerName }}</a>
+              </td>
+              <td class="act-type">{{ act.activity }}</td>
+              <td class="act-amount">{{ act.amount }}</td>
+              <td>
+                <span class="status-chip"
+                      [class.chip--success]="act.status === 'Success'"
+                      [class.chip--pending]="act.status === 'Pending'"
+                      [class.chip--overdue]="act.status === 'Overdue'">
+                  {{ act.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Today's Reminders -->
+    <mat-card class="reminders-card">
+      <mat-card-content>
+        <div class="section-header">
+          <span class="chart-title">Today's Reminders</span>
+          <button class="view-all-link-btn" (click)="onViewAllReminders()">View All</button>
+        </div>
+        <div class="reminder-list">
+          <div class="reminder-item" *ngFor="let r of reminders" (click)="onReminderClick(r)" [class.reminder-item--completed]="r.isCompleted" style="cursor: pointer;">
+            <div class="reminder-time-col">
+              <span class="reminder-time">{{ r.time }}</span>
+            </div>
+            <div class="reminder-icon-wrap" [class]="'ri-' + r.type">
+              <mat-icon>{{ r.isCompleted ? 'check_circle' : r.icon }}</mat-icon>
+            </div>
+            <div class="reminder-body">
+              <div class="reminder-title" [style.text-decoration]="r.isCompleted ? 'line-through' : 'none'">{{ r.title }}</div>
+              <div class="reminder-sub">{{ r.sub }}</div>
+            </div>
+          </div>
+        </div>
+        <!-- Quote -->
+        <div class="dash-quote">
+          <mat-icon class="quote-icon">format_quote</mat-icon>
+          <p>Small steps create big opportunities.</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
 </div>

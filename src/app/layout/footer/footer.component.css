@@ -1,8 +1,30 @@
 .app-footer {
-  text-align: center;
-  padding: 16px;
-  background-color: var(--color-surface, #ffffff);
-  color: var(--color-text-secondary, rgba(0, 0, 0, 0.6));
-  font-size: 14px;
-  border-top: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 32px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.footer-trust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-sep {
+  color: var(--color-border);
+}
+
+@media (max-width: 599px) {
+  .app-footer {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+    padding: 12px 16px;
+  }
 }

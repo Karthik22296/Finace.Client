@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,9 +30,19 @@ export class CollectionRouteComponent implements OnInit {
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
   private dialog = inject(MatDialog);
+  private location = inject(Location);
+  private router = inject(Router);
 
   activeLoans: Loan[] = [];
   isLoading = true;
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   ngOnInit(): void {
     this.loadActiveLoans();
@@ -44,8 +55,6 @@ export class CollectionRouteComponent implements OnInit {
         try {
           const text = await response.body.text();
           const loans: Loan[] = text ? JSON.parse(text) : [];
-          // Assuming status 0 means Active. We should probably filter it.
-          // In a real app we'd pass status=Active to the API if it supported it.
           this.activeLoans = loans.filter(l => l.status === 0);
         } catch (e) {
           console.error('Failed to parse loans', e);
@@ -68,8 +77,9 @@ export class CollectionRouteComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        // We could refresh or show a success message
+        this.loadActiveLoans();
       }
     });
   }
 }
+

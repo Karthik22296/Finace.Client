@@ -1,25 +1,118 @@
-::ng-deep .mat-mdc-list-item {
-  transition: background-color 0.2s ease;
-  border-radius: 0;
-  margin: 0;
+/* ===================================================
+   SIDENAV
+   =================================================== */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-::ng-deep .mat-mdc-list-item .mdc-list-item__primary-text,
-::ng-deep .mat-mdc-list-item .mat-icon {
+.sidenav-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  padding-top: 8px;
+}
+
+.sidenav-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.nav-list {
+  padding: 4px 8px !important;
+}
+
+/* Nav Item base */
+.nav-item {
+  border-radius: var(--radius-lg) !important;
+  margin-bottom: 2px !important;
+  height: 44px !important;
+  transition: background 0.15s ease;
+}
+
+.nav-item:hover:not(.nav-active) {
+  background: var(--color-hover) !important;
+}
+
+/* Icon */
+.nav-icon {
+  font-size: 20px !important;
+  height: 20px !important;
+  width: 20px !important;
+  color: var(--color-text-secondary) !important;
+  transition: color 0.15s;
+}
+
+/* Label */
+.nav-label {
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: var(--color-text-secondary) !important;
+  transition: color 0.15s;
+}
+
+/* Active state */
+.nav-active {
+  background: var(--color-primary-light) !important;
+}
+
+.nav-active .nav-icon {
+  color: var(--color-primary) !important;
+}
+
+.nav-active .nav-label {
+  color: var(--color-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* Separator */
+.nav-separator {
+  height: 1px;
+  background: var(--color-border-light);
+  margin: 8px 16px;
+}
+
+/* Bottom watermark */
+.sidenav-watermark {
+  padding: 20px 16px 24px;
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  opacity: 0.45;
+}
+
+.watermark-icon {
+  font-size: 28px;
+  height: 28px;
+  width: 28px;
   color: var(--color-text-secondary);
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-::ng-deep .mat-mdc-list-item:hover {
-  background-color: var(--color-hover);
+.watermark-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* Active link styling */
-::ng-deep .active-link.mat-mdc-list-item {
-  background-color: var(--color-selected);
+.watermark-tagline {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-transform: uppercase;
 }
 
-::ng-deep .active-link.mat-mdc-list-item .mdc-list-item__primary-text,
-::ng-deep .active-link.mat-mdc-list-item .mat-icon {
-  font-weight: 500;
+.watermark-motto {
+  font-size: 13px;
+  font-weight: 600;
   color: var(--color-text);
+  margin: 0;
+  letter-spacing: -0.2px;
 }

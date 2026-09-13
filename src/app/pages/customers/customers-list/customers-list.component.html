@@ -1,5 +1,8 @@
 <div class="page-container">
-  <div class="page-header">
+  <div class="page-header header-with-back">
+    <button mat-icon-button (click)="goBack()" class="header-back-btn" aria-label="Back" title="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
     <div class="header-titles">
       <h1>Customers</h1>
       <p>Manage and view all registered customers</p>
@@ -77,6 +80,10 @@
               <button mat-menu-item [routerLink]="['/customers', row.customerId]">
                 <mat-icon>visibility</mat-icon>
                 <span>View Details</span>
+              </button>
+              <button mat-menu-item (click)="openCreateLoanForCustomer(row)">
+                <mat-icon>add_circle_outline</mat-icon>
+                <span>New Loan</span>
               </button>
             </mat-menu>
           </td>

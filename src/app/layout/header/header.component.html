@@ -1,14 +1,162 @@
 <mat-toolbar class="app-toolbar">
-  <button mat-icon-button (click)="onToggleSidenav()" aria-label="Toggle sidenav">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <span class="toolbar-title">Finance.Client</span>
-  <span class="spacer"></span>
-  <button mat-button class="user-button">
-    <mat-icon class="user-icon">account_circle</mat-icon>
-    {{ authService.getRole() || 'User' }}
-  </button>
-  <button mat-icon-button aria-label="Logout" (click)="logout()">
-    <mat-icon>exit_to_app</mat-icon>
-  </button>
+  <!-- Left: Menu Toggle + Brand -->
+  <div class="toolbar-brand">
+    <button mat-icon-button (click)="onToggleSidenav()" aria-label="Toggle navigation" class="menu-btn">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <div class="brand-logo-wrap">
+      <mat-icon class="brand-icon">account_balance</mat-icon>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">Finance.Client</span>
+      <span class="brand-sub">Empowering Communities</span>
+    </div>
+  </div>
+
+  <!-- Center: Search Bar + Live Result Overlay -->
+  <div class="toolbar-search">
+    <div class="search-bar">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input class="search-input"
+             [(ngModel)]="searchQuery"
+             (input)="onSearchInput()"
+             (focus)="onSearchFocus()"
+             (blur)="closeSearchOverlay()"
+             placeholder="Search customer, loan, or receipt..." />
+      <span class="search-shortcut">Ctrl + K</span>
+    </div>
+
+    <!-- Live Search Overlay Dropdown -->
+    <div class="search-overlay" *ngIf="showSearchOverlay && (searchResults || isSearching)">
+      <div class="search-loading" *ngIf="isSearching">
+        <span>Searching database...</span>
+      </div>
+
+      <div class="search-results-list" *ngIf="searchResults && !isSearching">
+        <!-- Customers -->
+        <div class="search-category" *ngIf="searchResults.customers?.length">
+          <div class="category-header"><mat-icon>people</mat-icon> Customers</div>
+          <div class="search-item" *ngFor="let c of searchResults.customers" (mousedown)="navigateToCustomer(c.id)">
+            <div class="si-title">{{ c.fullName }}</div>
+            <div class="si-sub">Phone: {{ c.mobileNumber }} | ID: {{ c.aadhaarNumber }}</div>
+          </div>
+        </div>
+
+        <!-- Loans -->
+        <div class="search-category" *ngIf="searchResults.loans?.length">
+          <div class="category-header"><mat-icon>description</mat-icon> Loans</div>
+          <div class="search-item" *ngFor="let l of searchResults.loans" (mousedown)="navigateToLoan(l.id)">
+            <div class="si-title">Loan #{{ l.id }} – {{ l.customerName }}</div>
+            <div class="si-sub">Amount: ₹{{ l.loanAmount | number }} | Status: {{ l.status }}</div>
+          </div>
+        </div>
+
+        <!-- Collections -->
+        <div class="search-category" *ngIf="searchResults.collections?.length">
+          <div class="category-header"><mat-icon>currency_rupee</mat-icon> Collections</div>
+          <div class="search-item" *ngFor="let col of searchResults.collections">
+            <div class="si-title">Receipt {{ col.receiptNumber }} – {{ col.customerName }}</div>
+            <div class="si-sub">Paid: ₹{{ col.amountPaid | number }} on {{ col.collectionDate | date:'mediumDate' }}</div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="search-empty" *ngIf="!searchResults.customers?.length && !searchResults.loans?.length && !searchResults.collections?.length">
+          No matching records found for "{{ searchQuery }}".
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Notifications + User -->
+  <div class="toolbar-actions">
+    <!-- Notification Bell -->
+    <button mat-icon-button class="notif-btn" aria-label="View notifications" [matMenuTriggerFor]="notifMenu">
+      <mat-icon [matBadge]="unreadCount" [matBadgeHidden]="unreadCount === 0" matBadgeColor="warn" matBadgeSize="small">notifications</mat-icon>
+    </button>
+
+    <mat-menu #notifMenu="matMenu" class="notif-dropdown-menu" xPosition="before">
+      <div class="notif-header" (click)="$event.stopPropagation()">
+        <span class="notif-title">Notifications</span>
+        <button mat-button class="mark-all-btn" (click)="onMarkAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="notif-list" (click)="$event.stopPropagation()">
+        <div class="notif-item" *ngFor="let n of notifications" [class.notif-item--unread]="!n.isRead">
+          <div class="notif-icon-wrap" [class]="'notif-type--' + n.type">
+            <mat-icon>info</mat-icon>
+          </div>
+          <div class="notif-body">
+            <div class="notif-item-title">{{ n.title }}</div>
+            <div class="notif-item-msg">{{ n.message }}</div>
+            <div class="notif-item-time">{{ n.createdAt | date:'shortTime' }}</div>
+          </div>
+          <button mat-icon-button class="notif-read-btn" (click)="onMarkRead(n, $event)" *ngIf="!n.isRead" title="Mark as read">
+            <mat-icon>check_circle_outline</mat-icon>
+          </button>
+        </div>
+        <div class="notif-empty" *ngIf="!notifications.length">
+          No notifications to display.
+        </div>
+      </div>
+    </mat-menu>
+
+    <!-- User Chip -->
+    <button [matMenuTriggerFor]="userMenu" class="user-chip" aria-label="User menu">
+      <div class="user-avatar">{{ userInitials }}</div>
+      <div class="user-info">
+        <span class="user-name">{{ userName }}</span>
+        <span class="user-role">{{ userRole }}</span>
+      </div>
+      <mat-icon class="user-caret">expand_more</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu" class="user-dropdown-menu">
+      <button mat-menu-item (click)="onViewProfile()">
+        <mat-icon>person</mat-icon>
+        <span>My Profile</span>
+      </button>
+      <button mat-menu-item (click)="onOpenSettings()">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Sign Out</span>
+      </button>
+    </mat-menu>
+  </div>
 </mat-toolbar>
+
+<!-- Profile Modal Backdrop & Card -->
+<div class="profile-backdrop" *ngIf="showProfileModal" (click)="closeProfileModal()">
+  <div class="profile-card" (click)="$event.stopPropagation()">
+    <div class="profile-card-header">
+      <div class="profile-avatar-lg">{{ userInitials }}</div>
+      <div class="profile-user-details">
+        <h2>{{ userName }}</h2>
+        <span class="profile-role-badge">{{ userRole }}</span>
+      </div>
+      <button mat-icon-button class="close-btn" (click)="closeProfileModal()"><mat-icon>close</mat-icon></button>
+    </div>
+    <div class="profile-card-body">
+      <div class="profile-row">
+        <span class="p-label">User ID:</span>
+        <span class="p-val">{{ userProfile?.id || 'USR-001' }}</span>
+      </div>
+      <div class="profile-row">
+        <span class="p-label">Email Address:</span>
+        <span class="p-val">{{ userProfile?.email || 'admin@finance.client' }}</span>
+      </div>
+      <div class="profile-row">
+        <span class="p-label">Branch:</span>
+        <span class="p-val">{{ userProfile?.branchName || 'Main Branch' }}</span>
+      </div>
+      <div class="profile-row">
+        <span class="p-label">Account Status:</span>
+        <span class="p-val p-status-active">Active</span>
+      </div>
+    </div>
+  </div>
+</div>

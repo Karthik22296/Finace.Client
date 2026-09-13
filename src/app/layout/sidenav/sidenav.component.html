@@ -1,26 +1,88 @@
-<mat-nav-list>
-  <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link" (click)="onNavClick()">
-    <mat-icon matListItemIcon>dashboard</mat-icon>
-    <span matListItemTitle>Dashboard</span>
-  </a>
-  <a mat-list-item routerLink="/customers" routerLinkActive="active-link" (click)="onNavClick()">
-    <mat-icon matListItemIcon>people</mat-icon>
-    <span matListItemTitle>Customers</span>
-  </a>
-  <a mat-list-item routerLink="/loans" routerLinkActive="active-link" (click)="onNavClick()">
-    <mat-icon matListItemIcon>monetization_on</mat-icon>
-    <span matListItemTitle>Loans</span>
-  </a>
-  <a mat-list-item routerLink="/collections/route" routerLinkActive="active-link" (click)="onNavClick()">
-    <mat-icon matListItemIcon>directions_run</mat-icon>
-    <span matListItemTitle>Daily Route</span>
-  </a>
-  <a mat-list-item routerLink="/collections/verify" routerLinkActive="active-link" (click)="onNavClick()">
-    <mat-icon matListItemIcon>fact_check</mat-icon>
-    <span matListItemTitle>Verifications</span>
-  </a>
-  <a mat-list-item routerLink="/reports" routerLinkActive="active-link" (click)="onNavClick()">
-    <mat-icon matListItemIcon>bar_chart</mat-icon>
-    <span matListItemTitle>Reports</span>
-  </a>
-</mat-nav-list>
+<div class="sidenav-wrapper">
+  <!-- Navigation Items -->
+  <nav class="sidenav-nav">
+    <mat-nav-list class="nav-list">
+      <a mat-list-item
+         routerLink="/dashboard"
+         routerLinkActive="nav-active"
+         [routerLinkActiveOptions]="{exact: true}"
+         class="nav-item"
+         (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">home</mat-icon>
+        <span matListItemTitle class="nav-label">Dashboard</span>
+      </a>
+
+      <a mat-list-item
+         routerLink="/customers"
+         routerLinkActive="nav-active"
+         class="nav-item"
+         (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">people_alt</mat-icon>
+        <span matListItemTitle class="nav-label">Customers</span>
+      </a>
+
+      <a mat-list-item
+         routerLink="/loans"
+         routerLinkActive="nav-active"
+         class="nav-item"
+         (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">description</mat-icon>
+        <span matListItemTitle class="nav-label">Loan Applications</span>
+      </a>
+
+      <a mat-list-item
+         routerLink="/collections/route"
+         routerLinkActive="nav-active"
+         class="nav-item"
+         (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">currency_rupee</mat-icon>
+        <span matListItemTitle class="nav-label">Collections</span>
+      </a>
+
+      <a mat-list-item
+         routerLink="/collections/verify"
+         routerLinkActive="nav-active"
+         class="nav-item"
+         (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">upload</mat-icon>
+        <span matListItemTitle class="nav-label">Disbursements</span>
+      </a>
+
+      <a mat-list-item
+         routerLink="/reports"
+         routerLinkActive="nav-active"
+         class="nav-item"
+         (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">bar_chart</mat-icon>
+        <span matListItemTitle class="nav-label">Reports</span>
+      </a>
+    </mat-nav-list>
+
+    <!-- Separator -->
+    <div class="nav-separator"></div>
+
+    <mat-nav-list class="nav-list">
+      <a mat-list-item class="nav-item" routerLink="/dashboard" (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">storage</mat-icon>
+        <span matListItemTitle class="nav-label">Master Data</span>
+      </a>
+      <a mat-list-item class="nav-item" routerLink="/dashboard" (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">chat_bubble_outline</mat-icon>
+        <span matListItemTitle class="nav-label">Communication</span>
+      </a>
+      <a mat-list-item class="nav-item" routerLink="/dashboard" (click)="onNavClick()">
+        <mat-icon matListItemIcon class="nav-icon">settings</mat-icon>
+        <span matListItemTitle class="nav-label">Settings</span>
+      </a>
+    </mat-nav-list>
+  </nav>
+
+  <!-- Bottom Watermark -->
+  <div class="sidenav-watermark">
+    <mat-icon class="watermark-icon">eco</mat-icon>
+    <div class="watermark-text">
+      <p class="watermark-tagline">People · Progress · Possibilities</p>
+      <p class="watermark-motto">A Better Tomorrow</p>
+    </div>
+  </div>
+</div>

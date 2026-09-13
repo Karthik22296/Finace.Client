@@ -1,7 +1,12 @@
 <div class="page-container">
-  <div class="page-header">
-    <h1 class="page-title">Analytics & Reports</h1>
-    <p class="page-subtitle">Generate and download operational reports in PDF format.</p>
+  <div class="page-header header-with-back">
+    <button mat-icon-button (click)="goBack()" class="header-back-btn" aria-label="Back" title="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-titles">
+      <h1 class="page-title">Analytics & Reports</h1>
+      <p class="page-subtitle">Generate and download operational reports in PDF format.</p>
+    </div>
   </div>
 
   <mat-card class="app-card no-padding">

@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -44,6 +45,16 @@ export class ReportsComponent {
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
   private snackBar = inject(MatSnackBar);
+  private location = inject(Location);
+  private router = inject(Router);
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   // States
   isLedgerLoading = false;
@@ -130,3 +141,4 @@ export class ReportsComponent {
     });
   }
 }
+

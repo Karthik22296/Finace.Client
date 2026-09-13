@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -14,6 +14,7 @@ import { customerGetAll } from '../../../../api/fn/customer/customer-get-all';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Customer } from '../../../../api/models/customer';
 import { CustomerCreateComponent } from '../customer-create/customer-create.component';
+import { LoanCreateComponent } from '../../loans/loan-create/loan-create.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
@@ -43,6 +44,16 @@ import { BaseTableComponent } from '../../../shared/components/base-table.compon
 export class CustomersListComponent extends BaseTableComponent<Customer> implements OnInit {
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
+  private location = inject(Location);
+  private router = inject(Router);
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
   private dialog = inject(MatDialog);
 
   displayedColumns: string[] = ['customerId', 'fullName', 'mobileNumber', 'isActive', 'actions'];
@@ -93,9 +104,23 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        // Refresh the list if a new customer was successfully created
         this.loadCustomers();
       }
     });
   }
+
+  openCreateLoanForCustomer(customer: Customer) {
+    const dialogRef = this.dialog.open(LoanCreateComponent, {
+      width: '600px',
+      disableClose: true,
+      data: { customerId: customer.customerId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.router.navigate(['/loans']);
+      }
+    });
+  }
 }
+

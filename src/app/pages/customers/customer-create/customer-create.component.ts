@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -43,8 +43,10 @@ export class CustomerCreateComponent {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
-  private dialogRef = inject(MatDialogRef<CustomerCreateComponent>);
+  private dialogRef = inject(MatDialogRef<CustomerCreateComponent>, { optional: true });
   private toastService = inject(ToastService);
+  private location = inject(Location);
+  private router = inject(Router);
 
   isLoading = false;
 
@@ -58,7 +60,6 @@ export class CustomerCreateComponent {
     occupationType: [''],
     idProofType: [''],
     idProofNumber: [''],
-    // Hardcode branch for now, or could be fetched from API
     branchId: [1]
   });
 
@@ -84,7 +85,11 @@ export class CustomerCreateComponent {
         next: () => {
           this.isLoading = false;
           this.toastService.success('Customer created successfully');
-          this.dialogRef.close(true);
+          if (this.dialogRef) {
+            this.dialogRef.close(true);
+          } else {
+            this.router.navigate(['/customers']);
+          }
         },
         error: (err) => {
           this.isLoading = false;
@@ -96,6 +101,11 @@ export class CustomerCreateComponent {
   }
 
   onCancel(): void {
-    this.dialogRef.close(false);
+    if (this.dialogRef) {
+      this.dialogRef.close(false);
+    } else {
+      this.location.back();
+    }
   }
 }
+

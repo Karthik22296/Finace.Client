@@ -6,10 +6,11 @@
 
 .app-sidenav-container {
   flex: 1;
+  overflow: hidden;
 }
 
 .app-sidenav {
-  width: 250px;
+  width: 240px;
   border-right: 1px solid var(--color-border);
   background-color: var(--color-surface);
 }
@@ -22,7 +23,7 @@
 }
 
 .content-wrapper {
-  padding: 32px;
+  padding: 28px 32px;
   flex: 1;
   box-sizing: border-box;
 }
@@ -30,7 +31,7 @@
 /* Tablet adjustments */
 @media (max-width: 959px) {
   .content-wrapper {
-    padding: 24px;
+    padding: 20px 24px;
   }
 }
 

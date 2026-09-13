@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -43,6 +44,16 @@ export class CollectionVerifyComponent extends BaseTableComponent<Collection> im
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
   private toast = inject(ToastService);
+  private location = inject(Location);
+  private router = inject(Router);
+
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   displayedColumns: string[] = ['collectionCode', 'date', 'customer', 'collector', 'amount', 'status', 'actions'];
   
@@ -146,3 +157,4 @@ export class CollectionVerifyComponent extends BaseTableComponent<Collection> im
     return this.dataSource.filteredData.map(t => t.amountPaid || 0).reduce((acc, value) => acc + value, 0);
   }
 }
+

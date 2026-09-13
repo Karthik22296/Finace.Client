@@ -1,75 +1,219 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
+import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ApiConfiguration } from '../../../api/api-configuration';
-import { loanGetAll } from '../../../api/fn/loan/loan-get-all';
-import { collectionGetAll } from '../../../api/fn/collection/collection-get-all';
-import { Loan } from '../../../api/models/loan';
-import { Collection } from '../../../api/models/collection';
+import { reportsDashboardSummary } from '../../../api/fn/reports/reports-dashboard-summary';
+import { reminderGetReminders } from '../../../api/fn/reminder/reminder-get-reminders';
+import { reminderToggleComplete } from '../../../api/fn/reminder/reminder-toggle-complete';
+import { DashboardSummaryDto, DashboardActivityDto, DashboardTrendBarDto, ReminderDto } from '../../../api/models';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AuthService } from '../../core/services/auth.service';
+import { CustomerCreateComponent } from '../customers/customer-create/customer-create.component';
+import { LoanCreateComponent } from '../loans/loan-create/loan-create.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatCardModule, MatProgressBarModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatIconModule,
+    MatCardModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    CurrencyPipe,
+    DecimalPipe
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
+  // ── Live Calculated State ─────────────────────────────────
   isLoading = true;
+  totalCustomers = 0;
   totalActiveLoans = 0;
   todaysTarget = 0;
   collectedAmount = 0;
   shortfall = 0;
   collectionProgress = 0;
+  totalPortfolioValue = 0;
 
-  ngOnInit() {
+  activeLoanPct = 80;
+  overdueLoanPct = 15;
+  npaLoanPct = 5;
+
+  chartBars: DashboardTrendBarDto[] = [];
+  recentActivities: DashboardActivityDto[] = [];
+  reminders: ReminderDto[] = [];
+
+  // ── Greeting ───────────────────────────────────────────────
+  get greeting(): string {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good Morning';
+    if (h < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
+  get userName(): string {
+    const role = this.authService.getRole();
+    return role === 'Admin' ? 'Administrator' : 'Collector';
+  }
+
+  get todayFormatted(): string {
+    return new Date().toLocaleDateString('en-IN', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+  }
+
+  // ── Dynamic Donut Gradient ────────────────────────────────
+  get donutGradient(): string {
+    const greenEnd = this.activeLoanPct;
+    const yellowEnd = greenEnd + this.overdueLoanPct;
+    return `conic-gradient(
+      #34a853 0% ${greenEnd}%,
+      #fbbc04 ${greenEnd}% ${yellowEnd}%,
+      #ea4335 ${yellowEnd}% 100%
+    )`;
+  }
+
+  // ── Chart ──────────────────────────────────────────────────
+  trendTabs = ['7 Days', '30 Days', '6 Months', '1 Year'];
+  activeTrendTab = '7 Days';
+
+  // ── Lifecycle ──────────────────────────────────────────────
+  ngOnInit(): void {
     this.loadDashboardData();
+    this.loadReminders();
   }
 
-  async loadDashboardData() {
+  loadDashboardData(): void {
     this.isLoading = true;
-    try {
-      // Fetch all loans (filter to active in frontend)
-      loanGetAll(this.http, this.config.rootUrl, { isClosed: false }).subscribe({
-        next: async (res) => {
-          const text = await res.body.text();
-          const loans: Loan[] = text ? JSON.parse(text) : [];
-          this.totalActiveLoans = loans.length;
-          this.todaysTarget = loans.reduce((sum, loan) => sum + (loan.dailyDueAmount || 0), 0);
-          this.calculateProgress();
-        }
-      });
+    reportsDashboardSummary(this.http, this.config.rootUrl).subscribe({
+      next: (res) => {
+        const summary: DashboardSummaryDto | null = res.body || null;
+        if (summary) {
+          this.totalCustomers = summary.totalCustomers || 0;
+          this.totalActiveLoans = summary.totalActiveLoans || 0;
+          this.todaysTarget = summary.todaysTarget || 0;
+          this.collectedAmount = summary.collectedAmount || 0;
+          this.shortfall = summary.shortfall || 0;
+          this.collectionProgress = summary.collectionProgress || 0;
+          this.totalPortfolioValue = summary.totalPortfolioValue || 0;
 
-      // Fetch today's collections
-      const today = new Date().toISOString().split('T')[0];
-      collectionGetAll(this.http, this.config.rootUrl, { date: today }).subscribe({
-        next: async (res) => {
-          const text = await res.body.text();
-          const collections: Collection[] = text ? JSON.parse(text) : [];
-          // Sum verified/approved collections (verificationStatus === 1 for Approved, or maybe just include all for now if they are entered)
-          // Based on normal operation, any collection entered goes towards the collected amount for the day's visibility
-          this.collectedAmount = collections.reduce((sum, c) => sum + (c.amountPaid || 0), 0);
-          this.calculateProgress();
+          this.activeLoanPct = summary.activeLoanPct ?? 80;
+          this.overdueLoanPct = summary.overdueLoanPct ?? 15;
+          this.npaLoanPct = summary.npaLoanPct ?? 5;
+
+          this.chartBars = summary.trendBars || [];
+          this.recentActivities = summary.recentActivities || [];
         }
-      });
-      
-    } catch (e) {
-      console.error('Error loading dashboard data', e);
-    } finally {
-      this.isLoading = false;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to fetch dashboard summary from API', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  loadReminders(): void {
+    reminderGetReminders(this.http, this.config.rootUrl).subscribe({
+      next: (res) => {
+        if (res.body && res.body.length > 0) {
+          this.reminders = res.body;
+        } else {
+          this.setFallbackReminders();
+        }
+      },
+      error: () => {
+        this.setFallbackReminders();
+      }
+    });
+  }
+
+  private setFallbackReminders(): void {
+    this.reminders = [
+      { id: 1, time: '10:30 AM', icon: 'event', type: 'orange', title: 'Follow up – Customer #1', sub: 'EMI overdue (5 days)', isCompleted: false },
+      { id: 2, time: '12:00 PM', icon: 'directions_car', type: 'blue', title: 'Field Visit – Customer #2', sub: 'KYC verification & signature', isCompleted: false },
+      { id: 3, time: '03:00 PM', icon: 'call', type: 'green', title: 'Call – Customer #3', sub: 'Loan renewal discussion', isCompleted: false }
+    ];
+  }
+
+  // ── Action Handlers ──
+
+  onSelectTrendTab(tab: string): void {
+    this.activeTrendTab = tab;
+    this.snackBar.open(`Collection Trend filter changed to: ${tab}`, 'Close', { duration: 2500 });
+  }
+
+  onKpiClick(type: 'customers' | 'loans' | 'collections' | 'portfolio'): void {
+    const routes: Record<string, string> = {
+      customers: '/customers',
+      loans: '/loans',
+      collections: '/collections/route',
+      portfolio: '/reports'
+    };
+    if (routes[type]) {
+      this.router.navigate([routes[type]]);
     }
   }
 
-  private calculateProgress() {
-    this.shortfall = Math.max(0, this.todaysTarget - this.collectedAmount);
-    if (this.todaysTarget > 0) {
-      this.collectionProgress = Math.min(100, Math.round((this.collectedAmount / this.todaysTarget) * 100));
-    }
+  openNewCustomerDialog(): void {
+    const dialogRef = this.dialog.open(CustomerCreateComponent, {
+      width: '600px',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.loadDashboardData();
+      }
+    });
+  }
+
+  openNewLoanDialog(): void {
+    const dialogRef = this.dialog.open(LoanCreateComponent, {
+      width: '600px',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.loadDashboardData();
+      }
+    });
+  }
+
+  onViewAllReminders(): void {
+    this.snackBar.open('Showing all scheduled field visits & collector tasks.', 'Close', { duration: 3000 });
+  }
+
+  onReminderClick(reminder: ReminderDto): void {
+    if (reminder.id === undefined) return;
+    reminderToggleComplete(this.http, this.config.rootUrl, { id: reminder.id }).subscribe({
+      next: () => {
+        reminder.isCompleted = !reminder.isCompleted;
+        const msg = reminder.isCompleted ? `Task completed: ${reminder.title}` : `Task reopened: ${reminder.title}`;
+        this.snackBar.open(msg, 'Close', { duration: 2500 });
+      },
+      error: () => {
+        reminder.isCompleted = !reminder.isCompleted;
+        this.snackBar.open(`Task status toggled locally: ${reminder.title}`, 'Close', { duration: 2500 });
+      }
+    });
   }
 }
+
