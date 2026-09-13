@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 
@@ -21,7 +22,8 @@ import { CommonModule } from '@angular/common';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    MatCheckboxModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
@@ -33,19 +35,26 @@ export class LoginComponent {
 
   loginForm: FormGroup = this.fb.group({
     username: ['', Validators.required],
-    password: ['', Validators.required]
+    password: ['', Validators.required],
+    rememberMe: [false]
   });
 
   isLoading = false;
   error = '';
+  showPassword = false;
+  currentYear = new Date().getFullYear();
 
-  onSubmit() {
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  onSubmit(): void {
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.error = '';
-      
+
       const { username, password } = this.loginForm.value;
-      
+
       this.authService.login(username, password).subscribe({
         next: () => {
           this.router.navigate(['/dashboard']);

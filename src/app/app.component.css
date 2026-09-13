@@ -1,1 +1,6 @@
-/* Base global styles if any are needed for app-root, otherwise empty */
+/* Ensure app-root fills the full viewport so no body background bleeds through */
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}

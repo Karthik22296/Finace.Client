@@ -1,52 +1,144 @@
 <div class="login-split-container">
-  <!-- Left Side: Branding / Visuals -->
+
+  <!-- Left Side: Branding Panel -->
   <div class="login-brand-panel">
     <div class="brand-content">
-      <mat-icon class="brand-icon">account_balance</mat-icon>
-      <h2>Finance.Client</h2>
-      <p>Empowering daily cash flow and seamless 100-day microfinance collections.</p>
+      <!-- Logo Mark -->
+      <div class="brand-logo-mark">
+        <mat-icon class="brand-icon">account_balance</mat-icon>
+      </div>
+
+      <!-- Brand Name -->
+      <h1 class="brand-name">100-Day<br>Microfinance</h1>
+      <p class="brand-tagline">Empowering daily cash flow and seamless 100-day microfinance collections.</p>
+
+      <!-- Divider -->
+      <div class="brand-divider"></div>
+
+      <!-- Tagline dots -->
+      <p class="brand-dots">PEOPLE &nbsp;·&nbsp; PROGRESS &nbsp;·&nbsp; POSSIBILITIES</p>
+
+      <!-- Feature Pills -->
+      <div class="brand-features">
+        <span class="feature-pill">
+          <mat-icon class="pill-icon">verified_user</mat-icon>
+          Secure
+        </span>
+        <span class="feature-pill">
+          <mat-icon class="pill-icon">speed</mat-icon>
+          Fast
+        </span>
+        <span class="feature-pill">
+          <mat-icon class="pill-icon">devices</mat-icon>
+          Mobile-Ready
+        </span>
+      </div>
     </div>
   </div>
 
   <!-- Right Side: Login Form -->
   <div class="login-form-panel">
-    <mat-card class="login-card">
-      <mat-card-header class="elegant-header">
-        <mat-card-title class="elegant-title">Welcome Back</mat-card-title>
-        <mat-card-subtitle class="elegant-subtitle">Please enter your details to sign in.</mat-card-subtitle>
-      </mat-card-header>
-      
-      <mat-card-content>
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
-          <input matInput formControlName="username" type="text" placeholder="admin or collector">
+    <div class="login-form-wrapper">
+
+      <!-- Top Logo (mobile only) -->
+      <div class="mobile-brand">
+        <mat-icon class="mobile-brand-icon">account_balance</mat-icon>
+        <span class="mobile-brand-name">100-Day Microfinance</span>
+      </div>
+
+      <!-- Heading -->
+      <div class="form-heading">
+        <h2 class="form-title">Welcome Back</h2>
+        <p class="form-subtitle">Please enter your details to sign in.</p>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" novalidate>
+
+        <!-- Username Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mobile Number / Employee ID</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">person_outline</mat-icon>
+          <input matInput
+                 formControlName="username"
+                 type="text"
+                 placeholder="Enter mobile number or employee ID"
+                 autocomplete="username">
           <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
-            Username is required
+            Mobile Number / Employee ID is required
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Password</mat-label>
-          <input matInput formControlName="password" type="password" placeholder="Any password">
+          <mat-icon matPrefix class="field-prefix-icon">lock_outline</mat-icon>
+          <input matInput
+                 formControlName="password"
+                 [type]="showPassword ? 'text' : 'password'"
+                 placeholder="Enter your password"
+                 autocomplete="current-password">
+          <button mat-icon-button matSuffix type="button"
+                  (click)="togglePasswordVisibility()"
+                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                  class="password-toggle-btn">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
           <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
             Password is required
           </mat-error>
         </mat-form-field>
 
-        <div *ngIf="error" class="error-message">
-          <mat-icon>error_outline</mat-icon>
+        <!-- Remember Me & Forgot Password Row -->
+        <div class="form-options-row">
+          <mat-checkbox formControlName="rememberMe" color="primary" class="remember-me-check">
+            Remember me
+          </mat-checkbox>
+          <a href="#" class="forgot-link" (click)="$event.preventDefault()">Forgot password?</a>
+        </div>
+
+        <!-- Error Banner -->
+        <div *ngIf="error" class="error-banner" role="alert">
+          <mat-icon class="error-icon">error_outline</mat-icon>
           <span>{{ error }}</span>
         </div>
 
-        <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid || isLoading" class="login-btn">
+        <!-- Submit Button -->
+        <button mat-flat-button
+                color="primary"
+                type="submit"
+                [disabled]="loginForm.invalid || isLoading"
+                class="login-btn"
+                id="login-submit-btn">
           <div class="btn-content">
-            <mat-spinner *ngIf="isLoading" diameter="20" class="btn-spinner"></mat-spinner>
-            <span>{{ isLoading ? 'Signing in...' : 'Sign in' }}</span>
+            <mat-spinner *ngIf="isLoading" diameter="18" class="btn-spinner"></mat-spinner>
+            <span>{{ isLoading ? 'Signing in...' : 'Sign In' }}</span>
           </div>
         </button>
+
       </form>
-      </mat-card-content>
-    </mat-card>
+
+      <!-- Trust Footer -->
+      <div class="trust-footer">
+        <span class="trust-item">
+          <mat-icon class="trust-icon">lock</mat-icon>
+          Secure
+        </span>
+        <span class="trust-divider">|</span>
+        <span class="trust-item">
+          <mat-icon class="trust-icon">check_circle</mat-icon>
+          Reliable
+        </span>
+        <span class="trust-divider">|</span>
+        <span class="trust-item">
+          <mat-icon class="trust-icon">groups</mat-icon>
+          Built for Field Teams
+        </span>
+      </div>
+
+      <!-- Copyright -->
+      <p class="copyright">© {{ currentYear }} 100-Day Microfinance. All rights reserved.</p>
+
+    </div>
   </div>
 </div>
