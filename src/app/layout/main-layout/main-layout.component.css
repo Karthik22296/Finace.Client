@@ -23,7 +23,7 @@
 }
 
 .content-wrapper {
-  padding: 28px 32px;
+  padding: 18px 24px;
   flex: 1;
   box-sizing: border-box;
 }
@@ -31,13 +31,13 @@
 /* Tablet adjustments */
 @media (max-width: 959px) {
   .content-wrapper {
-    padding: 20px 24px;
+    padding: 14px 16px;
   }
 }
 
 /* Mobile adjustments */
 @media (max-width: 599px) {
   .content-wrapper {
-    padding: 16px;
+    padding: 12px;
   }
 }

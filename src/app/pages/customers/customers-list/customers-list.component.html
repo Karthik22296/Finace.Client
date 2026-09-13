@@ -1,157 +1,383 @@
 <div class="page-container">
-  <div class="page-header header-with-back">
-    <button mat-icon-button (click)="goBack()" class="header-back-btn" aria-label="Back" title="Back">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
+
+  <!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+  <div class="page-header">
     <div class="header-titles">
       <h1>Customers</h1>
-      <p>Manage and view all registered customers</p>
+      <p>Manage your customers and view their loan details.</p>
     </div>
     <div class="header-actions">
-      <button mat-flat-button color="primary" (click)="openCreateCustomerDialog()">
+      <button mat-flat-button color="primary" class="btn-primary-add" (click)="openCreateCustomerDialog()">
         <mat-icon>add</mat-icon>
-        New Customer
+        Add Customer
       </button>
+      <button mat-stroked-button class="btn-import" (click)="openImportDialog()">
+        <mat-icon>file_upload</mat-icon>
+        Import
+      </button>
+      <button mat-icon-button [matMenuTriggerFor]="headerMoreMenu" aria-label="More options">
+        <mat-icon>more_horiz</mat-icon>
+      </button>
+      <mat-menu #headerMoreMenu="matMenu">
+        <button mat-menu-item (click)="openImportDialog()">
+          <mat-icon>download</mat-icon>
+          <span>Export All Customers</span>
+        </button>
+        <button mat-menu-item (click)="resetFilters()">
+          <mat-icon>refresh</mat-icon>
+          <span>Refresh List</span>
+        </button>
+      </mat-menu>
     </div>
   </div>
 
-  <mat-card class="table-card">
-    <!-- Top action bar -->
-    <div class="table-header-bar">
-      <div class="record-count">{{ dataSource.data.length }} customers</div>
-      <div class="action-buttons">
-        <button mat-stroked-button><mat-icon>view_column</mat-icon> Columns</button>
-        <button mat-stroked-button><mat-icon>filter_list_off</mat-icon> Clear Filters</button>
-        <button mat-stroked-button><mat-icon>download</mat-icon> Export <mat-icon>expand_more</mat-icon></button>
+  <!-- ── SUMMARY KPI CARDS ROW ────────────────────────────────── -->
+  <div class="kpi-cards-row">
+
+    <!-- Card 1: Total Customers -->
+    <mat-card class="kpi-card">
+      <mat-card-content class="kpi-card-content">
+        <div class="kpi-icon-wrap kpi-blue">
+          <mat-icon>groups</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <div class="kpi-value">{{ isLoading ? '—' : (dataSource.data.length | number) }}</div>
+          <div class="kpi-label">Total Customers</div>
+          <div class="kpi-trend trend-up">
+            <mat-icon>arrow_upward</mat-icon> 12% <span>vs last month</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card 2: Active Customers -->
+    <mat-card class="kpi-card">
+      <mat-card-content class="kpi-card-content">
+        <div class="kpi-icon-wrap kpi-green">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <div class="kpi-value">{{ isLoading ? '—' : (activeCustomersCount | number) }}</div>
+          <div class="kpi-label">Active Customers</div>
+          <div class="kpi-trend trend-up">
+            <mat-icon>arrow_upward</mat-icon> 8% <span>vs last month</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card 3: Pending KYC -->
+    <mat-card class="kpi-card">
+      <mat-card-content class="kpi-card-content">
+        <div class="kpi-icon-wrap kpi-amber">
+          <mat-icon>person_search</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <div class="kpi-value">{{ isLoading ? '—' : (pendingKycCount | number) }}</div>
+          <div class="kpi-label">Pending KYC</div>
+          <div class="kpi-trend trend-down">
+            <mat-icon>arrow_downward</mat-icon> 5% <span>vs last month</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card 4: Overdue Customers -->
+    <mat-card class="kpi-card">
+      <mat-card-content class="kpi-card-content">
+        <div class="kpi-icon-wrap kpi-pink">
+          <mat-icon>person_alert</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <div class="kpi-value">{{ isLoading ? '—' : (overdueCustomersCount | number) }}</div>
+          <div class="kpi-label">Overdue Customers</div>
+          <div class="kpi-trend trend-down">
+            <mat-icon>arrow_upward</mat-icon> 15% <span>vs last month</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- ── SEARCH & FILTER TOOLBAR ─────────────────────────────── -->
+  <mat-card class="filter-card">
+    <div class="filter-toolbar">
+      
+      <!-- Search Box -->
+      <mat-form-field appearance="outline" class="filter-search-field" subscriptSizing="dynamic">
+        <mat-icon matPrefix class="search-prefix-icon">search</mat-icon>
+        <input matInput [(ngModel)]="searchQuery" (keyup.enter)="applyFilters()" placeholder="Search customer name, mobile, or ID...">
+        <button mat-icon-button matSuffix *ngIf="searchQuery" (click)="searchQuery=''; applyFilters()" class="search-clear-btn" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Branch Dropdown -->
+      <mat-form-field appearance="outline" class="filter-select-field branch-select-field" subscriptSizing="dynamic">
+        <mat-select [(ngModel)]="selectedBranch" placeholder="All Branches">
+          <mat-option value="">All Branches</mat-option>
+          <mat-option value="Main Branch">Main Branch</mat-option>
+          <mat-option value="City Branch">City Branch</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Customer Type Dropdown -->
+      <mat-form-field appearance="outline" class="filter-select-field type-select-field" subscriptSizing="dynamic">
+        <mat-select [(ngModel)]="selectedCustomerType" placeholder="All Customer Types">
+          <mat-option value="">All Customer Types</mat-option>
+          <mat-option value="Individual">Individual</mat-option>
+          <mat-option value="Self Employed">Self Employed</mat-option>
+          <mat-option value="Business">Business</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Status Dropdown -->
+      <mat-form-field appearance="outline" class="filter-select-field status-select-field" subscriptSizing="dynamic">
+        <mat-select [(ngModel)]="selectedStatus" placeholder="All Status">
+          <mat-option value="">All Status</mat-option>
+          <mat-option value="Active">Active</mat-option>
+          <mat-option value="Overdue">Overdue</mat-option>
+          <mat-option value="Pending KYC">Pending KYC</mat-option>
+          <mat-option value="Closed">Closed</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Datepicker Field -->
+      <mat-form-field appearance="outline" class="filter-date-field" subscriptSizing="dynamic">
+        <input matInput [matDatepicker]="datePicker" [(ngModel)]="selectedDate" placeholder="Date" readonly (click)="datePicker.open()">
+        <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+        <mat-datepicker #datePicker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- Actions Group -->
+      <div class="filter-actions-group">
+        <button mat-stroked-button class="btn-reset" (click)="resetFilters()" [disabled]="activeFiltersCount === 0" title="Reset all filters">
+          <mat-icon>rotate_left</mat-icon>
+          <span>Reset</span>
+        </button>
+
+        <button mat-flat-button color="primary" class="btn-apply" (click)="applyFilters()">
+          <mat-icon>filter_alt</mat-icon>
+          <span>Apply</span>
+        </button>
       </div>
+
+    </div>
+
+    <!-- Active Filters Badge / Chips Row -->
+    <div class="active-filters-bar" *ngIf="activeFiltersCount > 0">
+      <span class="active-filters-label">Active Filters ({{ activeFiltersCount }}):</span>
+      
+      <span class="filter-chip" *ngIf="searchQuery">
+        Query: "{{ searchQuery }}"
+        <mat-icon class="chip-remove" (click)="searchQuery=''; applyFilters()">close</mat-icon>
+      </span>
+
+      <span class="filter-chip" *ngIf="selectedBranch">
+        Branch: {{ selectedBranch }}
+        <mat-icon class="chip-remove" (click)="selectedBranch=''; applyFilters()">close</mat-icon>
+      </span>
+
+      <span class="filter-chip" *ngIf="selectedCustomerType">
+        Type: {{ selectedCustomerType }}
+        <mat-icon class="chip-remove" (click)="selectedCustomerType=''; applyFilters()">close</mat-icon>
+      </span>
+
+      <span class="filter-chip" *ngIf="selectedStatus">
+        Status: {{ selectedStatus }}
+        <mat-icon class="chip-remove" (click)="selectedStatus=''; applyFilters()">close</mat-icon>
+      </span>
+
+      <span class="filter-chip" *ngIf="selectedDate">
+        Date: {{ selectedDate | date:'shortDate' }}
+        <mat-icon class="chip-remove" (click)="selectedDate=null; applyFilters()">close</mat-icon>
+      </span>
+
+      <button mat-button class="btn-clear-all" (click)="resetFilters()">Clear All</button>
+    </div>
+  </mat-card>
+
+  <!-- ── CUSTOMERS TABLE ─────────────────────────────────────── -->
+  <mat-card class="table-card">
+    
+    <div class="loading-shade" *ngIf="isLoading">
+      <mat-spinner diameter="40"></mat-spinner>
     </div>
 
     <div class="table-container">
+      <table mat-table [dataSource]="dataSource" matSort class="full-width-table customers-table">
 
-      <table mat-table [dataSource]="dataSource" matSort class="full-width-table bordered-table">
-        
-
-
-        <!-- Code Column -->
-        <ng-container matColumnDef="customerId">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-          <td mat-cell *matCellDef="let row"> <strong>#{{row.customerId}}</strong> </td>
-        </ng-container>
-
-        <!-- Name Column -->
-        <ng-container matColumnDef="fullName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Full Name </th>
-          <td mat-cell *matCellDef="let row">
-            <div class="name-cell">
-              <div class="avatar">{{ row.fullName ? row.fullName.charAt(0).toUpperCase() : 'U' }}</div>
-              <div class="name-details">
-                <span class="main-text">{{row.fullName}}</span>
-                <span class="sub-text">{{row.mobileNumber}}</span>
-              </div>
-            </div>
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef class="checkbox-col">
+            <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                          [checked]="selection.hasValue() && isAllSelected()"
+                          [indeterminate]="selection.hasValue() && !isAllSelected()"
+                          [aria-label]="checkboxLabel()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row" class="checkbox-col">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? selection.toggle(row) : null"
+                          [checked]="selection.isSelected(row)"
+                          [aria-label]="checkboxLabel(row)">
+            </mat-checkbox>
           </td>
         </ng-container>
 
-        <!-- Mobile Column -->
-        <ng-container matColumnDef="mobileNumber">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Mobile Number </th>
-          <td mat-cell *matCellDef="let row"> {{row.mobileNumber}} </td>
-        </ng-container>
-
-        <!-- Status Column -->
-        <ng-container matColumnDef="isActive">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-          <td mat-cell *matCellDef="let row">
-            <span class="status-badge" [class.active]="row.isActive" [class.inactive]="!row.isActive">
-              <span class="dot"></span>
-              {{row.isActive ? 'Active' : 'Inactive'}}
-            </span>
-          </td>
-        </ng-container>
-
-        <!-- Actions Column -->
+        <!-- Actions Column (Left side matching design spec) -->
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="action-cell"></th>
+          <th mat-header-cell *matHeaderCellDef class="action-header-cell"> Actions </th>
           <td mat-cell *matCellDef="let row" class="action-cell">
-            <button mat-icon-button (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu">
+            <button mat-icon-button (click)="$event.stopPropagation()" [matMenuTriggerFor]="rowMenu" (menuOpened)="onMenuOpened(row)" (menuClosed)="onMenuClosed()" class="row-menu-btn" [class.active-menu-btn]="activeMenuRowId === row.customerId">
               <mat-icon>more_vert</mat-icon>
             </button>
-            <mat-menu #menu="matMenu">
+            <mat-menu #rowMenu="matMenu" class="custom-action-menu">
               <button mat-menu-item [routerLink]="['/customers', row.customerId]">
                 <mat-icon>visibility</mat-icon>
-                <span>View Details</span>
+                <span>View Customer</span>
+              </button>
+              <button mat-menu-item (click)="editCustomer(row)">
+                <mat-icon>edit</mat-icon>
+                <span>Edit Customer</span>
+              </button>
+              <button mat-menu-item (click)="viewLoanHistory(row)">
+                <mat-icon>history</mat-icon>
+                <span>View Loan History</span>
               </button>
               <button mat-menu-item (click)="openCreateLoanForCustomer(row)">
-                <mat-icon>add_circle_outline</mat-icon>
-                <span>New Loan</span>
+                <mat-icon>account_balance_wallet</mat-icon>
+                <span>Add New Loan</span>
+              </button>
+              <button mat-menu-item (click)="sendSms(row)">
+                <mat-icon>chat</mat-icon>
+                <span>Send SMS</span>
+              </button>
+              <button mat-menu-item (click)="toggleCustomerStatus(row)">
+                <mat-icon>person_off</mat-icon>
+                <span>{{ row.isActive ? 'Mark as Inactive' : 'Mark as Active' }}</span>
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item class="delete-menu-item" (click)="deleteCustomer(row)">
+                <mat-icon class="delete-icon">delete</mat-icon>
+                <span class="delete-text">Delete Customer</span>
               </button>
             </mat-menu>
           </td>
         </ng-container>
 
-
-
-
-
-        <!-- ID Filter -->
-        <ng-container matColumnDef="customerIdFilter">
-          <th mat-header-cell *matHeaderCellDef class="search-header-cell">
-            <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
-              <mat-icon matPrefix>search</mat-icon>
-              <input matInput (keyup)="applyFilter('customerId', $event)" placeholder="Search ID">
-            </mat-form-field>
-          </th>
+        <!-- Row Index Column (#) -->
+        <ng-container matColumnDef="index">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="index-col"> # </th>
+          <td mat-cell *matCellDef="let row; let i = index" class="index-col"> {{ i + 1 }} </td>
         </ng-container>
 
-        <!-- Name Filter Row -->
-        <ng-container matColumnDef="fullNameFilter">
-          <th mat-header-cell *matHeaderCellDef class="search-header-cell">
-            <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
-              <mat-icon matPrefix>search</mat-icon>
-              <input matInput (keyup)="applyFilter('fullName', $event)" placeholder="Search Name">
-            </mat-form-field>
-          </th>
+        <!-- Customer ID Column -->
+        <ng-container matColumnDef="customerId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Customer ID </th>
+          <td mat-cell *matCellDef="let row">
+            <span class="code-text">{{ getCustomerCode(row.customerId) }}</span>
+          </td>
         </ng-container>
 
-        <!-- Mobile Filter Row -->
-        <ng-container matColumnDef="mobileNumberFilter">
-          <th mat-header-cell *matHeaderCellDef class="search-header-cell">
-            <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
-              <mat-icon matPrefix>search</mat-icon>
-              <input matInput (keyup)="applyFilter('mobileNumber', $event)" placeholder="Search Mobile">
-            </mat-form-field>
-          </th>
+        <!-- Customer Name Column -->
+        <ng-container matColumnDef="fullName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Customer Name </th>
+          <td mat-cell *matCellDef="let row">
+            <a class="cust-name-link" [routerLink]="['/customers', row.customerId]">{{ row.fullName }}</a>
+          </td>
         </ng-container>
 
-        <!-- Status Filter Row (Empty for now) -->
-        <ng-container matColumnDef="isActiveFilter">
-          <th mat-header-cell *matHeaderCellDef class="search-header-cell"></th>
+        <!-- Mobile Number Column -->
+        <ng-container matColumnDef="mobileNumber">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Mobile Number </th>
+          <td mat-cell *matCellDef="let row" class="mobile-col"> {{ formatMobile(row.mobileNumber) }} </td>
         </ng-container>
 
-        <!-- Actions Filter Row -->
-        <ng-container matColumnDef="actionsFilter">
-          <th mat-header-cell *matHeaderCellDef class="search-header-cell"></th>
+        <!-- Customer Type Column -->
+        <ng-container matColumnDef="customerType">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Customer Type </th>
+          <td mat-cell *matCellDef="let row"> {{ getCustomerType(row) }} </td>
         </ng-container>
 
+        <!-- Loan Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Loan Status </th>
+          <td mat-cell *matCellDef="let row">
+            <span class="spec-status-chip"
+                  [class.spec-chip--active]="getCustomerLoanStatus(row) === 'Active'"
+                  [class.spec-chip--overdue]="getCustomerLoanStatus(row) === 'Overdue'"
+                  [class.spec-chip--pending]="getCustomerLoanStatus(row) === 'Pending KYC'"
+                  [class.spec-chip--closed]="getCustomerLoanStatus(row) === 'Closed'">
+              {{ getCustomerLoanStatus(row) }}
+            </span>
+          </td>
+        </ng-container>
 
+        <!-- Outstanding Column -->
+        <ng-container matColumnDef="outstanding">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="amount-col"> Outstanding (₹) </th>
+          <td mat-cell *matCellDef="let row" class="amount-col font-medium">
+            ₹ {{ getCustomerOutstanding(row) | number:'1.0-0' }}
+          </td>
+        </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-header-row *matHeaderRowDef="filterColumns" class="search-row"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row clickable-row" [routerLink]="['/customers', row.customerId]"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row clickable-row" [class.active-menu-row]="activeMenuRowId === row.customerId"></tr>
 
-        <!-- Row shown when there is no matching data. -->
+        <!-- Empty State -->
         <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell no-data-cell" colspan="5">
+          <td class="mat-cell no-data-cell" colspan="9">
             <div class="empty-state" *ngIf="!isLoading">
               <mat-icon class="empty-icon">search_off</mat-icon>
               <h3>No Customers Found</h3>
-              <p>Try adjusting your search filters.</p>
+              <p>Try adjusting your search query or filters.</p>
             </div>
           </td>
         </tr>
+
       </table>
     </div>
 
-    <mat-paginator [pageSizeOptions]="[10, 25, 100]" aria-label="Select page of customers"></mat-paginator>
+    <!-- Custom Spec Paginator Bar -->
+    <div class="custom-spec-paginator">
+      <div class="paginator-showing-text">
+        Showing {{ dataSource.filteredData.length === 0 ? 0 : (pageIndex * pageSize) + 1 }} – {{ Math.min((pageIndex + 1) * pageSize, dataSource.filteredData.length) }} of {{ dataSource.filteredData.length }} customers
+      </div>
+      <div class="paginator-controls">
+        <div class="rows-per-page-container">
+          <span class="rows-label">Rows per page</span>
+          <mat-select [(ngModel)]="pageSize" (selectionChange)="onPageSizeChange($event.value)" class="rows-select-inline" subscriptSizing="dynamic">
+            <mat-option [value]="10">10</mat-option>
+            <mat-option [value]="25">25</mat-option>
+            <mat-option [value]="50">50</mat-option>
+            <mat-option [value]="100">100</mat-option>
+          </mat-select>
+        </div>
+
+        <div class="numbered-pagination">
+          <button mat-icon-button class="page-nav-btn" (click)="prevPage()" [disabled]="pageIndex === 0">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+
+          <ng-container *ngFor="let page of getDisplayedPages()">
+            <button *ngIf="page !== '...'"
+                    class="page-box-btn"
+                    [class.page-box--active]="page === pageIndex + 1"
+                    (click)="goToPage(page)">
+              {{ page }}
+            </button>
+            <span *ngIf="page === '...'" class="page-ellipsis">...</span>
+          </ng-container>
+
+          <button mat-icon-button class="page-nav-btn" (click)="nextPage()" [disabled]="pageIndex >= totalPages - 1">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </mat-card>
+
 </div>
