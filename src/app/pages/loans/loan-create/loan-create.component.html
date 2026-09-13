@@ -11,7 +11,7 @@
           <mat-label>Customer</mat-label>
           <mat-select formControlName="customerId" placeholder="Select Customer">
             <mat-option *ngFor="let customer of customers" [value]="customer.customerId">
-              {{ customer.fullName }} ({{ customer.customerCode }})
+              {{ customer.fullName }} (#{{ customer.customerId }})
             </mat-option>
           </mat-select>
           <mat-error *ngIf="loanForm.get('customerId')?.hasError('required')">

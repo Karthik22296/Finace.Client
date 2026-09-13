@@ -3,8 +3,13 @@
 
 export interface CreateCustomerRequest {
   address?: string | null;
+  alternateNumber?: string | null;
   branchId?: number;
-  customerCode?: string;
+  dateOfBirth?: string | null;
   fullName?: string;
+  gender?: string | null;
+  idProofNumber?: string | null;
+  idProofType?: string | null;
   mobileNumber?: string;
+  occupationType?: string | null;
 }

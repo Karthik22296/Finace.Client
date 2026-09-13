@@ -45,11 +45,11 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
   private config = inject(ApiConfiguration);
   private dialog = inject(MatDialog);
 
-  displayedColumns: string[] = ['customerCode', 'fullName', 'mobileNumber', 'isActive', 'actions'];
-  filterColumns: string[] = ['customerCodeFilter', 'fullNameFilter', 'mobileNumberFilter', 'isActiveFilter', 'actionsFilter'];
+  displayedColumns: string[] = ['customerId', 'fullName', 'mobileNumber', 'isActive', 'actions'];
+  filterColumns: string[] = ['customerIdFilter', 'fullNameFilter', 'mobileNumberFilter', 'isActiveFilter', 'actionsFilter'];
 
   override filterValues = {
-    customerCode: '',
+    customerId: '',
     fullName: '',
     mobileNumber: ''
   };
@@ -58,7 +58,7 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
     // Custom filter predicate for multi-column search
     this.dataSource.filterPredicate = (data: Customer, filter: string) => {
       const searchTerms = JSON.parse(filter);
-      return (data.customerCode || '').toLowerCase().includes(searchTerms.customerCode)
+      return (data.customerId?.toString() || '').toLowerCase().includes(searchTerms.customerId)
           && (data.fullName || '').toLowerCase().includes(searchTerms.fullName)
           && (data.mobileNumber || '').toLowerCase().includes(searchTerms.mobileNumber);
     };

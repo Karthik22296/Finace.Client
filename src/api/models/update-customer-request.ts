@@ -3,8 +3,14 @@
 
 export interface UpdateCustomerRequest {
   address?: string | null;
+  alternateNumber?: string | null;
   branchId?: number;
+  dateOfBirth?: string | null;
   fullName?: string;
+  gender?: string | null;
+  idProofNumber?: string | null;
+  idProofType?: string | null;
   isActive?: boolean;
   mobileNumber?: string;
+  occupationType?: string | null;
 }

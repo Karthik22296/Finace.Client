@@ -5,7 +5,7 @@
     </button>
     <div class="header-titles" *ngIf="customer; else loadingTitle">
       <h1>{{ customer.fullName }}</h1>
-      <p>{{ customer.customerCode }} • {{ customer.isActive ? 'Active' : 'Inactive' }}</p>
+      <p>ID: #{{ customer.customerId }} • {{ customer.isActive ? 'Active' : 'Inactive' }}</p>
     </div>
     <ng-template #loadingTitle>
       <div class="header-titles">
@@ -33,6 +33,26 @@
           <div class="info-group">
             <label>Mobile Number</label>
             <p>{{ customer.mobileNumber }}</p>
+          </div>
+          <div class="info-group">
+            <label>Alternate Number</label>
+            <p>{{ customer.alternateNumber || 'N/A' }}</p>
+          </div>
+          <div class="info-group">
+            <label>Date of Birth</label>
+            <p>{{ customer.dateOfBirth ? (customer.dateOfBirth | date:'mediumDate') : 'N/A' }}</p>
+          </div>
+          <div class="info-group">
+            <label>Gender</label>
+            <p>{{ customer.gender || 'N/A' }}</p>
+          </div>
+          <div class="info-group">
+            <label>Occupation</label>
+            <p>{{ customer.occupationType || 'N/A' }}</p>
+          </div>
+          <div class="info-group">
+            <label>ID Proof</label>
+            <p>{{ customer.idProofType ? customer.idProofType + ' (' + customer.idProofNumber + ')' : 'N/A' }}</p>
           </div>
           <div class="info-group">
             <label>Registered Date</label>

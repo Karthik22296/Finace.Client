@@ -1,62 +1,117 @@
-<h2 mat-dialog-title>New Customer</h2>
+<div class="dialog-header-modern">
+  <h2 mat-dialog-title>Register New Customer</h2>
+  <button mat-icon-button (click)="onCancel()" tabindex="-1" class="close-btn">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
 
-<mat-dialog-content>
+<mat-dialog-content class="modern-dialog-content">
   <div class="form-container">
+    <p class="subtitle">Please fill in the information below to add a new customer.</p>
 
     <form [formGroup]="customerForm" (ngSubmit)="onSubmit()" class="customer-form">
-      
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Customer Code</mat-label>
-          <input matInput formControlName="customerCode" placeholder="e.g. CUST-001">
-          <mat-error *ngIf="customerForm.get('customerCode')?.hasError('required')">
-            Customer Code is required
-          </mat-error>
-        </mat-form-field>
+      <!-- Personal Info Section -->
+      <div class="section-card">
+        <h3 class="section-title"><mat-icon>person</mat-icon> Personal Information</h3>
+        <div class="form-row split-row">
+          <mat-form-field appearance="outline" class="half-width custom-field">
+            <mat-label>Full Name</mat-label>
+            <mat-icon matPrefix>badge</mat-icon>
+            <input matInput formControlName="fullName" placeholder="e.g. John Doe">
+            <mat-error *ngIf="customerForm.get('fullName')?.hasError('required')">Required</mat-error>
+            <mat-error *ngIf="customerForm.get('fullName')?.hasError('minlength')">Min 3 chars</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width custom-field">
+            <mat-label>Mobile Number</mat-label>
+            <mat-icon matPrefix>phone_iphone</mat-icon>
+            <input matInput formControlName="mobileNumber" placeholder="e.g. 9876543210">
+            <mat-error *ngIf="customerForm.get('mobileNumber')?.hasError('required')">Required</mat-error>
+            <mat-error *ngIf="customerForm.get('mobileNumber')?.hasError('pattern')">Must be exactly 10 digits</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row split-row">
+          <mat-form-field appearance="outline" class="half-width custom-field">
+            <mat-label>Date of Birth</mat-label>
+            <mat-icon matPrefix>cake</mat-icon>
+            <input matInput [matDatepicker]="picker" formControlName="dateOfBirth" placeholder="Choose a date">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width custom-field">
+            <mat-label>Gender</mat-label>
+            <mat-icon matPrefix>transgender</mat-icon>
+            <mat-select formControlName="gender" placeholder="Select gender">
+              <mat-option value="Male">Male</mat-option>
+              <mat-option value="Female">Female</mat-option>
+              <mat-option value="Other">Other</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Full Name</mat-label>
-          <input matInput formControlName="fullName" placeholder="e.g. John Doe">
-          <mat-error *ngIf="customerForm.get('fullName')?.hasError('required')">
-            Full Name is required
-          </mat-error>
-          <mat-error *ngIf="customerForm.get('fullName')?.hasError('minlength')">
-            Minimum 3 characters required
-          </mat-error>
-        </mat-form-field>
+      <!-- Identity & Occupation Section -->
+      <div class="section-card">
+        <h3 class="section-title"><mat-icon>fingerprint</mat-icon> Identity & Occupation</h3>
+        <div class="form-row split-row">
+          <mat-form-field appearance="outline" class="half-width custom-field">
+            <mat-label>ID Proof Type</mat-label>
+            <mat-icon matPrefix>assignment_ind</mat-icon>
+            <mat-select formControlName="idProofType" placeholder="Select ID proof">
+              <mat-option value="Aadhar">Aadhar</mat-option>
+              <mat-option value="PAN">PAN</mat-option>
+              <mat-option value="Voter ID">Voter ID</mat-option>
+              <mat-option value="Driving License">Driving License</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width custom-field">
+            <mat-label>ID Proof Number</mat-label>
+            <mat-icon matPrefix>pin</mat-icon>
+            <input matInput formControlName="idProofNumber" placeholder="e.g. ABCDE1234F">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row split-row">
+          <mat-form-field appearance="outline" class="half-width custom-field">
+            <mat-label>Occupation</mat-label>
+            <mat-icon matPrefix>work</mat-icon>
+            <input matInput formControlName="occupationType" placeholder="e.g. Salaried, Business">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width custom-field">
+            <mat-label>Alternate Number</mat-label>
+            <mat-icon matPrefix>contact_phone</mat-icon>
+            <input matInput formControlName="alternateNumber" placeholder="e.g. 9123456780">
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Mobile Number</mat-label>
-          <input matInput formControlName="mobileNumber" placeholder="10-digit number">
-          <mat-error *ngIf="customerForm.get('mobileNumber')?.hasError('required')">
-            Mobile Number is required
-          </mat-error>
-          <mat-error *ngIf="customerForm.get('mobileNumber')?.hasError('pattern')">
-            Must be exactly 10 digits
-          </mat-error>
-        </mat-form-field>
+      <!-- Address Section -->
+      <div class="section-card last-card">
+        <h3 class="section-title"><mat-icon>home</mat-icon> Contact Address</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width custom-field">
+            <mat-label>Address (Optional)</mat-label>
+            <mat-icon matPrefix>location_on</mat-icon>
+            <textarea matInput formControlName="address" rows="3" placeholder="Full residential address, City, State, ZIP..."></textarea>
+          </mat-form-field>
+        </div>
       </div>
-
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Address (Optional)</mat-label>
-          <textarea matInput formControlName="address" rows="3" placeholder="Full residential address"></textarea>
-        </mat-form-field>
-      </div>
-
     </form>
   </div>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
-  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="customerForm.invalid || isLoading" class="action-button-with-spinner">
+<mat-dialog-actions align="end" class="modern-dialog-actions">
+  <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading" class="btn-cancel">
+    Cancel
+  </button>
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="customerForm.invalid || isLoading" class="action-button-with-spinner btn-save">
     <mat-spinner *ngIf="isLoading" diameter="20" class="btn-spinner"></mat-spinner>
-    <mat-icon *ngIf="!isLoading">save</mat-icon>
+    <mat-icon *ngIf="!isLoading">check_circle</mat-icon>
     <span>{{ isLoading ? 'Saving...' : 'Save Customer' }}</span>
   </button>
 </mat-dialog-actions>
+

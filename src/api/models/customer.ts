@@ -5,14 +5,19 @@ import { Branch } from '../models/branch';
 import { Loan } from '../models/loan';
 export interface Customer {
   address?: string | null;
+  alternateNumber?: string | null;
   branch?: Branch | null;
   branchId?: number;
   createdAt?: string;
-  customerCode: string;
   customerId?: number;
+  dateOfBirth?: string | null;
   fullName: string;
+  gender?: string | null;
+  idProofNumber?: string | null;
+  idProofType?: string | null;
   isActive?: boolean;
   loans?: Array<Loan>;
   mobileNumber: string;
+  occupationType?: string | null;
   updatedAt?: string;
 }

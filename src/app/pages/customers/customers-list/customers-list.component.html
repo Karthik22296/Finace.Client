@@ -30,9 +30,9 @@
 
 
         <!-- Code Column -->
-        <ng-container matColumnDef="customerCode">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Code </th>
-          <td mat-cell *matCellDef="let row"> <strong>{{row.customerCode}}</strong> </td>
+        <ng-container matColumnDef="customerId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+          <td mat-cell *matCellDef="let row"> <strong>#{{row.customerId}}</strong> </td>
         </ng-container>
 
         <!-- Name Column -->
@@ -86,12 +86,12 @@
 
 
 
-        <!-- Code Filter Row -->
-        <ng-container matColumnDef="customerCodeFilter">
+        <!-- ID Filter -->
+        <ng-container matColumnDef="customerIdFilter">
           <th mat-header-cell *matHeaderCellDef class="search-header-cell">
             <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
               <mat-icon matPrefix>search</mat-icon>
-              <input matInput (keyup)="applyFilter('customerCode', $event)" placeholder="Search Code">
+              <input matInput (keyup)="applyFilter('customerId', $event)" placeholder="Search ID">
             </mat-form-field>
           </th>
         </ng-container>

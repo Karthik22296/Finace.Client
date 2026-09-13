@@ -4,3 +4,115 @@
   display: flex;
   flex-direction: column;
 }
+
+/* Modern Header */
+.dialog-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid var(--color-border, #e2e2e2);
+  background: var(--color-surface, #ffffff);
+}
+
+.dialog-header-modern h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text, #111111);
+}
+
+.close-btn {
+  color: var(--color-text-secondary, #666666);
+  transition: transform 0.2s ease, background-color 0.2s;
+}
+
+.close-btn:hover {
+  transform: rotate(90deg);
+  background-color: var(--color-hover, #f5f5f5);
+  color: var(--color-text, #111111);
+}
+
+/* Subtitle */
+.subtitle {
+  color: var(--color-text-secondary, #666666);
+  font-size: 14px;
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+
+/* Section Cards for grouping */
+.section-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border, #e2e2e2);
+  border-radius: 8px;
+  padding: 20px 20px 4px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.section-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.last-card {
+  margin-bottom: 8px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text, #111111);
+  margin-top: 0;
+  margin-bottom: 16px;
+  border-bottom: 1px dashed var(--color-border, #e2e2e2);
+  padding-bottom: 12px;
+}
+
+.section-title mat-icon {
+  color: var(--color-text, #111111);
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+
+/* Form Fields */
+.custom-field {
+  transition: transform 0.2s ease;
+}
+
+.custom-field mat-icon[matPrefix] {
+  margin-right: 8px;
+  color: var(--color-text-secondary, #666666);
+  transition: color 0.3s;
+}
+
+.custom-field:focus-within mat-icon[matPrefix] {
+  color: var(--color-text, #111111);
+}
+
+/* Actions */
+.modern-dialog-actions {
+  padding: 16px 24px 24px 24px;
+  background: var(--color-surface, #ffffff);
+  border-top: 1px solid var(--color-border, #e2e2e2);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-cancel {
+  border-radius: 8px;
+  padding: 0 20px;
+  font-weight: 500;
+}
+
+.btn-save {
+  border-radius: 8px;
+  padding: 0 24px;
+  font-weight: 600;
+}
