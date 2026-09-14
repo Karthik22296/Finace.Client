@@ -7,16 +7,15 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { CreateNotificationRequest } from '../../models/create-notification-request';
 
-export interface NotificationCreateNotification$Params {
-      body: CreateNotificationRequest
+export interface UserGetProfilePhotoFile$Params {
+  userId?: string;
 }
 
-export function notificationCreateNotification(http: HttpClient, rootUrl: string, params: NotificationCreateNotification$Params, context?: HttpContext): Observable<StrictHttpResponse<Blob>> {
-  const rb = new RequestBuilder(rootUrl, notificationCreateNotification.PATH, 'post');
+export function userGetProfilePhotoFile(http: HttpClient, rootUrl: string, params?: UserGetProfilePhotoFile$Params, context?: HttpContext): Observable<StrictHttpResponse<Blob>> {
+  const rb = new RequestBuilder(rootUrl, userGetProfilePhotoFile.PATH, 'get');
   if (params) {
-    rb.body(params.body, 'application/json');
+    rb.query('userId', params.userId, {});
   }
 
   return http.request(
@@ -29,4 +28,4 @@ export function notificationCreateNotification(http: HttpClient, rootUrl: string
   );
 }
 
-notificationCreateNotification.PATH = '/api/notifications';
+userGetProfilePhotoFile.PATH = '/api/users/profile-photo/file';

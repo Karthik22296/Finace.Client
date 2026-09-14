@@ -1,0 +1,239 @@
+<div style="display: contents;">
+        <!-- LEFT COLUMN: Form Section Cards -->
+        <div class="form-sections-col">
+          
+          <!-- 1. Personal Information -->
+          <mat-card class="form-section-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-person">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="header-text-with-action">
+                <mat-card-title>Personal Information</mat-card-title>
+                <button mat-stroked-button type="button" class="btn-edit-sec" (click)="editStep.emit(1)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content class="section-card-body review-compact-body">
+              <div class="review-grid-pairs">
+                <div class="review-pair"><span class="r-lbl">Customer Type</span><span class="r-val">{{ customerForm.get('customerType')?.value }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Gender</span><span class="r-val">{{ customerForm.get('gender')?.value }}</span></div>
+                
+                <div class="review-pair"><span class="r-lbl">Title</span><span class="r-val">{{ customerForm.get('title')?.value }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Mobile Number</span><span class="r-val">+91 {{ customerForm.get('mobileNumber')?.value }}</span></div>
+                
+                <div class="review-pair"><span class="r-lbl">Full Name</span><span class="r-val">{{ customerForm.get('fullName')?.value }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Alternate Number</span><span class="r-val">{{ customerForm.get('alternateNumber')?.value ? '+91 ' + customerForm.get('alternateNumber')?.value : 'N/A' }}</span></div>
+
+                <div class="review-pair"><span class="r-lbl">Date of Birth</span><span class="r-val">{{ customerForm.get('dateOfBirth')?.value | date:'dd MMM yyyy' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Email</span><span class="r-val">{{ customerForm.get('email')?.value || 'N/A' }}</span></div>
+
+                <div class="review-pair"><span class="r-lbl transparent-label">&nbsp;</span><span class="r-val"></span></div>
+                <div class="review-pair"><span class="r-lbl">Marital Status</span><span class="r-val">{{ customerForm.get('maritalStatus')?.value || 'N/A' }}</span></div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- 2. Address Details -->
+          <mat-card class="form-section-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-red">
+                <mat-icon>location_on</mat-icon>
+              </div>
+              <div class="header-text-with-action">
+                <mat-card-title>Address Details</mat-card-title>
+                <button mat-stroked-button type="button" class="btn-edit-sec" (click)="editStep.emit(1)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content class="section-card-body review-compact-body">
+              <div class="review-grid-2col">
+                <div class="review-pair"><span class="r-lbl">Address Line 1</span><span class="r-val">{{ customerForm.get('addressLine1')?.value || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Address Line 2</span><span class="r-val">{{ customerForm.get('addressLine2')?.value || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">City / Town</span><span class="r-val">{{ customerForm.get('city')?.value || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">State</span><span class="r-val">{{ customerForm.get('state')?.value || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Pincode</span><span class="r-val">{{ customerForm.get('pincode')?.value || 'N/A' }}</span></div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- 3. Identification Document (KYC) -->
+          <mat-card class="form-section-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-doc">
+                <mat-icon>assignment</mat-icon>
+              </div>
+              <div class="header-text-with-action">
+                <mat-card-title>Identification Document (KYC)</mat-card-title>
+                <button mat-stroked-button type="button" class="btn-edit-sec" (click)="editStep.emit(2)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content class="section-card-body review-compact-body">
+              <div class="kyc-review-layout">
+                <div class="kyc-review-details">
+                  <div class="review-pair"><span class="r-lbl">ID Type</span><span class="r-val">{{ customerForm.get('idType')?.value }}</span></div>
+                  <div class="review-pair"><span class="r-lbl">ID Number</span><span class="r-val">{{ customerForm.get('idNumber')?.value }}</span></div>
+                </div>
+                
+                <div class="kyc-review-preview" *ngIf="idProofFile">
+                  <div class="doc-thumbnail-wrap review-thumbnail">
+                    <div class="thumbnail-header">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem" class="emblem-img">
+                      <div class="gov-text">Government of India</div>
+                    </div>
+                    <div class="thumbnail-content">
+                      <div class="user-avatar-placeholder">
+                        <mat-icon>person</mat-icon>
+                      </div>
+                      <div class="qr-code-placeholder">
+                        <mat-icon>qr_code_2</mat-icon>
+                      </div>
+                    </div>
+                    <div class="thumbnail-id-number">{{ customerForm.get('idNumber')?.value || '1234 5678 9012' }}</div>
+                  </div>
+                  <div class="kyc-file-info">
+                    <span class="file-name">{{ idProofFile.name }}</span>
+                    <span class="file-size">{{ idProofFile.size }}</span>
+                    <div class="file-status-badge uploaded-badge-small">
+                      <mat-icon class="check-icon">check_circle</mat-icon>
+                      <span>Uploaded</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Green Alert Card -->
+          <div class="success-alert-card">
+            <mat-icon class="success-icon">check_circle</mat-icon>
+            <div class="alert-content">
+              <h4>All required information is complete!</h4>
+              <p>Please review the details above. Click "Save Customer" to create the customer profile.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Sidebar Cards -->
+        <div class="sidebar-cards-col">
+          
+          <!-- 1. Customer Photo -->
+          <mat-card class="sidebar-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-person">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="header-text-with-action">
+                <mat-card-title>Customer Photo</mat-card-title>
+                <button mat-stroked-button type="button" class="btn-edit-sec" (click)="editStep.emit(1)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content class="profile-photo-body no-padding-bottom">
+               <div class="review-avatar-container">
+                 <img *ngIf="profilePhotoUrl" [src]="profilePhotoUrl" alt="Profile" class="review-avatar-img">
+                 <img *ngIf="!profilePhotoUrl" src="https://ui-avatars.com/api/?name=Arun+Kumar&background=cbd5e1&color=ffffff&size=150" alt="Profile placeholder" class="review-avatar-img">
+               </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- 2. Branch Assignment -->
+          <mat-card class="sidebar-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-building">
+                <mat-icon>account_balance</mat-icon>
+              </div>
+              <div class="header-text-with-action">
+                <mat-card-title>Branch Assignment</mat-card-title>
+                <button mat-stroked-button type="button" class="btn-edit-sec" (click)="editStep.emit(1)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content class="section-card-body review-compact-body">
+               <div class="review-pair row-layout">
+                 <span class="r-lbl">Branch</span>
+                 <span class="r-val">{{ selectedBranchName }}</span>
+               </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- 3. Additional Notes -->
+          <mat-card class="sidebar-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-note">
+                <mat-icon>description</mat-icon>
+              </div>
+              <div class="header-text-with-action">
+                <mat-card-title>Additional Notes</mat-card-title>
+                <button mat-stroked-button type="button" class="btn-edit-sec" (click)="editStep.emit(1)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content class="section-card-body review-compact-body">
+               <p class="notes-text">{{ customerForm.get('notes')?.value || 'Prefers doorstep service. Available in the evenings after 6 PM.' }}</p>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- 4. Additional Documents (Optional) -->
+          <mat-card class="sidebar-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-doc">
+                <mat-icon>assignment_ind</mat-icon>
+              </div>
+              <div class="header-text-with-action">
+                <mat-card-title>Additional Documents <span class="sub-optional">(Optional)</span></mat-card-title>
+                <button mat-stroked-button type="button" class="btn-edit-sec" (click)="editStep.emit(2)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content class="section-card-body review-compact-body">
+              <div class="review-additional-docs-list">
+                <div class="doc-preview-item" *ngIf="additionalDocs.length === 0">
+                  <div class="doc-preview-icon"><img src="https://cdn-icons-png.flaticon.com/512/281/281760.png" width="24" height="24" alt="pan"></div>
+                  <div class="doc-preview-info">
+                    <span class="doc-title">PAN Card</span>
+                    <span class="doc-meta">pan_card.jpg<br>320 KB</span>
+                  </div>
+                </div>
+                <div class="doc-preview-item" *ngIf="additionalDocs.length === 0">
+                   <div class="doc-preview-icon"><img src="https://cdn-icons-png.flaticon.com/512/281/281760.png" width="24" height="24" alt="voter"></div>
+                   <div class="doc-preview-info">
+                     <span class="doc-title">Voter ID</span>
+                     <span class="doc-meta">voter_id.pdf<br>410 KB</span>
+                   </div>
+                </div>
+
+                <div class="doc-preview-item" *ngFor="let doc of additionalDocs">
+                   <div class="doc-preview-icon"><mat-icon>description</mat-icon></div>
+                   <div class="doc-preview-info">
+                     <span class="doc-title">{{ doc.docType }}</span>
+                     <span class="doc-meta">{{ doc.file?.name || 'No file' }}<br>{{ doc.file?.size || '' }}</span>
+                   </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Step 3 Actions Bar -->
+          <div class="form-actions-bar step3-actions">
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="prev.emit()">
+              Back
+            </button>
+            <button mat-flat-button color="primary" type="submit" class="btn-save" [disabled]="customerForm.invalid || isLoading">
+              <mat-spinner *ngIf="isLoading" diameter="18" class="btn-spinner"></mat-spinner>
+              <mat-icon *ngIf="!isLoading">save</mat-icon>
+              <span>{{ isLoading ? 'Saving...' : 'Save Customer' }}</span>
+            </button>
+          </div>
+
+        </div>
+</div>

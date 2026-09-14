@@ -1,6 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewEncapsulation, OnInit } from '@angular/core';
+import { LookupService, LookupValue } from '../../../core/services/lookup.service';
+import { CustomerDocumentService } from '../../../core/services/customer-document.service';
+import { forkJoin } from 'rxjs';
 import { CommonModule, Location } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
@@ -20,6 +23,22 @@ import { MatChipsModule } from '@angular/material/chips';
 import { customerCreate } from '../../../../api/fn/customer/customer-create';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { ToastService } from '../../../core/services/toast.service';
+import { Step1CustomerDetailsComponent } from './components/step1-customer-details/step1-customer-details.component';
+import { Step2DocumentsComponent } from './components/step2-documents/step2-documents.component';
+import { Step3ReviewComponent } from './components/step3-review/step3-review.component';
+
+interface UploadedFile {
+  name: string;
+  size: string;
+  previewUrl?: string | null;
+  rawFile?: File;
+}
+
+interface AdditionalDocItem {
+  id: number;
+  docType: string;
+  file: UploadedFile | null;
+}
 
 @Component({
   selector: 'app-customer-create',
@@ -27,6 +46,7 @@ import { ToastService } from '../../../core/services/toast.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     RouterModule,
     MatCardModule,
     MatFormFieldModule,
@@ -41,13 +61,17 @@ import { ToastService } from '../../../core/services/toast.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDividerModule,
-    MatChipsModule
+    MatChipsModule,
+    Step1CustomerDetailsComponent,
+    Step2DocumentsComponent,
+    Step3ReviewComponent
   ],
   templateUrl: './customer-create.component.html',
   styleUrls: ['./customer-create.component.css'],
+  encapsulation: ViewEncapsulation.None,
   providers: [provideNativeDateAdapter()]
 })
-export class CustomerCreateComponent {
+export class CustomerCreateComponent implements OnInit {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
@@ -55,11 +79,19 @@ export class CustomerCreateComponent {
   private toastService = inject(ToastService);
   private location = inject(Location);
   private router = inject(Router);
+  private lookupService = inject(LookupService);
+  private documentService = inject(CustomerDocumentService);
 
+  genders: LookupValue[] = [];
+  idTypesLookup: LookupValue[] = [];
+  docTypesLookup: LookupValue[] = [];
+  occupations: LookupValue[] = [];
+  profilePhotoFile: File | null = null;
   isLoading = false;
   currentStep = 1;
   profilePhotoUrl: string | null = null;
   registrationDate = new Date();
+  isIdNumberVisible = false;
 
   branches = [
     { id: 1, name: 'Main Branch' },
@@ -78,7 +110,28 @@ export class CustomerCreateComponent {
     'Gujarat'
   ];
 
+  idTypes = [
+    'Aadhaar Card',
+    'PAN Card',
+    'Voter ID',
+    'Passport',
+    'Driving License'
+  ];
+
+  additionalDocTypes = [
+    'Income Proof',
+    'Bank Statement',
+    'Address Proof',
+    'Other'
+  ];
+
+  // Default uploaded ID proof file to match design spec
+  idProofFile: UploadedFile | null = null;
+
+  additionalDocs: AdditionalDocItem[] = [];
+
   customerForm = this.fb.group({
+    // Step 1: Customer Details
     customerType: ['Individual', Validators.required],
     title: ['Mr.', Validators.required],
     fullName: ['', [Validators.required, Validators.minLength(3), Validators.pattern('^[a-zA-Z\\s]+$')]],
@@ -96,8 +149,20 @@ export class CustomerCreateComponent {
     state: ['Tamil Nadu', Validators.required],
     pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
     branchId: [1, Validators.required],
-    notes: ['']
+    notes: [''],
+
+    // Step 2: Documents (KYC)
+    idType: ['', Validators.required],
+    idNumber: ['', Validators.required]
   });
+
+
+  ngOnInit(): void {
+    this.lookupService.getLookupValues(1).subscribe(res => this.genders = res);
+    this.lookupService.getLookupValues(2).subscribe(res => this.docTypesLookup = res.filter(x => x.code !== 'PROFILE_PHOTO'));
+    this.lookupService.getLookupValues(3).subscribe(res => this.occupations = res);
+    this.lookupService.getLookupValues(4).subscribe(res => this.idTypesLookup = res);
+  }
 
   get selectedBranchName(): string {
     const branchId = this.customerForm.get('branchId')?.value;
@@ -105,10 +170,32 @@ export class CustomerCreateComponent {
     return branch ? branch.name : 'Main Branch';
   }
 
+  // Document checklist status getters
+  get isIdTypeSelected(): boolean {
+    return !!this.customerForm.get('idType')?.value;
+  }
+
+  get isIdNumberEntered(): boolean {
+    return !!this.customerForm.get('idNumber')?.value;
+  }
+
+  get isIdProofUploaded(): boolean {
+    return !!this.idProofFile;
+  }
+
+  get isPhotoUploaded(): boolean {
+    return !!this.profilePhotoUrl;
+  }
+
+  toggleIdNumberVisibility(): void {
+    this.isIdNumberVisible = !this.isIdNumberVisible;
+  }
+
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
+      this.profilePhotoFile = file;
       const reader = new FileReader();
       reader.onload = (e) => {
         this.profilePhotoUrl = e.target?.result as string;
@@ -121,15 +208,93 @@ export class CustomerCreateComponent {
     fileInput.click();
   }
 
+  onIdProofSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const sizeInKb = Math.round(file.size / 1024);
+      this.idProofFile = {
+        name: file.name,
+        size: sizeInKb > 1024 ? `${(sizeInKb / 1024).toFixed(1)} MB` : `${sizeInKb} KB`,
+        rawFile: file
+      };
+      this.toastService.success('Uploaded');
+    }
+  }
+
+  removeIdProof(): void {
+    this.idProofFile = null;
+  }
+
+  addAnotherDocument(): void {
+    this.additionalDocs.push({
+      id: Date.now(),
+      docType: 'Income Proof',
+      file: null
+    });
+  }
+
+  removeAdditionalDoc(index: number): void {
+    this.additionalDocs.splice(index, 1);
+  }
+
+  onAdditionalDocSelected(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const sizeInKb = Math.round(file.size / 1024);
+      this.additionalDocs[index].file = {
+        name: file.name,
+        size: sizeInKb > 1024 ? `${(sizeInKb / 1024).toFixed(1)} MB` : `${sizeInKb} KB`,
+        rawFile: file
+      };
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step < this.currentStep) {
+      this.currentStep = step;
+    } else if (step === 2 && this.currentStep === 1) {
+      this.nextStep();
+    } else if (step === 3 && this.currentStep === 2) {
+      this.nextStep();
+    }
+  }
+
   nextStep(): void {
     if (this.currentStep === 1) {
-      if (this.customerForm.invalid) {
-        this.customerForm.markAllAsTouched();
-        this.toastService.error('Please fill in all required fields correctly.');
+      const step1Controls = ['fullName', 'dateOfBirth', 'mobileNumber', 'addressLine1', 'city', 'state', 'pincode', 'branchId'];
+      let isValid = true;
+      step1Controls.forEach(ctrl => {
+        const c = this.customerForm.get(ctrl);
+        if (c && c.invalid) {
+          c.markAsTouched();
+          isValid = false;
+        }
+      });
+      if (!isValid) {
+        this.toastService.error('Please fill in all required Step 1 fields correctly.');
         return;
       }
       this.currentStep = 2;
     } else if (this.currentStep === 2) {
+      const step2Controls = ['idType', 'idNumber'];
+      let isValid = true;
+      step2Controls.forEach(ctrl => {
+        const c = this.customerForm.get(ctrl);
+        if (c && c.invalid) {
+          c.markAsTouched();
+          isValid = false;
+        }
+      });
+      if (!isValid) {
+        this.toastService.error('Please select ID Type and enter ID Number.');
+        return;
+      }
+      if (!this.idProofFile) {
+        this.toastService.error('Please upload an ID proof document.');
+        return;
+      }
       this.currentStep = 3;
     }
   }
@@ -167,6 +332,8 @@ export class CustomerCreateComponent {
         gender: formValue.gender,
         alternateNumber: formValue.alternateNumber || null,
         occupationType: formValue.customerType || 'Individual',
+        idProofType: formValue.idType || 'Aadhaar Card',
+        idProofNumber: formValue.idNumber || '',
         branchId: formValue.branchId!
       }
     }).subscribe({
@@ -187,6 +354,17 @@ export class CustomerCreateComponent {
     });
   }
 
+
+  finalizeSubmit(): void {
+    this.isLoading = false;
+    this.toastService.success('Customer profile created successfully');
+    if (this.dialogRef) {
+      this.dialogRef.close(true);
+    } else {
+      this.router.navigate(['/customers']);
+    }
+  }
+
   onCancel(): void {
     if (this.dialogRef) {
       this.dialogRef.close(false);
@@ -195,4 +373,3 @@ export class CustomerCreateComponent {
     }
   }
 }
-

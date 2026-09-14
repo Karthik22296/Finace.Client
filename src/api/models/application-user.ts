@@ -11,5 +11,6 @@ export type ApplicationUser = IdentityUser & {
 'createdAt'?: string;
 'refreshToken'?: string | null;
 'refreshTokenExpiry'?: string | null;
+'profilePhotoUrl'?: string | null;
 };
 

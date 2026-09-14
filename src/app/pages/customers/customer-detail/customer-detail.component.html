@@ -89,6 +89,36 @@
             <p>Detailed day-by-day ledgers will be available in Phase 6.</p>
           </div>
         </mat-tab>
+        <mat-tab label="KYC Documents">
+          <div class="tab-content" style="padding: 16px;">
+            <div *ngIf="isLoadingDocuments" style="display: flex; justify-content: center; padding: 20px;">
+              <mat-spinner diameter="30"></mat-spinner>
+            </div>
+            
+            <div *ngIf="!isLoadingDocuments && documents.length === 0" class="placeholder-content">
+              <mat-icon class="placeholder-icon">folder_open</mat-icon>
+              <h3>No Documents</h3>
+              <p>No KYC or additional documents have been uploaded for this customer.</p>
+            </div>
+
+            <div *ngIf="!isLoadingDocuments && documents.length > 0" class="docs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
+              <mat-card *ngFor="let doc of documents" class="doc-card" style="box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--color-border-light);">
+                <mat-card-header style="padding: 12px; border-bottom: 1px solid var(--color-border-light);">
+                  <div mat-card-avatar style="background-color: #f0f7ff; color: var(--color-primary); display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                    <mat-icon>insert_drive_file</mat-icon>
+                  </div>
+                  <mat-card-title style="font-size: 14px; margin-bottom: 4px; word-break: break-all;">{{ doc.originalFileName }}</mat-card-title>
+                  <mat-card-subtitle style="font-size: 12px;">{{ doc.documentType }}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-actions style="padding: 8px 12px; display: flex; justify-content: flex-end;">
+                  <button mat-button color="primary" (click)="downloadDocument(doc)">
+                    <mat-icon>download</mat-icon> Download
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+          </div>
+        </mat-tab>
       </mat-tab-group>
     </mat-card>
 

@@ -9,5 +9,6 @@ export interface UserResponse {
   fullName?: string;
   id?: string;
   isActive?: boolean;
+  profilePhotoUrl?: string | null;
   roles?: Array<string>;
 }

@@ -8,24 +8,23 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 import { CreateReminderRequest } from '../../models/create-reminder-request';
-import { ReminderDto } from '../../models/reminder-dto';
 
 export interface ReminderCreateReminder$Params {
-      body?: CreateReminderRequest
+      body: CreateReminderRequest
 }
 
-export function reminderCreateReminder(http: HttpClient, rootUrl: string, params?: ReminderCreateReminder$Params, context?: HttpContext): Observable<StrictHttpResponse<ReminderDto>> {
+export function reminderCreateReminder(http: HttpClient, rootUrl: string, params: ReminderCreateReminder$Params, context?: HttpContext): Observable<StrictHttpResponse<Blob>> {
   const rb = new RequestBuilder(rootUrl, reminderCreateReminder.PATH, 'post');
   if (params) {
     rb.body(params.body, 'application/json');
   }
 
   return http.request(
-    rb.build({ responseType: 'json', accept: 'application/json', context })
+    rb.build({ responseType: 'blob', accept: 'application/octet-stream', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<ReminderDto>;
+      return r as StrictHttpResponse<Blob>;
     })
   );
 }

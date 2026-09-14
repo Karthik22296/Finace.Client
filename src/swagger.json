@@ -20,152 +20,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OfF__AnonymousType7OfStringAndStringAndStringAndDateTimeAndString"
+                  "$ref": "#/components/schemas/OfF__AnonymousType8OfStringAndStringAndStringAndDateTimeAndString"
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/api/reports/dashboard-summary": {
-      "get": {
-        "tags": [ "Reports" ],
-        "operationId": "Reports_DashboardSummary",
-        "parameters": [
-          { "name": "branchId", "in": "query", "required": false, "schema": { "type": "integer" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/DashboardSummaryDto" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/search": {
-      "get": {
-        "tags": [ "Search" ],
-        "operationId": "Search_GlobalSearch",
-        "parameters": [
-          { "name": "q", "in": "query", "required": true, "schema": { "type": "string" } },
-          { "name": "branchId", "in": "query", "required": false, "schema": { "type": "integer" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/GlobalSearchResultDto" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/notifications": {
-      "get": {
-        "tags": [ "Notification" ],
-        "operationId": "Notification_GetNotifications",
-        "parameters": [
-          { "name": "unreadOnly", "in": "query", "required": false, "schema": { "type": "boolean" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/NotificationDto" } }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [ "Notification" ],
-        "operationId": "Notification_CreateNotification",
-        "requestBody": {
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateNotificationRequest" } } }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotificationDto" } } }
-          }
-        }
-      }
-    },
-    "/api/notifications/{id}/read": {
-      "put": {
-        "tags": [ "Notification" ],
-        "operationId": "Notification_MarkAsRead",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": { "200": { "description": "Success" } }
-      }
-    },
-    "/api/notifications/mark-all-read": {
-      "post": {
-        "tags": [ "Notification" ],
-        "operationId": "Notification_MarkAllAsRead",
-        "responses": { "200": { "description": "Success" } }
-      }
-    },
-    "/api/reminders": {
-      "get": {
-        "tags": [ "Reminder" ],
-        "operationId": "Reminder_GetReminders",
-        "parameters": [
-          { "name": "date", "in": "query", "required": false, "schema": { "type": "string", "format": "date-time" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ReminderDto" } }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [ "Reminder" ],
-        "operationId": "Reminder_CreateReminder",
-        "requestBody": {
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateReminderRequest" } } }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ReminderDto" } } }
-          }
-        }
-      }
-    },
-    "/api/reminders/{id}/complete": {
-      "put": {
-        "tags": [ "Reminder" ],
-        "operationId": "Reminder_ToggleComplete",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
-        ],
-        "responses": { "200": { "description": "Success" } }
-      }
-    },
-    "/api/users/profile": {
-      "get": {
-        "tags": [ "User" ],
-        "operationId": "User_GetProfile",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } }
           }
         }
       }
@@ -1360,6 +1218,216 @@
         }
       }
     },
+    "/api/customers/{customerId}/documents": {
+      "get": {
+        "tags": [
+          "CustomerDocuments"
+        ],
+        "operationId": "CustomerDocuments_GetDocuments",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerDocument"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "CustomerDocuments"
+        ],
+        "operationId": "CustomerDocuments_UploadDocument",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "ContentType": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "ContentDisposition": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "Headers": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {}
+                  },
+                  "Length": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "Name": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "FileName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "documentType": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDocument"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/customers/{customerId}/documents/{id}/file": {
+      "get": {
+        "tags": [
+          "CustomerDocuments"
+        ],
+        "operationId": "CustomerDocuments_GetDocumentFile",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/customers/{customerId}/documents/{id}": {
+      "delete": {
+        "tags": [
+          "CustomerDocuments"
+        ],
+        "operationId": "CustomerDocuments_DeleteDocument",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
     "/api/ledger/customer/{customerId}": {
       "get": {
         "tags": [
@@ -1779,6 +1847,184 @@
         }
       }
     },
+    "/api/Lookups/{lookupTypeId}": {
+      "get": {
+        "tags": [
+          "Lookups"
+        ],
+        "operationId": "Lookups_GetLookupValues",
+        "parameters": [
+          {
+            "name": "lookupTypeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LookupValue"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "operationId": "Notification_GetNotifications",
+        "parameters": [
+          {
+            "name": "unreadOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Notification"
+        ],
+        "operationId": "Notification_CreateNotification",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNotificationRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/{id}/read": {
+      "put": {
+        "tags": [
+          "Notification"
+        ],
+        "operationId": "Notification_MarkAsRead",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/mark-all-read": {
+      "post": {
+        "tags": [
+          "Notification"
+        ],
+        "operationId": "Notification_MarkAllAsRead",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
     "/api/Payment": {
       "get": {
         "tags": [
@@ -1937,6 +2183,120 @@
             }
           }
         }
+      }
+    },
+    "/api/reminders": {
+      "get": {
+        "tags": [
+          "Reminder"
+        ],
+        "operationId": "Reminder_GetReminders",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReminderDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Reminder"
+        ],
+        "operationId": "Reminder_CreateReminder",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReminderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/reminders/{id}/complete": {
+      "put": {
+        "tags": [
+          "Reminder"
+        ],
+        "operationId": "Reminder_ToggleComplete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
       }
     },
     "/api/reports/daily-collection": {
@@ -2230,6 +2590,180 @@
         }
       }
     },
+    "/api/reports/dashboard-summary": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "Reports_DashboardSummary",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "operationId": "Search_GlobalSearch",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "branchId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalSearchResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/users/profile": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "User_GetProfile",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/users/profile-photo": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "User_UploadProfilePhoto",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadProfilePhotoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      }
+    },
+    "/api/users/profile-photo/file": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "User_GetProfilePhotoFile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users": {
       "get": {
         "tags": [
@@ -2240,10 +2774,12 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
                 }
               }
             }
@@ -2313,10 +2849,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -2414,7 +2949,7 @@
   },
   "components": {
     "schemas": {
-      "OfF__AnonymousType7OfStringAndStringAndStringAndDateTimeAndString": {
+      "OfF__AnonymousType8OfStringAndStringAndStringAndDateTimeAndString": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2550,6 +3085,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Loan"
+            }
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerDocument"
             }
           }
         }
@@ -2816,6 +3357,10 @@
                 "type": "string",
                 "format": "date-time",
                 "nullable": true
+              },
+              "profilePhotoUrl": {
+                "type": "string",
+                "nullable": true
               }
             }
           }
@@ -3007,6 +3552,49 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "CustomerDocument": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "documentType",
+          "documentPath",
+          "originalFileName"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customer": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Customer"
+              }
+            ]
+          },
+          "documentType": {
+            "type": "string"
+          },
+          "documentPath": {
+            "type": "string"
+          },
+          "originalFileName": {
+            "type": "string"
+          },
+          "uploadedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         }
       },
@@ -3358,6 +3946,119 @@
           }
         }
       },
+      "LookupValue": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "displayName"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lookupTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lookupType": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LookupType"
+              }
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LookupType": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "lookupValues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LookupValue"
+            }
+          }
+        }
+      },
+      "NotificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "linkUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateNotificationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "linkUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "Payment": {
         "type": "object",
         "additionalProperties": false,
@@ -3393,6 +4094,319 @@
           }
         }
       },
+      "ReminderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "time": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "sub": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateReminderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "time": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "sub": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DashboardSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCustomers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalActiveLoans": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "todaysTarget": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "collectedAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "shortfall": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "collectionProgress": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPortfolioValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "activeLoanPct": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overdueLoanPct": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "npaLoanPct": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "trendBars": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardTrendBarDto"
+            }
+          },
+          "recentActivities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardActivityDto"
+            }
+          }
+        }
+      },
+      "DashboardTrendBarDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "collection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "target": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DashboardActivityDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "activity": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "GlobalSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "customers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchCustomerResultDto"
+            }
+          },
+          "loans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchLoanResultDto"
+            }
+          },
+          "collections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchCollectionResultDto"
+            }
+          }
+        }
+      },
+      "SearchCustomerResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "mobileNumber": {
+            "type": "string"
+          },
+          "aadhaarNumber": {
+            "type": "string"
+          },
+          "addressText": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SearchLoanResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "loanAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "dailyDueAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "SearchCollectionResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "amountPaid": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "collectionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receiptNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "branchId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "branchName": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "profilePhotoUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UploadProfilePhotoResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "photoUrl": {
+            "type": "string"
+          }
+        }
+      },
       "UpdateUserRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -3412,140 +4426,6 @@
           "isActive": {
             "type": "boolean"
           }
-        }
-      },
-      "UserResponse": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "email": { "type": "string" },
-          "fullName": { "type": "string" },
-          "branchId": { "type": "integer", "format": "int32", "nullable": true },
-          "branchName": { "type": "string", "nullable": true },
-          "isActive": { "type": "boolean" },
-          "roles": { "type": "array", "items": { "type": "string" } },
-          "createdAt": { "type": "string", "format": "date-time" }
-        }
-      },
-      "SearchCustomerResultDto": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int32" },
-          "fullName": { "type": "string" },
-          "mobileNumber": { "type": "string" },
-          "aadhaarNumber": { "type": "string" },
-          "addressText": { "type": "string", "nullable": true }
-        }
-      },
-      "SearchLoanResultDto": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int32" },
-          "customerId": { "type": "integer", "format": "int32" },
-          "customerName": { "type": "string" },
-          "loanAmount": { "type": "number", "format": "double" },
-          "dailyDueAmount": { "type": "number", "format": "double" },
-          "status": { "type": "string" }
-        }
-      },
-      "SearchCollectionResultDto": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int32" },
-          "loanId": { "type": "integer", "format": "int32" },
-          "customerName": { "type": "string" },
-          "amountPaid": { "type": "number", "format": "double" },
-          "collectionDate": { "type": "string", "format": "date-time" },
-          "receiptNumber": { "type": "string", "nullable": true }
-        }
-      },
-      "GlobalSearchResultDto": {
-        "type": "object",
-        "properties": {
-          "customers": { "type": "array", "items": { "$ref": "#/components/schemas/SearchCustomerResultDto" } },
-          "loans": { "type": "array", "items": { "$ref": "#/components/schemas/SearchLoanResultDto" } },
-          "collections": { "type": "array", "items": { "$ref": "#/components/schemas/SearchCollectionResultDto" } }
-        }
-      },
-      "NotificationDto": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "title": { "type": "string" },
-          "message": { "type": "string" },
-          "type": { "type": "string" },
-          "isRead": { "type": "boolean" },
-          "createdAt": { "type": "string", "format": "date-time" },
-          "linkUrl": { "type": "string", "nullable": true }
-        }
-      },
-      "CreateNotificationRequest": {
-        "type": "object",
-        "properties": {
-          "title": { "type": "string" },
-          "message": { "type": "string" },
-          "type": { "type": "string" },
-          "linkUrl": { "type": "string", "nullable": true }
-        }
-      },
-      "ReminderDto": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int32" },
-          "time": { "type": "string" },
-          "icon": { "type": "string" },
-          "type": { "type": "string" },
-          "title": { "type": "string" },
-          "sub": { "type": "string" },
-          "isCompleted": { "type": "boolean" },
-          "dueDate": { "type": "string", "format": "date-time" }
-        }
-      },
-      "CreateReminderRequest": {
-        "type": "object",
-        "properties": {
-          "time": { "type": "string" },
-          "icon": { "type": "string" },
-          "type": { "type": "string" },
-          "title": { "type": "string" },
-          "sub": { "type": "string" },
-          "dueDate": { "type": "string", "format": "date-time" }
-        }
-      },
-      "DashboardTrendBarDto": {
-        "type": "object",
-        "properties": {
-          "label": { "type": "string" },
-          "collection": { "type": "integer", "format": "int32" },
-          "target": { "type": "integer", "format": "int32" }
-        }
-      },
-      "DashboardActivityDto": {
-        "type": "object",
-        "properties": {
-          "date": { "type": "string" },
-          "customerName": { "type": "string" },
-          "customerId": { "type": "string" },
-          "activity": { "type": "string" },
-          "amount": { "type": "string" },
-          "status": { "type": "string" }
-        }
-      },
-      "DashboardSummaryDto": {
-        "type": "object",
-        "properties": {
-          "totalCustomers": { "type": "integer", "format": "int32" },
-          "totalActiveLoans": { "type": "integer", "format": "int32" },
-          "todaysTarget": { "type": "number", "format": "double" },
-          "collectedAmount": { "type": "number", "format": "double" },
-          "shortfall": { "type": "number", "format": "double" },
-          "collectionProgress": { "type": "integer", "format": "int32" },
-          "totalPortfolioValue": { "type": "number", "format": "double" },
-          "activeLoanPct": { "type": "integer", "format": "int32" },
-          "overdueLoanPct": { "type": "integer", "format": "int32" },
-          "npaLoanPct": { "type": "integer", "format": "int32" },
-          "trendBars": { "type": "array", "items": { "$ref": "#/components/schemas/DashboardTrendBarDto" } },
-          "recentActivities": { "type": "array", "items": { "$ref": "#/components/schemas/DashboardActivityDto" } }
         }
       }
     },

@@ -16,6 +16,7 @@ import { notificationGetNotifications } from '../../../api/fn/notification/notif
 import { notificationMarkAsRead } from '../../../api/fn/notification/notification-mark-as-read';
 import { notificationMarkAllAsRead } from '../../../api/fn/notification/notification-mark-all-as-read';
 import { userGetProfile } from '../../../api/fn/user/user-get-profile';
+import { userUploadProfilePhoto } from '../../../api/fn/user/user-upload-profile-photo';
 import { GlobalSearchResultDto, NotificationDto, UserResponse } from '../../../api/models';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -78,6 +79,14 @@ export class HeaderComponent implements OnInit {
       .join('')
       .toUpperCase()
       .substring(0, 2);
+  }
+
+  get userAvatarUrl(): string | null {
+    if (this.userProfile?.profilePhotoUrl && this.userProfile?.id) {
+      // Bust cache with timestamp just in case
+      return `${this.config.rootUrl}/api/users/profile-photo/file?userId=${this.userProfile.id}&t=${new Date().getTime()}`;
+    }
+    return null;
   }
 
   get userRole(): string {
@@ -184,6 +193,25 @@ export class HeaderComponent implements OnInit {
 
   closeProfileModal(): void {
     this.showProfileModal = false;
+  }
+
+  onUploadPhoto(event: any): void {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    this.snackBar.open('Uploading photo...', '', { duration: 2000 });
+    userUploadProfilePhoto(this.http, this.config.rootUrl, { body: { file } }).subscribe({
+      next: (res) => {
+        if (res.body && this.userProfile) {
+          this.userProfile.profilePhotoUrl = res.body.photoUrl;
+          this.snackBar.open('Profile photo updated!', 'Close', { duration: 3000 });
+        }
+      },
+      error: (err) => {
+        console.error('Failed to upload photo', err);
+        this.snackBar.open('Failed to upload photo', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   onOpenSettings(): void {

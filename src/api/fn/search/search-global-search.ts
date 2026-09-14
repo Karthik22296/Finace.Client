@@ -10,11 +10,11 @@ import { RequestBuilder } from '../../request-builder';
 import { GlobalSearchResultDto } from '../../models/global-search-result-dto';
 
 export interface SearchGlobalSearch$Params {
-  q: string;
-  branchId?: number;
+  q?: string;
+  branchId?: number | null;
 }
 
-export function searchGlobalSearch(http: HttpClient, rootUrl: string, params: SearchGlobalSearch$Params, context?: HttpContext): Observable<StrictHttpResponse<GlobalSearchResultDto>> {
+export function searchGlobalSearch(http: HttpClient, rootUrl: string, params?: SearchGlobalSearch$Params, context?: HttpContext): Observable<StrictHttpResponse<GlobalSearchResultDto>> {
   const rb = new RequestBuilder(rootUrl, searchGlobalSearch.PATH, 'get');
   if (params) {
     rb.query('q', params.q, {});

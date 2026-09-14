@@ -7,12 +7,12 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { OfFAnonymousType7OfStringAndStringAndStringAndDateTimeAndString } from '../../models/of-f-anonymous-type-7-of-string-and-string-and-string-and-date-time-and-string';
+import { OfFAnonymousType8OfStringAndStringAndStringAndDateTimeAndString } from '../../models/of-f-anonymous-type-8-of-string-and-string-and-string-and-date-time-and-string';
 
 export interface GetApiInfo$Params {
 }
 
-export function getApiInfo(http: HttpClient, rootUrl: string, params?: GetApiInfo$Params, context?: HttpContext): Observable<StrictHttpResponse<OfFAnonymousType7OfStringAndStringAndStringAndDateTimeAndString>> {
+export function getApiInfo(http: HttpClient, rootUrl: string, params?: GetApiInfo$Params, context?: HttpContext): Observable<StrictHttpResponse<OfFAnonymousType8OfStringAndStringAndStringAndDateTimeAndString>> {
   const rb = new RequestBuilder(rootUrl, getApiInfo.PATH, 'get');
   if (params) {
   }
@@ -22,7 +22,7 @@ export function getApiInfo(http: HttpClient, rootUrl: string, params?: GetApiInf
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<OfFAnonymousType7OfStringAndStringAndStringAndDateTimeAndString>;
+      return r as StrictHttpResponse<OfFAnonymousType8OfStringAndStringAndStringAndDateTimeAndString>;
     })
   );
 }

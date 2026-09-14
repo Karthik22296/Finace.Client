@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 import { DashboardSummaryDto } from '../../models/dashboard-summary-dto';
 
 export interface ReportsDashboardSummary$Params {
-  branchId?: number;
+  branchId?: number | null;
 }
 
 export function reportsDashboardSummary(http: HttpClient, rootUrl: string, params?: ReportsDashboardSummary$Params, context?: HttpContext): Observable<StrictHttpResponse<DashboardSummaryDto>> {

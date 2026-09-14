@@ -306,16 +306,7 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
 
   // ── Action Handlers ────────────────────────────────────
   openCreateCustomerDialog() {
-    const dialogRef = this.dialog.open(CustomerCreateComponent, {
-      width: '600px',
-      disableClose: true
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.loadCustomers();
-      }
-    });
+    this.router.navigate(['/customers/new']);
   }
 
   openCreateLoanForCustomer(customer: Customer) {

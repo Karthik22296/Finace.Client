@@ -172,16 +172,7 @@ export class DashboardComponent implements OnInit {
   }
 
   openNewCustomerDialog(): void {
-    const dialogRef = this.dialog.open(CustomerCreateComponent, {
-      width: '600px',
-      disableClose: true
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.loadDashboardData();
-      }
-    });
+    this.router.navigate(['/customers/new']);
   }
 
   openNewLoanDialog(): void {

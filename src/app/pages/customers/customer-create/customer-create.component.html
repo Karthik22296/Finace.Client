@@ -7,14 +7,19 @@
         <mat-icon>chevron_left</mat-icon> Back to Customers
       </button>
       <h1 class="page-title">Add New Customer</h1>
-      <p class="page-subtitle">Create a new customer profile to start their financial journey.</p>
+      <p class="page-subtitle" *ngIf="currentStep === 1">Create a new customer profile to start their financial journey.</p>
+      <p class="page-subtitle" *ngIf="currentStep === 2">Upload identification and related documents to complete the customer profile.</p>
+      <p class="page-subtitle" *ngIf="currentStep === 3">Review all information and confirm customer creation.</p>
     </div>
 
     <!-- Wizard Stepper Indicator -->
     <div class="wizard-stepper">
       <!-- Step 1 -->
-      <div class="step-item" [class.step-active]="currentStep === 1" [class.step-completed]="currentStep > 1">
-        <div class="step-number-badge">1</div>
+      <div class="step-item" [class.step-active]="currentStep === 1" [class.step-completed]="currentStep > 1" (click)="goToStep(1)">
+        <div class="step-number-badge">
+          <mat-icon *ngIf="currentStep > 1" class="chk-step-icon">check</mat-icon>
+          <span *ngIf="currentStep <= 1">1</span>
+        </div>
         <div class="step-text">
           <span class="step-title">Customer Details</span>
           <span class="step-sub">Basic information</span>
@@ -24,8 +29,11 @@
       <div class="step-connector">→</div>
 
       <!-- Step 2 -->
-      <div class="step-item" [class.step-active]="currentStep === 2" [class.step-completed]="currentStep > 2">
-        <div class="step-number-badge">2</div>
+      <div class="step-item" [class.step-active]="currentStep === 2" [class.step-completed]="currentStep > 2" (click)="goToStep(2)">
+        <div class="step-number-badge">
+          <mat-icon *ngIf="currentStep > 2" class="chk-step-icon">check</mat-icon>
+          <span *ngIf="currentStep <= 2">2</span>
+        </div>
         <div class="step-text">
           <span class="step-title">Documents</span>
           <span class="step-sub">Upload KYC</span>
@@ -35,7 +43,7 @@
       <div class="step-connector">→</div>
 
       <!-- Step 3 -->
-      <div class="step-item" [class.step-active]="currentStep === 3">
+      <div class="step-item" [class.step-active]="currentStep === 3" (click)="goToStep(3)">
         <div class="step-number-badge">3</div>
         <div class="step-text">
           <span class="step-title">Review & Save</span>
@@ -49,363 +57,53 @@
   <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
     <div class="create-grid-container">
 
-      <!-- LEFT COLUMN: Form Section Cards -->
-      <div class="form-sections-col">
+      <!-- ── STEP 1: CUSTOMER DETAILS ────────────────────────────── -->
+      <app-step1-customer-details 
+        *ngIf="currentStep === 1"
+        [customerForm]="customerForm"
+        [branches]="branches"
+        [statesList]="statesList"
+        [profilePhotoUrl]="profilePhotoUrl"
+        [registrationDate]="registrationDate"
+        [selectedBranchName]="selectedBranchName"
+        (next)="nextStep()"
+        (cancel)="onCancel()"
+        (photoSelected)="onPhotoSelected($event)">
+      </app-step1-customer-details>
 
-        <!-- 1. Personal Information Section Card -->
-        <mat-card class="form-section-card">
-          <mat-card-header>
-            <div mat-card-avatar class="section-icon-badge icon-blue">
-              <mat-icon>person</mat-icon>
-            </div>
-            <mat-card-title>Personal Information</mat-card-title>
-            <mat-card-subtitle>Enter the customer's basic details</mat-card-subtitle>
-          </mat-card-header>
+      <!-- ── STEP 2: DOCUMENTS (UPLOAD KYC) ───────────────────────── -->
+      <app-step2-documents
+        *ngIf="currentStep === 2"
+        [customerForm]="customerForm"
+        [idTypes]="idTypes"
+        [additionalDocTypes]="additionalDocTypes"
+        [idProofFile]="idProofFile"
+        [additionalDocs]="additionalDocs"
+        [profilePhotoUrl]="profilePhotoUrl"
+        [isIdNumberVisible]="isIdNumberVisible"
+        (next)="nextStep()"
+        (prev)="prevStep()"
+        (toggleIdNumber)="toggleIdNumberVisibility()"
+        (idProofSelected)="onIdProofSelected($event)"
+        (removeIdProof)="removeIdProof()"
+        (additionalDocSelected)="onAdditionalDocSelected($event.event, $event.index)"
+        (addAnotherDoc)="addAnotherDocument()"
+        (removeAdditionalDoc)="removeAdditionalDoc($event)"
+        (photoSelected)="onPhotoSelected($event)">
+      </app-step2-documents>
 
-          <mat-card-content class="section-card-body">
-            <!-- Customer Type Radio Group -->
-            <div class="field-col">
-              <label class="field-label required">Customer Type</label>
-              <div class="radio-field-box">
-                <mat-radio-group formControlName="customerType" class="custom-radio-group">
-                  <mat-radio-button value="Individual">Individual</mat-radio-button>
-                  <mat-radio-button value="Self Employed">Self Employed</mat-radio-button>
-                  <mat-radio-button value="Business">Business</mat-radio-button>
-                </mat-radio-group>
-              </div>
-            </div>
-
-            <!-- Title & Full Name Row -->
-            <div class="form-row flex-row gap-12">
-              <div class="field-col title-select-wrap">
-                <label class="field-label required">Title</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <mat-select formControlName="title">
-                    <mat-option value="Mr.">Mr.</mat-option>
-                    <mat-option value="Mrs.">Mrs.</mat-option>
-                    <mat-option value="Ms.">Ms.</mat-option>
-                    <mat-option value="Dr.">Dr.</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
-              <div class="field-col flex-fill">
-                <label class="field-label required">Full Name</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <input matInput formControlName="fullName" placeholder="Enter full name as per ID proof">
-                  <mat-error *ngIf="customerForm.get('fullName')?.hasError('required')">Full name is required</mat-error>
-                  <mat-error *ngIf="customerForm.get('fullName')?.hasError('minlength')">Min 3 characters required</mat-error>
-                  <mat-error *ngIf="customerForm.get('fullName')?.hasError('pattern')">Numbers and special characters are not allowed</mat-error>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <!-- Date of Birth & Gender Row -->
-            <div class="form-row flex-row gap-12">
-              <div class="field-col half-width">
-                <label class="field-label required">Date of Birth</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth" placeholder="dd-mm-yyyy" readonly (click)="dobPicker.open()">
-                  <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #dobPicker></mat-datepicker>
-                  <mat-error *ngIf="customerForm.get('dateOfBirth')?.hasError('required')">Date of birth is required</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div class="field-col half-width">
-                <label class="field-label required">Gender</label>
-                <div class="radio-field-box">
-                  <mat-radio-group formControlName="gender" class="custom-radio-group">
-                    <mat-radio-button value="Male">Male</mat-radio-button>
-                    <mat-radio-button value="Female">Female</mat-radio-button>
-                    <mat-radio-button value="Other">Other</mat-radio-button>
-                  </mat-radio-group>
-                </div>
-              </div>
-            </div>
-
-            <!-- Mobile Number & Alternate Number Row -->
-            <div class="form-row flex-row gap-12">
-              <div class="field-col half-width">
-                <label class="field-label required">Mobile Number</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <span matPrefix class="mobile-prefix-badge">+91</span>
-                  <input matInput formControlName="mobileNumber" placeholder="Enter 10 digit mobile number">
-                  <mat-icon matSuffix class="field-icon">phone_iphone</mat-icon>
-                  <mat-error *ngIf="customerForm.get('mobileNumber')?.hasError('required')">Mobile number is required</mat-error>
-                  <mat-error *ngIf="customerForm.get('mobileNumber')?.hasError('pattern')">Must be 10 digits</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div class="field-col half-width">
-                <label class="field-label">Alternate Number</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <span matPrefix class="mobile-prefix-badge">+91</span>
-                  <input matInput formControlName="alternateNumber" placeholder="Enter alternate number (optional)">
-                  <mat-icon matSuffix class="field-icon">contact_phone</mat-icon>
-                  <mat-error *ngIf="customerForm.get('alternateNumber')?.hasError('pattern')">Must be 10 digits</mat-error>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <!-- Email & Marital Status Row -->
-            <div class="form-row flex-row gap-12">
-              <div class="field-col half-width">
-                <label class="field-label">Email (Optional)</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <mat-icon matPrefix class="field-icon icon-prefix">email</mat-icon>
-                  <input matInput formControlName="email" type="email" placeholder="Enter email address">
-                  <mat-error *ngIf="customerForm.get('email')?.hasError('email')">Invalid email address</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div class="field-col half-width">
-                <label class="field-label">Marital Status</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <mat-select formControlName="maritalStatus" placeholder="Select marital status">
-                    <mat-option value="Single">Single</mat-option>
-                    <mat-option value="Married">Married</mat-option>
-                    <mat-option value="Divorced">Divorced</mat-option>
-                    <mat-option value="Widowed">Widowed</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-            </div>
-
-          </mat-card-content>
-        </mat-card>
-
-        <!-- 2. Address Details Section Card -->
-        <mat-card class="form-section-card">
-          <mat-card-header>
-            <div mat-card-avatar class="section-icon-badge icon-red">
-              <mat-icon>location_on</mat-icon>
-            </div>
-            <mat-card-title>Address Details</mat-card-title>
-            <mat-card-subtitle>Enter the current residential address</mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content class="section-card-body">
-            <!-- Address Line 1 & Line 2 Row -->
-            <div class="form-row flex-row gap-12">
-              <div class="field-col half-width">
-                <label class="field-label required">Address Line 1</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <input matInput formControlName="addressLine1" placeholder="House No, Street Name">
-                  <mat-error *ngIf="customerForm.get('addressLine1')?.hasError('required')">Address line 1 is required</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div class="field-col half-width">
-                <label class="field-label">Address Line 2 (Optional)</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <input matInput formControlName="addressLine2" placeholder="Apartment, Area, Landmark">
-                </mat-form-field>
-              </div>
-            </div>
-
-            <!-- City, State, Pincode 3-Column Row -->
-            <div class="form-row flex-row gap-12">
-              <div class="field-col third-width">
-                <label class="field-label required">City / Town</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <input matInput formControlName="city" placeholder="Enter city">
-                  <mat-error *ngIf="customerForm.get('city')?.hasError('required')">City is required</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div class="field-col third-width">
-                <label class="field-label required">State</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <mat-select formControlName="state" placeholder="Select state">
-                    <mat-option *ngFor="let s of statesList" [value]="s">{{ s }}</mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="customerForm.get('state')?.hasError('required')">State is required</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div class="field-col third-width">
-                <label class="field-label required">Pincode</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <input matInput formControlName="pincode" placeholder="Enter pincode">
-                  <mat-error *ngIf="customerForm.get('pincode')?.hasError('required')">Pincode is required</mat-error>
-                  <mat-error *ngIf="customerForm.get('pincode')?.hasError('pattern')">Must be 6 digits</mat-error>
-                </mat-form-field>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- 3. Branch Assignment Section Card -->
-        <mat-card class="form-section-card">
-          <mat-card-header>
-            <div mat-card-avatar class="section-icon-badge icon-blue-building">
-              <mat-icon>account_balance</mat-icon>
-            </div>
-            <mat-card-title>Branch Assignment</mat-card-title>
-            <mat-card-subtitle>Select the branch where this customer belongs</mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content class="section-card-body">
-            <div class="form-row flex-row gap-16">
-              <div class="field-col half-width">
-                <label class="field-label required">Branch</label>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-                  <mat-select formControlName="branchId" placeholder="Select branch">
-                    <mat-option *ngFor="let b of branches" [value]="b.id">{{ b.name }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
-              <div class="field-col half-width">
-                <label class="field-label transparent-label">&nbsp;</label>
-                <div class="branch-info-callout">
-                  <mat-icon class="info-icon">info</mat-icon>
-                  <span>Customer will be assigned to the selected branch.</span>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- 4. Additional Notes Section Card -->
-        <mat-card class="form-section-card">
-          <mat-card-header>
-            <div mat-card-avatar class="section-icon-badge icon-blue-note">
-              <mat-icon>description</mat-icon>
-            </div>
-            <mat-card-title>Additional Notes</mat-card-title>
-            <mat-card-subtitle>Enter any additional notes or comments about the customer</mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content class="section-card-body">
-            <div class="field-col full-width">
-              <label class="field-label">Notes <span class="sub-optional">(Optional)</span></label>
-              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width notes-textarea-field">
-                <textarea matInput formControlName="notes" rows="3" placeholder="Enter any important notes about the customer..."></textarea>
-              </mat-form-field>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Form Actions Bar -->
-        <div class="form-actions-bar">
-          <button mat-stroked-button type="button" class="btn-cancel" (click)="onCancel()">
-            Cancel
-          </button>
-
-          <button mat-flat-button color="primary" type="button" class="btn-next" (click)="nextStep()" *ngIf="currentStep === 1">
-            Next : Upload Documents <mat-icon>arrow_forward</mat-icon>
-          </button>
-
-          <button mat-flat-button color="primary" type="submit" class="btn-save" [disabled]="customerForm.invalid || isLoading" *ngIf="currentStep > 1">
-            <mat-spinner *ngIf="isLoading" diameter="18" class="btn-spinner"></mat-spinner>
-            <mat-icon *ngIf="!isLoading">check</mat-icon>
-            <span>{{ isLoading ? 'Saving...' : 'Save Customer' }}</span>
-          </button>
-        </div>
-
-      </div>
-
-      <!-- RIGHT COLUMN: Profile Photo, Quick Info, Tips Sidebar Cards -->
-      <div class="sidebar-cards-col">
-
-        <!-- Profile Photo Card -->
-        <mat-card class="sidebar-card">
-          <mat-card-header>
-            <div mat-card-avatar class="section-icon-badge icon-blue-person">
-              <mat-icon>person_outline</mat-icon>
-            </div>
-            <mat-card-title>Profile Photo</mat-card-title>
-          </mat-card-header>
-
-          <mat-card-content class="profile-photo-body">
-            <div class="avatar-circle">
-              <img *ngIf="profilePhotoUrl" [src]="profilePhotoUrl" alt="Profile preview" class="avatar-img">
-              <mat-icon *ngIf="!profilePhotoUrl" class="avatar-default-icon">person</mat-icon>
-            </div>
-
-            <input type="file" #fileInput (change)="onPhotoSelected($event)" accept="image/*" class="hidden-file-input">
-
-            <button mat-stroked-button type="button" class="btn-upload-photo" (click)="triggerPhotoUpload(fileInput)">
-              <mat-icon>file_upload</mat-icon> Upload Photo
-            </button>
-            <span class="photo-hint">JPG, PNG up to 2MB</span>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Quick Info Card -->
-        <mat-card class="sidebar-card">
-          <mat-card-header>
-            <div mat-card-avatar class="section-icon-badge icon-blue-clock">
-              <mat-icon>access_time</mat-icon>
-            </div>
-            <mat-card-title>Quick Info</mat-card-title>
-          </mat-card-header>
-
-          <mat-card-content class="quick-info-body">
-            <div class="info-item">
-              <div class="info-icon-badge badge-green">
-                <mat-icon>badge</mat-icon>
-              </div>
-              <div class="info-text">
-                <span class="info-label">Customer ID</span>
-                <span class="info-val val-muted">Auto-generated after save</span>
-              </div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-icon-badge badge-orange">
-                <mat-icon>calendar_today</mat-icon>
-              </div>
-              <div class="info-text">
-                <span class="info-label">Registration Date</span>
-                <span class="info-val">{{ registrationDate | date:'dd MMM yyyy' }}</span>
-              </div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-icon-badge badge-purple">
-                <mat-icon>account_balance</mat-icon>
-              </div>
-              <div class="info-text">
-                <span class="info-label">Branch</span>
-                <span class="info-val">{{ selectedBranchName }}</span>
-              </div>
-            </div>
-
-            <div class="info-item">
-              <div class="info-icon-badge badge-green-dot">
-                <mat-icon>adjust</mat-icon>
-              </div>
-              <div class="info-text">
-                <span class="info-label">Status</span>
-                <mat-chip-option selected class="status-chip-draft" color="accent">Draft (Not Saved)</mat-chip-option>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Tips Card -->
-        <mat-card class="sidebar-card tips-card">
-          <mat-card-header>
-            <div mat-card-avatar class="section-icon-badge icon-lightbulb">
-              <mat-icon>lightbulb</mat-icon>
-            </div>
-            <mat-card-title>Tips</mat-card-title>
-          </mat-card-header>
-
-          <mat-card-content>
-            <ul class="tips-list">
-              <li><mat-icon class="check-icon">check_circle</mat-icon> <span>Enter correct details as per ID proof</span></li>
-              <li><mat-icon class="check-icon">check_circle</mat-icon> <span>Mobile number is important for communication</span></li>
-              <li><mat-icon class="check-icon">check_circle</mat-icon> <span>Assign the correct branch</span></li>
-              <li><mat-icon class="check-icon">check_circle</mat-icon> <span>You will upload ID proof in the next step</span></li>
-            </ul>
-          </mat-card-content>
-        </mat-card>
-
-      </div>
+      <!-- ── STEP 3: REVIEW & SAVE ───────────────────────────────── -->
+      <app-step3-review
+        *ngIf="currentStep === 3"
+        [customerForm]="customerForm"
+        [selectedBranchName]="selectedBranchName"
+        [idProofFile]="idProofFile"
+        [additionalDocs]="additionalDocs"
+        [profilePhotoUrl]="profilePhotoUrl"
+        [isLoading]="isLoading"
+        (prev)="prevStep()"
+        (editStep)="goToStep($event)">
+      </app-step3-review>
 
     </div>
   </form>

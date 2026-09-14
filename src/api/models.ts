@@ -16,6 +16,7 @@ export type { CreateNotificationRequest } from './models/create-notification-req
 export type { CreateReminderRequest } from './models/create-reminder-request';
 export type { CreateUserRequest } from './models/create-user-request';
 export type { Customer } from './models/customer';
+export type { CustomerDocument } from './models/customer-document';
 export type { DashboardActivityDto } from './models/dashboard-activity-dto';
 export type { DashboardSummaryDto } from './models/dashboard-summary-dto';
 export type { DashboardTrendBarDto } from './models/dashboard-trend-bar-dto';
@@ -26,8 +27,10 @@ export type { LedgerEntry } from './models/ledger-entry';
 export type { Loan } from './models/loan';
 export type { LoanStatus } from './models/loan-status';
 export type { LoginRequest } from './models/login-request';
+export type { LookupType } from './models/lookup-type';
+export type { LookupValue } from './models/lookup-value';
 export type { NotificationDto } from './models/notification-dto';
-export type { OfFAnonymousType7OfStringAndStringAndStringAndDateTimeAndString } from './models/of-f-anonymous-type-7-of-string-and-string-and-string-and-date-time-and-string';
+export type { OfFAnonymousType8OfStringAndStringAndStringAndDateTimeAndString } from './models/of-f-anonymous-type-8-of-string-and-string-and-string-and-date-time-and-string';
 export type { Payment } from './models/payment';
 export type { PaymentMode } from './models/payment-mode';
 export type { RefreshTokenRequest } from './models/refresh-token-request';
@@ -42,6 +45,7 @@ export type { UpdateCollectionRequest } from './models/update-collection-request
 export type { UpdateCustomerRequest } from './models/update-customer-request';
 export type { UpdateLoanRequest } from './models/update-loan-request';
 export type { UpdateUserRequest } from './models/update-user-request';
+export type { UploadProfilePhotoResponse } from './models/upload-profile-photo-response';
 export type { UserResponse } from './models/user-response';
 export type { VerificationStatus } from './models/verification-status';
 export type { VerifyCollectionRequest } from './models/verify-collection-request';

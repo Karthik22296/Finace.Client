@@ -7,16 +7,17 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { CreateNotificationRequest } from '../../models/create-notification-request';
 
-export interface NotificationCreateNotification$Params {
-      body: CreateNotificationRequest
+export interface CustomerDocumentsDeleteDocument$Params {
+  customerId: number;
+  id: number;
 }
 
-export function notificationCreateNotification(http: HttpClient, rootUrl: string, params: NotificationCreateNotification$Params, context?: HttpContext): Observable<StrictHttpResponse<Blob>> {
-  const rb = new RequestBuilder(rootUrl, notificationCreateNotification.PATH, 'post');
+export function customerDocumentsDeleteDocument(http: HttpClient, rootUrl: string, params: CustomerDocumentsDeleteDocument$Params, context?: HttpContext): Observable<StrictHttpResponse<Blob>> {
+  const rb = new RequestBuilder(rootUrl, customerDocumentsDeleteDocument.PATH, 'delete');
   if (params) {
-    rb.body(params.body, 'application/json');
+    rb.path('customerId', params.customerId, {});
+    rb.path('id', params.id, {});
   }
 
   return http.request(
@@ -29,4 +30,4 @@ export function notificationCreateNotification(http: HttpClient, rootUrl: string
   );
 }
 
-notificationCreateNotification.PATH = '/api/notifications';
+customerDocumentsDeleteDocument.PATH = '/api/customers/{customerId}/documents/{id}';

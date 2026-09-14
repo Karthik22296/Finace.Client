@@ -103,7 +103,10 @@
 
     <!-- User Chip -->
     <button [matMenuTriggerFor]="userMenu" class="user-chip" aria-label="User menu">
-      <div class="user-avatar">{{ userInitials }}</div>
+      <div class="user-avatar">
+        <img *ngIf="userAvatarUrl; else initialsTpl" [src]="userAvatarUrl" alt="Avatar" class="avatar-img" />
+        <ng-template #initialsTpl>{{ userInitials }}</ng-template>
+      </div>
       <div class="user-info">
         <span class="user-name">{{ userName }}</span>
         <span class="user-role">{{ userRole }}</span>
@@ -133,7 +136,15 @@
 <div class="profile-backdrop" *ngIf="showProfileModal" (click)="closeProfileModal()">
   <div class="profile-card" (click)="$event.stopPropagation()">
     <div class="profile-card-header">
-      <div class="profile-avatar-lg">{{ userInitials }}</div>
+      <div class="profile-avatar-lg">
+        <img *ngIf="userAvatarUrl; else initialsLgTpl" [src]="userAvatarUrl" alt="Avatar" class="avatar-img-lg" />
+        <ng-template #initialsLgTpl>{{ userInitials }}</ng-template>
+        
+        <button mat-icon-button class="upload-photo-btn" (click)="fileInput.click()" title="Upload Photo">
+          <mat-icon>photo_camera</mat-icon>
+        </button>
+        <input type="file" #fileInput hidden accept="image/*" (change)="onUploadPhoto($event)" />
+      </div>
       <div class="profile-user-details">
         <h2>{{ userName }}</h2>
         <span class="profile-role-badge">{{ userRole }}</span>

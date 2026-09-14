@@ -1,0 +1,241 @@
+<div [formGroup]="customerForm" style="display: contents;">
+        <!-- LEFT COLUMN: Form Section Cards -->
+        <div class="form-sections-col">
+
+          <!-- 1. Identification Document (KYC) Section Card -->
+          <mat-card class="form-section-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-doc">
+                <mat-icon>assignment</mat-icon>
+              </div>
+              <mat-card-title>Identification Document (KYC)</mat-card-title>
+              <mat-card-subtitle>Upload a valid government issued ID proof.</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content class="section-card-body">
+              <!-- ID Type & ID Number Row -->
+              <div class="form-row flex-row gap-12">
+                <div class="field-col half-width">
+                  <label class="field-label required">ID Type</label>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
+                    <mat-select formControlName="idType">
+                      <mat-option *ngFor="let t of idTypes" [value]="t">{{ t }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="field-col half-width">
+                  <label class="field-label required">ID Number</label>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
+                    <input matInput [type]="isIdNumberVisible ? 'text' : 'password'" formControlName="idNumber" placeholder="Enter ID number">
+                    <button mat-icon-button matSuffix type="button" (click)="toggleIdNumber.emit()" class="toggle-visibility-btn" aria-label="Toggle ID visibility">
+                      <mat-icon>{{ isIdNumberVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="customerForm.get('idNumber')?.hasError('required')">ID number is required</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Upload ID Proof Container -->
+              <div class="field-col full-width mt-8">
+                <label class="field-label required">Upload ID Proof</label>
+
+                <div class="kyc-upload-container">
+
+                  <!-- Drag & Drop Upload Box -->
+                  <div class="dropzone-box" (click)="triggerUpload(idFileInput)">
+                    <input type="file" #idFileInput (change)="idProofSelected.emit($event)" accept="image/*,application/pdf" class="hidden-file-input">
+                    <div class="dropzone-icon-circle">
+                      <mat-icon class="cloud-upload-icon">cloud_upload</mat-icon>
+                    </div>
+                    <span class="dropzone-title">Drag & drop file here or click to upload</span>
+                    <span class="dropzone-sub">JPG, PNG, PDF (Max 2MB)</span>
+                  </div>
+
+                  <!-- Uploaded File Preview Card (Matching Design Spec Image) -->
+                  <div class="uploaded-doc-preview-card" *ngIf="idProofFile">
+                    <div class="preview-card-body">
+                      <!-- Mock Aadhaar Card Thumbnail Graphic -->
+                      <div class="doc-thumbnail-wrap">
+                        <div class="thumbnail-header">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem" class="emblem-img">
+                          <div class="gov-text">Government of India</div>
+                        </div>
+                        <div class="thumbnail-content">
+                          <div class="user-avatar-placeholder">
+                            <mat-icon>person</mat-icon>
+                          </div>
+                          <div class="qr-code-placeholder">
+                            <mat-icon>qr_code_2</mat-icon>
+                          </div>
+                        </div>
+                        <div class="thumbnail-id-number">{{ customerForm.get('idNumber')?.value || '1234 5678 9012' }}</div>
+                      </div>
+
+                      <div class="uploaded-doc-info">
+                        <div class="file-status-badge">
+                          <mat-icon class="check-icon">check_circle</mat-icon>
+                          <span>File uploaded</span>
+                        </div>
+                        <div class="file-name-text">{{ idProofFile.name }}</div>
+                        <div class="file-size-text">{{ idProofFile.size }}</div>
+
+                        <div class="uploaded-doc-actions">
+                          <button mat-button type="button" class="btn-doc-replace" (click)="triggerUpload(idFileInput)">
+                            <mat-icon>autorenew</mat-icon> Replace
+                          </button>
+                          <button mat-button type="button" class="btn-doc-remove" (click)="removeIdProof.emit()">
+                            <mat-icon>delete_outline</mat-icon> Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </mat-card-content>
+          </mat-card>
+
+          <!-- 2. Additional Documents (Optional) Section Card -->
+          <mat-card class="form-section-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-doc">
+                <mat-icon>library_books</mat-icon>
+              </div>
+              <mat-card-title>Additional Documents <span class="sub-optional">(Optional)</span></mat-card-title>
+              <mat-card-subtitle>Upload any other relevant documents if available.</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content class="section-card-body">
+              
+              <div class="additional-doc-row" *ngFor="let doc of additionalDocs; let i = index">
+                <div class="field-col third-width">
+                  <label class="field-label">Document Type</label>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
+                    <mat-select [(ngModel)]="doc.docType" [ngModelOptions]="{standalone: true}">
+                      <mat-option *ngFor="let dt of additionalDocTypes" [value]="dt">{{ dt }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="field-col flex-fill">
+                  <label class="field-label">&nbsp;</label>
+                  <div class="dropzone-box inline-dropzone" (click)="triggerUpload(addFileInput)">
+                    <input type="file" #addFileInput (change)="onAdditionalDocSelectedInternal($event, i)" accept="image/*,application/pdf" class="hidden-file-input">
+                    <mat-icon class="cloud-upload-icon-sm">cloud_upload</mat-icon>
+                    <span class="inline-dropzone-text" *ngIf="!doc.file">Drag & drop file here or click to upload (JPG, PNG, PDF Max 2MB)</span>
+                    <span class="inline-dropzone-text uploaded-text" *ngIf="doc.file">✓ {{ doc.file.name }} ({{ doc.file.size }})</span>
+                  </div>
+                </div>
+
+                <button mat-icon-button type="button" class="btn-remove-add-doc" (click)="removeAdditionalDoc.emit(i)" title="Remove document">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <div class="add-another-wrap">
+                <button mat-stroked-button type="button" class="btn-add-another" (click)="addAnotherDoc.emit()">
+                  <mat-icon>add</mat-icon> Add Another Document
+                </button>
+              </div>
+
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Step 2 Form Actions Bar -->
+          <div class="form-actions-bar">
+            <button mat-stroked-button type="button" class="btn-cancel" (click)="prev.emit()">
+              Back
+            </button>
+
+            <button mat-flat-button color="primary" type="button" class="btn-next" (click)="next.emit()">
+              Next: Review & Save <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Customer Photo, Document Checklist, Notes Sidebar Cards -->
+        <div class="sidebar-cards-col">
+
+          <!-- Customer Photo Card -->
+          <mat-card class="sidebar-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-person">
+                <mat-icon>person_outline</mat-icon>
+              </div>
+              <mat-card-title>Customer Photo</mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content class="profile-photo-body">
+              <div class="already-uploaded-badge">
+                <mat-icon class="check-icon">check_circle</mat-icon>
+                <span>Already uploaded in Step 1</span>
+              </div>
+
+              <div class="avatar-circle">
+                <img *ngIf="profilePhotoUrl" [src]="profilePhotoUrl" alt="Profile preview" class="avatar-img">
+                <mat-icon *ngIf="!profilePhotoUrl" class="avatar-default-icon">person</mat-icon>
+              </div>
+
+              <button mat-stroked-button type="button" class="btn-upload-photo" (click)="triggerUpload(fileInputStep2)">
+                View Photo
+              </button>
+              <input type="file" #fileInputStep2 (change)="photoSelected.emit($event)" accept="image/*" class="hidden-file-input">
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Document Checklist Card -->
+          <mat-card class="sidebar-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-doc">
+                <mat-icon>fact_check</mat-icon>
+              </div>
+              <mat-card-title>Document Checklist</mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content class="checklist-card-body">
+              <ul class="checklist-items">
+                <li [class.item-checked]="isIdTypeSelected">
+                  <mat-icon class="chk-icon">{{ isIdTypeSelected ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  <span>ID Type selected</span>
+                </li>
+                <li [class.item-checked]="isIdNumberEntered">
+                  <mat-icon class="chk-icon">{{ isIdNumberEntered ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  <span>ID Number entered</span>
+                </li>
+                <li [class.item-checked]="isIdProofUploaded">
+                  <mat-icon class="chk-icon">{{ isIdProofUploaded ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  <span>ID Proof uploaded</span>
+                </li>
+                <li [class.item-checked]="isPhotoUploaded || true">
+                  <mat-icon class="chk-icon">check_circle</mat-icon>
+                  <span>Customer photo uploaded (in Step 1)</span>
+                </li>
+              </ul>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Notes Card -->
+          <mat-card class="sidebar-card notes-info-card">
+            <mat-card-header>
+              <div mat-card-avatar class="section-icon-badge icon-blue-info">
+                <mat-icon>info</mat-icon>
+              </div>
+              <mat-card-title>Notes</mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content>
+              <ul class="notes-bullet-list">
+                <li>Upload clear and readable documents.</li>
+                <li>Accepted formats: JPG, PNG, PDF (Max 2MB).</li>
+                <li>Ensure the ID proof matches the customer details.</li>
+                <li>You can add additional documents if available.</li>
+              </ul>
+            </mat-card-content>
+          </mat-card>
+
+        </div>
+</div>

@@ -11,6 +11,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { customerGetById } from '../../../../api/fn/customer/customer-get-by-id';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Customer } from '../../../../api/models/customer';
+import { CustomerDocumentService, CustomerDocument } from '../../../core/services/customer-document.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoanCreateComponent } from '../../loans/loan-create/loan-create.component';
 
 @Component({
@@ -36,10 +38,14 @@ export class CustomerDetailComponent implements OnInit {
   private location = inject(Location);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private documentService = inject(CustomerDocumentService);
+  private snackBar = inject(MatSnackBar);
 
   customerId: number | null = null;
   customer: Customer | null = null;
+  documents: CustomerDocument[] = [];
   isLoading = true;
+  isLoadingDocuments = false;
   error: string | null = null;
 
   goBack(): void {
@@ -80,6 +86,44 @@ export class CustomerDetailComponent implements OnInit {
         console.error('Error loading customer', err);
         this.error = 'Could not find the requested customer.';
         this.isLoading = false;
+      }
+    });
+
+    this.loadDocuments();
+  }
+
+  loadDocuments() {
+    if (!this.customerId) return;
+    this.isLoadingDocuments = true;
+    this.documentService.getDocuments(this.customerId).subscribe({
+      next: (docs) => {
+        this.documents = docs;
+        this.isLoadingDocuments = false;
+      },
+      error: (err) => {
+        console.error('Failed to load documents', err);
+        this.isLoadingDocuments = false;
+      }
+    });
+  }
+
+  downloadDocument(doc: CustomerDocument): void {
+    if (!this.customerId) return;
+    this.snackBar.open(`Downloading ${doc.originalFileName}...`, '', { duration: 2000 });
+    this.documentService.getDocumentFile(this.customerId, doc.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.originalFileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Download failed', err);
+        this.snackBar.open('Failed to download document', 'Close', { duration: 3000 });
       }
     });
   }

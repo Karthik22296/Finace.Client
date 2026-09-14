@@ -7,16 +7,16 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { ReminderDto } from '../../models/reminder-dto';
+import { LookupValue } from '../../models/lookup-value';
 
-export interface ReminderGetReminders$Params {
-  date?: string | null;
+export interface LookupsGetLookupValues$Params {
+  lookupTypeId: number;
 }
 
-export function reminderGetReminders(http: HttpClient, rootUrl: string, params?: ReminderGetReminders$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<ReminderDto>>> {
-  const rb = new RequestBuilder(rootUrl, reminderGetReminders.PATH, 'get');
+export function lookupsGetLookupValues(http: HttpClient, rootUrl: string, params: LookupsGetLookupValues$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<LookupValue>>> {
+  const rb = new RequestBuilder(rootUrl, lookupsGetLookupValues.PATH, 'get');
   if (params) {
-    rb.query('date', params.date, {});
+    rb.path('lookupTypeId', params.lookupTypeId, {});
   }
 
   return http.request(
@@ -24,9 +24,9 @@ export function reminderGetReminders(http: HttpClient, rootUrl: string, params?:
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<ReminderDto>>;
+      return r as StrictHttpResponse<Array<LookupValue>>;
     })
   );
 }
 
-reminderGetReminders.PATH = '/api/reminders';
+lookupsGetLookupValues.PATH = '/api/Lookups/{lookupTypeId}';

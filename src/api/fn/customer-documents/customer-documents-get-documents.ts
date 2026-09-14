@@ -7,16 +7,16 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { ReminderDto } from '../../models/reminder-dto';
+import { CustomerDocument } from '../../models/customer-document';
 
-export interface ReminderGetReminders$Params {
-  date?: string | null;
+export interface CustomerDocumentsGetDocuments$Params {
+  customerId: number;
 }
 
-export function reminderGetReminders(http: HttpClient, rootUrl: string, params?: ReminderGetReminders$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<ReminderDto>>> {
-  const rb = new RequestBuilder(rootUrl, reminderGetReminders.PATH, 'get');
+export function customerDocumentsGetDocuments(http: HttpClient, rootUrl: string, params: CustomerDocumentsGetDocuments$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<CustomerDocument>>> {
+  const rb = new RequestBuilder(rootUrl, customerDocumentsGetDocuments.PATH, 'get');
   if (params) {
-    rb.query('date', params.date, {});
+    rb.path('customerId', params.customerId, {});
   }
 
   return http.request(
@@ -24,9 +24,9 @@ export function reminderGetReminders(http: HttpClient, rootUrl: string, params?:
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<ReminderDto>>;
+      return r as StrictHttpResponse<Array<CustomerDocument>>;
     })
   );
 }
 
-reminderGetReminders.PATH = '/api/reminders';
+customerDocumentsGetDocuments.PATH = '/api/customers/{customerId}/documents';
