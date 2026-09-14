@@ -22,6 +22,8 @@ export function provideApiConfiguration(rootUrl: string) {
   providedIn: 'root',
 })
 export class ApiConfiguration {
-  rootUrl: string = 'https://localhost:44378';
+  //  rootUrl: string = 'https://localhost:44378';
+  rootUrl: string = 'https://finace-aggbd3ebbvfwdee8.southindia-01.azurewebsites.net/';
+
 }
 
