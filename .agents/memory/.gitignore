@@ -1,0 +1,5 @@
+# Ephemeral agent operational data — never commit
+# Per AGENTS.md §2.7 and §2.14
+active-task.json
+trace-*.jsonl
+task-history.jsonl

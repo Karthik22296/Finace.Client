@@ -1,47 +1,155 @@
-# Finance Client Application
+# Finance.Client — 100-Day Microfinance & Daily Collection Platform
 
-This is the front-end Angular client for the Finance application. It is built with **Angular 19** and uses **Angular Material** for its UI components. 
+[![Angular](https://img.shields.io/badge/Angular-19-DD0031?style=flat&logo=angular&logoColor=white)](https://angular.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Angular Material](https://img.shields.io/badge/UI-Angular_Material-FF5722?style=flat&logo=angular&logoColor=white)](https://material.angular.io/)
+[![Deployment](https://img.shields.io/badge/Deploy-Vercel-000000?style=flat&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Code Quality](https://img.shields.io/badge/Quality-SonarQube-4B9FD5?style=flat&logo=sonarqube&logoColor=white)](https://www.sonarqube.org/)
 
-## Project Structure
+**Finance.Client** is an enterprise single-page application engineered for microfinance institutions and daily collection lending operations. Built with modern **Angular 19**, it provides field collection agents and branch managers with an end-to-end interface for customer onboarding, loan origination, daily cash collection, reconciliation, and audit reporting.
+
+---
+
+## 🚀 Key Functional Modules
+
+| Module | Route | Key Features |
+| :--- | :--- | :--- |
+| **Authentication & RBAC** | `/login` | JWT authentication with role-based guards segregating Branch Managers from Field Collectors. |
+| **Executive Dashboard** | `/dashboard` | Real-time KPIs tracking today's collection targets, collected amounts, shortfalls, and high-risk loans. |
+| **Customer Management** | `/customers` | Full lifecycle customer CRM with search, inline filters, detailed customer profiles, and credit history. |
+| **Customer Onboarding** | `/customers/new` | Multi-field onboarding form validating identity, contact, address, and creditworthiness. |
+| **Customer 360 Detail** | `/customers/:id` | Deep dive into active loans, historical ledgers, repayment trends, and contact actions. |
+| **Loan Origination** | `/loans` | 100-day loan origination wizard with automatic computation of daily installments, interest, and maturity dates. |
+| **Field Collection Sheet** | `/collections/route` | Mobile-optimized route list for field agents to rapidly record daily cash collections on the go. |
+| **Verification Pipeline** | `/collections/verify` | Branch manager reconciliation grid to inspect, verify, approve, or reject field collection batches. |
+| **Analytics & Reports** | `/reports` | Comprehensive portfolio reports, high-risk/defaulter lists, and printable customer ledger statements. |
+
+---
+
+## 🛠️ Architecture & Technology Stack
+
+### Frontend Architecture
+- **Framework**: [Angular 19](https://angular.dev/) utilizing standalone components (`standalone: true`).
+- **Reactive State**: **Angular Signals** (`signal()`, `computed()`, `input()`, `model()`) for fine-grained reactivity and zoneless readiness.
+- **Change Detection**: Strict `ChangeDetectionStrategy.OnPush` across all views for optimal rendering performance.
+- **Performance**: Deferred loading blocks (`@defer (on viewport)`) for data-heavy tables and below-the-fold views.
+- **UI Framework**: [Angular Material 19](https://material.angular.io/) + Angular CDK.
+- **Styling & Theming**: Minimalist monochrome enterprise design (`#ffffff` base surface, `#000000` text/primary actions) conforming to an 8px grid layout.
+
+### Contract-First API Client
+- **Specification**: Driven by OpenAPI / Swagger specification at `src/swagger.json`.
+- **Code Generator**: `ng-openapi-gen` generates strictly typed TypeScript services and DTO models into `src/api/`.
+
+### Ecosystem & Companion Repositories
+The full system operates across three synchronized repositories:
+- **`Finace.Client`** *(this repository)*: Angular 19 frontend application.
+- **`Finance.ServerApi`**: .NET 9 Web API implementing Clean Architecture, CQRS, and EF Core.
+- **`Finance.GoldenDb`**: Microsoft SQL Server database schemas, indexing strategies, and EF Core migrations.
+
+---
+
+## 📁 Repository Structure
 
 ```text
 Finace.Client/
-├── .agents/                 # AI agent configurations and contextual rules (AGENTS.md)
+├── .agents/                        # AI agent knowledge base, design rules & guidelines
+│   ├── AGENTS.md                   # Central agent index and architectural context
+│   ├── DESIGN_RULES.md             # 50KB+ Angular Material UI/UX design specifications
+│   ├── rules/
+│   │   └── angular-signals-onpush.md # Invariant rules for Signals, OnPush & zoneless state
+│   └── skills/
+│       └── swe-team-orchestrator/   # Full-stack cross-repo orchestration skill
+├── .github/workflows/              # GitHub Actions CI/CD workflows
+│   └── vercel-deploy.yml           # Automated deployment pipeline to Vercel
+├── docs/                           # Project domain specifications and implementation plans
+│   ├── IMPLEMENTATION_PLAN.md      # 100-Day Microfinance domain blueprint
+│   └── TASKS.md                    # Module implementation checklist
 ├── src/
-│   ├── api/                 # AUTOGENERATED API Client files (Do not edit manually!)
-│   │   ├── models.ts        # Index file exporting all API models
-│   │   ├── services.ts      # Index file exporting all API services
-│   │   ├── models/          # Individual model interfaces
-│   │   └── fn/              # Individual service functions
-│   ├── app/                 # Main application source code (components, routes, etc.)
-│   ├── swagger.json         # The OpenAPI specification file used to generate the API client
-│   ├── styles.css           # Global CSS (contains the core white background/black text theme)
-│   ├── custom-theme.scss    # Angular Material custom theme definitions
-│   └── main.ts              # Application entry point
-├── package.json             # NPM dependencies and scripts
-└── angular.json             # Angular workspace configuration
+│   ├── api/                        # AUTOGENERATED OpenAPI client files (Do not edit manually)
+│   │   ├── models/                 # Generated TypeScript interfaces and DTOs
+│   │   ├── services/               # Generated API HTTP service functions
+│   │   ├── models.ts               # Barrel export for all models
+│   │   └── services.ts             # Barrel export for all services
+│   ├── app/
+│   │   ├── core/                   # Interceptors, route guards, core auth services
+│   │   ├── layout/                 # Main layout, responsive Material sidenav, top toolbar
+│   │   ├── pages/                  # Feature pages (Dashboard, Customers, Loans, Collections, Reports)
+│   │   ├── shared/                 # Reusable dumb components (Loader, Dialogs, Empty states)
+│   │   ├── app.config.ts           # Standalone application configuration and providers
+│   │   └── app.routes.ts           # Lazy-loaded route declarations
+│   ├── environments/               # Environment configuration files (dev, staging, prod)
+│   ├── swagger.json                # OpenAPI specification snapshot from backend
+│   └── styles.css                  # Global styles and Material theme overrides
+├── angular.json                    # Angular CLI workspace configuration
+├── sonar-project.properties        # SonarQube static analysis configuration
+└── package.json                    # Project dependencies and npm scripts
 ```
 
-## Styling & Theming
-This project enforces a specific clean theme:
-* **Background**: Solid white (`#ffffff`)
-* **Text**: Solid black (`#000000`)
-* **Components**: Angular Material is the primary UI framework.
+---
 
-## API Integration
-The application uses an autogenerated API client based on the OpenAPI/Swagger specification.
-* **Generating the API**: If the backend API changes, update `src/swagger.json` and run:
+## 🚦 Getting Started
+
+### Prerequisites
+- **Node.js**: `v20.x` or `v22.x` (LTS recommended)
+- **NPM**: `v10.x` or higher
+- **Angular CLI**: `npm install -g @angular/cli@19`
+
+### Installation
+Clone the repository and install dependencies:
+```bash
+git clone https://github.com/Karthik22296/Finace.Client.git
+cd Finace.Client
+npm install
+```
+
+### Development Server
+Start the local development server:
+```bash
+npm start
+# or
+ng serve
+```
+Navigate to `http://localhost:4200/`. The application will automatically reload upon file changes.
+
+### Production Build
+Compile the production-optimized bundle:
+```bash
+npm run build
+```
+Build artifacts are generated in the `dist/finance.client` directory.
+
+---
+
+## 🔄 API Client Regeneration
+
+Whenever backend endpoints, commands, or DTOs change in `Finance.ServerApi`:
+
+1. Export the updated Swagger JSON to `src/swagger.json`.
+2. Run the code generation script:
+   ```bash
+   npm run generate-api
+   ```
+3. Import the updated services and models using barrel index paths:
+   ```typescript
+   import { CustomerService, LoansService } from '../api/services';
+   import { CustomerDto, LoanDto } from '../api/models';
+   ```
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+- **Unit Tests**: Run tests with Karma and Jasmine:
   ```bash
-  npm run generate-api
+  npm test
   ```
-* **Usage**: Always import services and models from the root of the `api` folder using the barrel files to maintain tree-shaking efficiency:
-  ```typescript
-  import { CustomerService } from '../api/services';
-  import { Customer } from '../api/models';
-  ```
+- **Code Quality**: SonarQube analysis is configured via `sonar-project.properties` and integrated into continuous integration.
 
-## Development server
-Run `npm run start` or `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+---
 
-## Build
-Run `npm run build` or `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## 🤝 AI Agent & Developer Standards
+
+All developers and AI assistants working in this repository must adhere to the rules in `.agents/`:
+- **Change Detection**: Strict `OnPush` change detection and immutability are mandatory. See [angular-signals-onpush.md](file:///.agents/rules/angular-signals-onpush.md).
+- **Design System**: Follow the strict black-and-white Angular Material design rules detailed in [DESIGN_RULES.md](file:///.agents/DESIGN_RULES.md).
+- **Conventional Commits**: Every commit and pull request must follow the 4-part structure (*Title*, *Summary*, *Why the changes*, *What are the changes to do if any*).
