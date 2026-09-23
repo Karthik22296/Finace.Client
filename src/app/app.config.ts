@@ -4,6 +4,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { loaderInterceptor } from './core/interceptors/loader.interceptor';
+import { provideApiConfiguration } from '../api/api-configuration';
+import { environment } from '../environments/environment';
 
 import { routes } from './app.routes';
 
@@ -12,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes), 
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([authInterceptor, loaderInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor, loaderInterceptor])),
+    provideApiConfiguration(environment.apiUrl)
   ]
 };
