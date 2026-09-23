@@ -44,8 +44,11 @@
 
             <div class="form-actions">
               <button mat-flat-button color="primary" (click)="downloadCustomerLedger()" [disabled]="isLedgerLoading || !ledgerForm.customerId">
-                <mat-icon *ngIf="!isLedgerLoading">download</mat-icon>
-                <mat-spinner *ngIf="isLedgerLoading" diameter="20" class="btn-spinner"></mat-spinner>
+                @if (!isLedgerLoading) {
+                  <mat-icon>download</mat-icon>
+                } @else {
+                  <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                }
                 <span>{{ isLedgerLoading ? 'Generating...' : 'Download PDF' }}</span>
               </button>
             </div>
@@ -69,8 +72,11 @@
 
             <div class="form-actions">
               <button mat-flat-button color="primary" (click)="downloadHighRisk()" [disabled]="isHighRiskLoading">
-                <mat-icon *ngIf="!isHighRiskLoading">download</mat-icon>
-                <mat-spinner *ngIf="isHighRiskLoading" diameter="20" class="btn-spinner"></mat-spinner>
+                @if (!isHighRiskLoading) {
+                  <mat-icon>download</mat-icon>
+                } @else {
+                  <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                }
                 <span>{{ isHighRiskLoading ? 'Generating...' : 'Download PDF' }}</span>
               </button>
             </div>
@@ -101,8 +107,11 @@
 
             <div class="form-actions">
               <button mat-flat-button color="primary" (click)="downloadDailyCollection()" [disabled]="isDailyCollectionLoading || !dailyCollectionForm.date">
-                <mat-icon *ngIf="!isDailyCollectionLoading">download</mat-icon>
-                <mat-spinner *ngIf="isDailyCollectionLoading" diameter="20" class="btn-spinner"></mat-spinner>
+                @if (!isDailyCollectionLoading) {
+                  <mat-icon>download</mat-icon>
+                } @else {
+                  <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                }
                 <span>{{ isDailyCollectionLoading ? 'Generating...' : 'Download PDF' }}</span>
               </button>
             </div>

@@ -27,45 +27,65 @@
     </div>
 
     <!-- Live Search Overlay Dropdown -->
-    <div class="search-overlay" *ngIf="showSearchOverlay && (searchResults || isSearching)">
-      <div class="search-loading" *ngIf="isSearching">
-        <span>Searching database...</span>
-      </div>
-
-      <div class="search-results-list" *ngIf="searchResults && !isSearching">
-        <!-- Customers -->
-        <div class="search-category" *ngIf="searchResults.customers?.length">
-          <div class="category-header"><mat-icon>people</mat-icon> Customers</div>
-          <div class="search-item" *ngFor="let c of searchResults.customers" (mousedown)="navigateToCustomer(c.id)">
-            <div class="si-title">{{ c.fullName }}</div>
-            <div class="si-sub">Phone: {{ c.mobileNumber }} | ID: {{ c.aadhaarNumber }}</div>
-          </div>
+    @if (showSearchOverlay && (searchResults || isSearching)) {
+    <div class="search-overlay">
+      @if (isSearching) {
+        <div class="search-loading">
+          <span>Searching database...</span>
         </div>
+      }
 
-        <!-- Loans -->
-        <div class="search-category" *ngIf="searchResults.loans?.length">
-          <div class="category-header"><mat-icon>description</mat-icon> Loans</div>
-          <div class="search-item" *ngFor="let l of searchResults.loans" (mousedown)="navigateToLoan(l.id)">
-            <div class="si-title">Loan #{{ l.id }} – {{ l.customerName }}</div>
-            <div class="si-sub">Amount: ₹{{ l.loanAmount | number }} | Status: {{ l.status }}</div>
-          </div>
-        </div>
+      @if (searchResults && !isSearching) {
+        <div class="search-results-list">
+          <!-- Customers -->
+          @if (searchResults.customers?.length) {
+            <div class="search-category">
+              <div class="category-header"><mat-icon>people</mat-icon> Customers</div>
+              @for (c of searchResults.customers; track c.id) {
+                <div class="search-item" (mousedown)="navigateToCustomer(c.id)">
+                  <div class="si-title">{{ c.fullName }}</div>
+                  <div class="si-sub">Phone: {{ c.mobileNumber }} | ID: {{ c.aadhaarNumber }}</div>
+                </div>
+              }
+            </div>
+          }
 
-        <!-- Collections -->
-        <div class="search-category" *ngIf="searchResults.collections?.length">
-          <div class="category-header"><mat-icon>currency_rupee</mat-icon> Collections</div>
-          <div class="search-item" *ngFor="let col of searchResults.collections">
-            <div class="si-title">Receipt {{ col.receiptNumber }} – {{ col.customerName }}</div>
-            <div class="si-sub">Paid: ₹{{ col.amountPaid | number }} on {{ col.collectionDate | date:'mediumDate' }}</div>
-          </div>
-        </div>
+          <!-- Loans -->
+          @if (searchResults.loans?.length) {
+            <div class="search-category">
+              <div class="category-header"><mat-icon>description</mat-icon> Loans</div>
+              @for (l of searchResults.loans; track l.id) {
+                <div class="search-item" (mousedown)="navigateToLoan(l.id)">
+                  <div class="si-title">Loan #{{ l.id }} – {{ l.customerName }}</div>
+                  <div class="si-sub">Amount: ₹{{ l.loanAmount | number }} | Status: {{ l.status }}</div>
+                </div>
+              }
+            </div>
+          }
 
-        <!-- Empty State -->
-        <div class="search-empty" *ngIf="!searchResults.customers?.length && !searchResults.loans?.length && !searchResults.collections?.length">
-          No matching records found for "{{ searchQuery }}".
+          <!-- Collections -->
+          @if (searchResults.collections?.length) {
+            <div class="search-category">
+              <div class="category-header"><mat-icon>currency_rupee</mat-icon> Collections</div>
+              @for (col of searchResults.collections; track col.receiptNumber || $index) {
+                <div class="search-item">
+                  <div class="si-title">Receipt {{ col.receiptNumber }} – {{ col.customerName }}</div>
+                  <div class="si-sub">Paid: ₹{{ col.amountPaid | number }} on {{ col.collectionDate | date:'mediumDate' }}</div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Empty State -->
+          @if (!searchResults.customers?.length && !searchResults.loans?.length && !searchResults.collections?.length) {
+            <div class="search-empty">
+              No matching records found for "{{ searchQuery }}".
+            </div>
+          }
         </div>
-      </div>
+      }
     </div>
+    }
   </div>
 
   <!-- Right: Notifications + User -->
@@ -78,34 +98,45 @@
     <mat-menu #notifMenu="matMenu" class="notif-dropdown-menu" xPosition="before">
       <div class="notif-header" (click)="$event.stopPropagation()">
         <span class="notif-title">Notifications</span>
-        <button mat-button class="mark-all-btn" (click)="onMarkAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
+        @if (unreadCount > 0) {
+          <button mat-button class="mark-all-btn" (click)="onMarkAllRead()">Mark all read</button>
+        }
       </div>
       <mat-divider></mat-divider>
       <div class="notif-list" (click)="$event.stopPropagation()">
-        <div class="notif-item" *ngFor="let n of notifications" [class.notif-item--unread]="!n.isRead">
-          <div class="notif-icon-wrap" [class]="'notif-type--' + n.type">
-            <mat-icon>info</mat-icon>
+        @for (n of notifications; track n.id || $index) {
+          <div class="notif-item" [class.notif-item--unread]="!n.isRead">
+            <div class="notif-icon-wrap" [class]="'notif-type--' + n.type">
+              <mat-icon>info</mat-icon>
+            </div>
+            <div class="notif-body">
+              <div class="notif-item-title">{{ n.title }}</div>
+              <div class="notif-item-msg">{{ n.message }}</div>
+              <div class="notif-item-time">{{ n.createdAt | date:'shortTime' }}</div>
+            </div>
+            @if (!n.isRead) {
+              <button mat-icon-button class="notif-read-btn" (click)="onMarkRead(n, $event)" title="Mark as read">
+                <mat-icon>check_circle_outline</mat-icon>
+              </button>
+            }
           </div>
-          <div class="notif-body">
-            <div class="notif-item-title">{{ n.title }}</div>
-            <div class="notif-item-msg">{{ n.message }}</div>
-            <div class="notif-item-time">{{ n.createdAt | date:'shortTime' }}</div>
+        }
+        @if (!notifications.length) {
+          <div class="notif-empty">
+            No notifications to display.
           </div>
-          <button mat-icon-button class="notif-read-btn" (click)="onMarkRead(n, $event)" *ngIf="!n.isRead" title="Mark as read">
-            <mat-icon>check_circle_outline</mat-icon>
-          </button>
-        </div>
-        <div class="notif-empty" *ngIf="!notifications.length">
-          No notifications to display.
-        </div>
+        }
       </div>
     </mat-menu>
 
     <!-- User Chip -->
     <button [matMenuTriggerFor]="userMenu" class="user-chip" aria-label="User menu">
       <div class="user-avatar">
-        <img *ngIf="userAvatarUrl; else initialsTpl" [src]="userAvatarUrl" alt="Avatar" class="avatar-img" />
-        <ng-template #initialsTpl>{{ userInitials }}</ng-template>
+        @if (userAvatarUrl) {
+          <img [src]="userAvatarUrl" alt="Avatar" class="avatar-img" />
+        } @else {
+          {{ userInitials }}
+        }
       </div>
       <div class="user-info">
         <span class="user-name">{{ userName }}</span>
@@ -133,12 +164,16 @@
 </mat-toolbar>
 
 <!-- Profile Modal Backdrop & Card -->
-<div class="profile-backdrop" *ngIf="showProfileModal" (click)="closeProfileModal()">
+@if (showProfileModal) {
+<div class="profile-backdrop" (click)="closeProfileModal()">
   <div class="profile-card" (click)="$event.stopPropagation()">
     <div class="profile-card-header">
       <div class="profile-avatar-lg">
-        <img *ngIf="userAvatarUrl; else initialsLgTpl" [src]="userAvatarUrl" alt="Avatar" class="avatar-img-lg" />
-        <ng-template #initialsLgTpl>{{ userInitials }}</ng-template>
+        @if (userAvatarUrl) {
+          <img [src]="userAvatarUrl" alt="Avatar" class="avatar-img-lg" />
+        } @else {
+          {{ userInitials }}
+        }
         
         <button mat-icon-button class="upload-photo-btn" (click)="fileInput.click()" title="Upload Photo">
           <mat-icon>photo_camera</mat-icon>
@@ -171,3 +206,4 @@
     </div>
   </div>
 </div>
+}

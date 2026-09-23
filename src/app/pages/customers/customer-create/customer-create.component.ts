@@ -1,7 +1,6 @@
-import { Component, inject, ViewEncapsulation, OnInit } from '@angular/core';
+import { Component, inject, ViewEncapsulation, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { LookupService, LookupValue } from '../../../core/services/lookup.service';
 import { CustomerDocumentService } from '../../../core/services/customer-document.service';
-import { forkJoin } from 'rxjs';
 import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -17,27 +16,35 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { customerCreate } from '../../../../api/fn/customer/customer-create';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { ToastService } from '../../../core/services/toast.service';
+import { formatFileSize } from '../../../shared/utils/format.util';
 import { Step1CustomerDetailsComponent } from './components/step1-customer-details/step1-customer-details.component';
 import { Step2DocumentsComponent } from './components/step2-documents/step2-documents.component';
 import { Step3ReviewComponent } from './components/step3-review/step3-review.component';
 
-interface UploadedFile {
+export interface UploadedFile {
   name: string;
   size: string;
   previewUrl?: string | null;
   rawFile?: File;
 }
 
-interface AdditionalDocItem {
+export interface AdditionalDocItem {
   id: number;
   docType: string;
   file: UploadedFile | null;
+}
+
+export interface BranchOption {
+  id: number;
+  name: string;
 }
 
 @Component({
@@ -69,7 +76,7 @@ interface AdditionalDocItem {
   templateUrl: './customer-create.component.html',
   styleUrls: ['./customer-create.component.css'],
   encapsulation: ViewEncapsulation.None,
-  providers: [provideNativeDateAdapter()]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomerCreateComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -81,6 +88,8 @@ export class CustomerCreateComponent implements OnInit {
   private router = inject(Router);
   private lookupService = inject(LookupService);
   private documentService = inject(CustomerDocumentService);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   genders: LookupValue[] = [];
   idTypesLookup: LookupValue[] = [];
@@ -93,7 +102,7 @@ export class CustomerCreateComponent implements OnInit {
   registrationDate = new Date();
   isIdNumberVisible = false;
 
-  branches = [
+  branches: BranchOption[] = [
     { id: 1, name: 'Main Branch' },
     { id: 2, name: 'City Branch' },
     { id: 3, name: 'West Branch' }
@@ -125,13 +134,10 @@ export class CustomerCreateComponent implements OnInit {
     'Other'
   ];
 
-  // Default uploaded ID proof file to match design spec
   idProofFile: UploadedFile | null = null;
-
   additionalDocs: AdditionalDocItem[] = [];
 
   customerForm = this.fb.group({
-    // Step 1: Customer Details
     customerType: ['Individual', Validators.required],
     title: ['Mr.', Validators.required],
     fullName: ['', [Validators.required, Validators.minLength(3), Validators.pattern('^[a-zA-Z\\s]+$')]],
@@ -151,17 +157,28 @@ export class CustomerCreateComponent implements OnInit {
     branchId: [1, Validators.required],
     notes: [''],
 
-    // Step 2: Documents (KYC)
     idType: ['', Validators.required],
     idNumber: ['', Validators.required]
   });
 
-
   ngOnInit(): void {
-    this.lookupService.getLookupValues(1).subscribe(res => this.genders = res);
-    this.lookupService.getLookupValues(2).subscribe(res => this.docTypesLookup = res.filter(x => x.code !== 'PROFILE_PHOTO'));
-    this.lookupService.getLookupValues(3).subscribe(res => this.occupations = res);
-    this.lookupService.getLookupValues(4).subscribe(res => this.idTypesLookup = res);
+    forkJoin({
+      genders: this.lookupService.getLookupValues(1),
+      docTypes: this.lookupService.getLookupValues(2),
+      occupations: this.lookupService.getLookupValues(3),
+      idTypes: this.lookupService.getLookupValues(4)
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ genders, docTypes, occupations, idTypes }) => {
+          this.genders = genders;
+          this.docTypesLookup = docTypes.filter(x => x.code !== 'PROFILE_PHOTO');
+          this.occupations = occupations;
+          this.idTypesLookup = idTypes;
+          this.cdr.markForCheck();
+        },
+        error: (err) => console.error('Failed to load lookup data', err)
+      });
   }
 
   get selectedBranchName(): string {
@@ -170,7 +187,6 @@ export class CustomerCreateComponent implements OnInit {
     return branch ? branch.name : 'Main Branch';
   }
 
-  // Document checklist status getters
   get isIdTypeSelected(): boolean {
     return !!this.customerForm.get('idType')?.value;
   }
@@ -189,6 +205,7 @@ export class CustomerCreateComponent implements OnInit {
 
   toggleIdNumberVisibility(): void {
     this.isIdNumberVisible = !this.isIdNumberVisible;
+    this.cdr.markForCheck();
   }
 
   onPhotoSelected(event: Event): void {
@@ -199,6 +216,7 @@ export class CustomerCreateComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.profilePhotoUrl = e.target?.result as string;
+        this.cdr.markForCheck();
       };
       reader.readAsDataURL(file);
     }
@@ -212,18 +230,19 @@ export class CustomerCreateComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const sizeInKb = Math.round(file.size / 1024);
       this.idProofFile = {
         name: file.name,
-        size: sizeInKb > 1024 ? `${(sizeInKb / 1024).toFixed(1)} MB` : `${sizeInKb} KB`,
+        size: formatFileSize(file.size),
         rawFile: file
       };
       this.toastService.success('Uploaded');
+      this.cdr.markForCheck();
     }
   }
 
   removeIdProof(): void {
     this.idProofFile = null;
+    this.cdr.markForCheck();
   }
 
   addAnotherDocument(): void {
@@ -232,28 +251,31 @@ export class CustomerCreateComponent implements OnInit {
       docType: 'Income Proof',
       file: null
     });
+    this.cdr.markForCheck();
   }
 
   removeAdditionalDoc(index: number): void {
     this.additionalDocs.splice(index, 1);
+    this.cdr.markForCheck();
   }
 
   onAdditionalDocSelected(event: Event, index: number): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const sizeInKb = Math.round(file.size / 1024);
       this.additionalDocs[index].file = {
         name: file.name,
-        size: sizeInKb > 1024 ? `${(sizeInKb / 1024).toFixed(1)} MB` : `${sizeInKb} KB`,
+        size: formatFileSize(file.size),
         rawFile: file
       };
+      this.cdr.markForCheck();
     }
   }
 
   goToStep(step: number): void {
     if (step < this.currentStep) {
       this.currentStep = step;
+      this.cdr.markForCheck();
     } else if (step === 2 && this.currentStep === 1) {
       this.nextStep();
     } else if (step === 3 && this.currentStep === 2) {
@@ -277,6 +299,7 @@ export class CustomerCreateComponent implements OnInit {
         return;
       }
       this.currentStep = 2;
+      this.cdr.markForCheck();
     } else if (this.currentStep === 2) {
       const step2Controls = ['idType', 'idNumber'];
       let isValid = true;
@@ -296,12 +319,14 @@ export class CustomerCreateComponent implements OnInit {
         return;
       }
       this.currentStep = 3;
+      this.cdr.markForCheck();
     }
   }
 
   prevStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      this.cdr.markForCheck();
     }
   }
 
@@ -336,7 +361,7 @@ export class CustomerCreateComponent implements OnInit {
         idProofNumber: formValue.idNumber || '',
         branchId: formValue.branchId!
       }
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.isLoading = false;
         this.toastService.success('Customer profile created successfully');
@@ -350,10 +375,10 @@ export class CustomerCreateComponent implements OnInit {
         this.isLoading = false;
         console.error('Error creating customer', err);
         this.toastService.error('Failed to create customer profile');
+        this.cdr.markForCheck();
       }
     });
   }
-
 
   finalizeSubmit(): void {
     this.isLoading = false;

@@ -19,7 +19,9 @@
                   <label class="field-label required">ID Type</label>
                   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
                     <mat-select formControlName="idType">
-                      <mat-option *ngFor="let t of idTypes" [value]="t">{{ t }}</mat-option>
+                      @for (t of idTypes; track t) {
+                        <mat-option [value]="t">{{ t }}</mat-option>
+                      }
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -31,7 +33,9 @@
                     <button mat-icon-button matSuffix type="button" (click)="toggleIdNumber.emit()" class="toggle-visibility-btn" aria-label="Toggle ID visibility">
                       <mat-icon>{{ isIdNumberVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
                     </button>
-                    <mat-error *ngIf="customerForm.get('idNumber')?.hasError('required')">ID number is required</mat-error>
+                    @if (customerForm.get('idNumber')?.hasError('required')) {
+                      <mat-error>ID number is required</mat-error>
+                    }
                   </mat-form-field>
                 </div>
               </div>
@@ -53,7 +57,8 @@
                   </div>
 
                   <!-- Uploaded File Preview Card (Matching Design Spec Image) -->
-                  <div class="uploaded-doc-preview-card" *ngIf="idProofFile">
+                  @if (idProofFile) {
+                  <div class="uploaded-doc-preview-card">
                     <div class="preview-card-body">
                       <!-- Mock Aadhaar Card Thumbnail Graphic -->
                       <div class="doc-thumbnail-wrap">
@@ -91,6 +96,7 @@
                       </div>
                     </div>
                   </div>
+                  }
 
                 </div>
               </div>
@@ -110,12 +116,15 @@
 
             <mat-card-content class="section-card-body">
               
-              <div class="additional-doc-row" *ngFor="let doc of additionalDocs; let i = index">
+              @for (doc of additionalDocs; track doc.id; let i = $index) {
+              <div class="additional-doc-row">
                 <div class="field-col third-width">
                   <label class="field-label">Document Type</label>
                   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
                     <mat-select [(ngModel)]="doc.docType" [ngModelOptions]="{standalone: true}">
-                      <mat-option *ngFor="let dt of additionalDocTypes" [value]="dt">{{ dt }}</mat-option>
+                      @for (dt of additionalDocTypes; track dt) {
+                        <mat-option [value]="dt">{{ dt }}</mat-option>
+                      }
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -124,9 +133,13 @@
                   <label class="field-label">&nbsp;</label>
                   <div class="dropzone-box inline-dropzone" (click)="triggerUpload(addFileInput)">
                     <input type="file" #addFileInput (change)="onAdditionalDocSelectedInternal($event, i)" accept="image/*,application/pdf" class="hidden-file-input">
-                    <mat-icon class="cloud-upload-icon-sm">cloud_upload</mat-icon>
-                    <span class="inline-dropzone-text" *ngIf="!doc.file">Drag & drop file here or click to upload (JPG, PNG, PDF Max 2MB)</span>
-                    <span class="inline-dropzone-text uploaded-text" *ngIf="doc.file">✓ {{ doc.file.name }} ({{ doc.file.size }})</span>
+                    @if (!doc.file) {
+                      <mat-icon class="cloud-upload-icon-sm">cloud_upload</mat-icon>
+                      <span class="inline-dropzone-text">Drag & drop file here or click to upload (JPG, PNG, PDF Max 2MB)</span>
+                    } @else {
+                      <mat-icon class="cloud-upload-icon-sm">cloud_upload</mat-icon>
+                      <span class="inline-dropzone-text uploaded-text">✓ {{ doc.file.name }} ({{ doc.file.size }})</span>
+                    }
                   </div>
                 </div>
 
@@ -134,6 +147,7 @@
                   <mat-icon>close</mat-icon>
                 </button>
               </div>
+              }
 
               <div class="add-another-wrap">
                 <button mat-stroked-button type="button" class="btn-add-another" (click)="addAnotherDoc.emit()">
@@ -176,8 +190,11 @@
               </div>
 
               <div class="avatar-circle">
-                <img *ngIf="profilePhotoUrl" [src]="profilePhotoUrl" alt="Profile preview" class="avatar-img">
-                <mat-icon *ngIf="!profilePhotoUrl" class="avatar-default-icon">person</mat-icon>
+                @if (profilePhotoUrl) {
+                  <img [src]="profilePhotoUrl" alt="Profile preview" class="avatar-img">
+                } @else {
+                  <mat-icon class="avatar-default-icon">person</mat-icon>
+                }
               </div>
 
               <button mat-stroked-button type="button" class="btn-upload-photo" (click)="triggerUpload(fileInputStep2)">

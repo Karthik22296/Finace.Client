@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,6 +10,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs/operators';
 import { ApiConfiguration } from '../../../api/api-configuration';
 import { searchGlobalSearch } from '../../../api/fn/search/search-global-search';
 import { notificationGetNotifications } from '../../../api/fn/notification/notification-get-notifications';
@@ -35,7 +38,8 @@ import { AuthService } from '../../core/services/auth.service';
     MatSnackBarModule
   ],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrl: './header.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent implements OnInit {
   @Output() toggleSidenav = new EventEmitter<void>();
@@ -44,12 +48,15 @@ export class HeaderComponent implements OnInit {
   private config = inject(ApiConfiguration);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
   authService = inject(AuthService);
 
   // ── Search State ───────────────────────────────────────────
   searchQuery = '';
   searchResults: GlobalSearchResultDto | null = null;
   isSearching = false;
+  private searchSubject = new Subject<string>();
   showSearchOverlay = false;
 
   // ── Notification State ─────────────────────────────────────
@@ -63,6 +70,36 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
     this.loadNotifications();
     this.loadUserProfile();
+
+    // Debounced search pipeline — cancels in-flight requests on new input
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(query => {
+        if (query.trim().length < 2) {
+          this.searchResults = null;
+          this.isSearching = false;
+          this.cdr.markForCheck();
+          return of(null);
+        }
+        this.isSearching = true;
+        this.cdr.markForCheck();
+        return searchGlobalSearch(this.http, this.config.rootUrl, { q: query });
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (res) => {
+        if (res) {
+          this.searchResults = res.body || null;
+        }
+        this.isSearching = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.isSearching = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   // ── Computed display values ────────────────────────────────
@@ -83,8 +120,7 @@ export class HeaderComponent implements OnInit {
 
   get userAvatarUrl(): string | null {
     if (this.userProfile?.profilePhotoUrl && this.userProfile?.id) {
-      // Bust cache with timestamp just in case
-      return `${this.config.rootUrl}/api/users/profile-photo/file?userId=${this.userProfile.id}&t=${new Date().getTime()}`;
+      return `${this.config.rootUrl}/api/users/profile-photo/file?userId=${this.userProfile.id}`;
     }
     return null;
   }
@@ -101,65 +137,66 @@ export class HeaderComponent implements OnInit {
 
   // ── API: Load User Profile ─────────────────────────────────
   loadUserProfile(): void {
-    userGetProfile(this.http, this.config.rootUrl).subscribe({
-      next: (res) => {
-        if (res.body) this.userProfile = res.body;
-      },
-      error: (err) => console.error('Failed to load profile', err)
-    });
+    userGetProfile(this.http, this.config.rootUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res.body) {
+            this.userProfile = res.body;
+            this.cdr.markForCheck();
+          }
+        },
+        error: (err) => console.error('Failed to load profile', err)
+      });
   }
 
   // ── API: Load Notifications ────────────────────────────────
   loadNotifications(): void {
-    notificationGetNotifications(this.http, this.config.rootUrl).subscribe({
-      next: (res) => {
-        if (res.body) {
-          this.notifications = res.body;
-          this.unreadCount = this.notifications.filter(n => !n.isRead).length;
-        }
-      },
-      error: (err) => console.error('Failed to load notifications', err)
-    });
+    notificationGetNotifications(this.http, this.config.rootUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res.body) {
+            this.notifications = res.body;
+            this.unreadCount = this.notifications.filter(n => !n.isRead).length;
+            this.cdr.markForCheck();
+          }
+        },
+        error: (err) => console.error('Failed to load notifications', err)
+      });
   }
 
   onMarkRead(notif: NotificationDto, event: MouseEvent): void {
     event.stopPropagation();
     if (!notif.id) return;
-    notificationMarkAsRead(this.http, this.config.rootUrl, { id: notif.id }).subscribe({
-      next: () => {
-        notif.isRead = true;
-        this.unreadCount = Math.max(0, this.unreadCount - 1);
-        this.snackBar.open('Marked as read', 'Close', { duration: 2000 });
-      }
-    });
+    notificationMarkAsRead(this.http, this.config.rootUrl, { id: notif.id })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          notif.isRead = true;
+          this.unreadCount = Math.max(0, this.unreadCount - 1);
+          this.snackBar.open('Marked as read', 'Close', { duration: 2000 });
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   onMarkAllRead(): void {
-    notificationMarkAllAsRead(this.http, this.config.rootUrl).subscribe({
-      next: () => {
-        this.notifications.forEach(n => n.isRead = true);
-        this.unreadCount = 0;
-        this.snackBar.open('All notifications marked as read', 'Close', { duration: 2000 });
-      }
-    });
+    notificationMarkAllAsRead(this.http, this.config.rootUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.notifications.forEach(n => n.isRead = true);
+          this.unreadCount = 0;
+          this.snackBar.open('All notifications marked as read', 'Close', { duration: 2000 });
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   // ── API: Global Search ─────────────────────────────────────
   onSearchInput(): void {
-    if (this.searchQuery.trim().length < 2) {
-      this.searchResults = null;
-      return;
-    }
-    this.isSearching = true;
-    searchGlobalSearch(this.http, this.config.rootUrl, { q: this.searchQuery }).subscribe({
-      next: (res) => {
-        this.searchResults = res.body || null;
-        this.isSearching = false;
-      },
-      error: () => {
-        this.isSearching = false;
-      }
-    });
+    this.searchSubject.next(this.searchQuery);
   }
 
   onSearchFocus(): void {
@@ -169,6 +206,7 @@ export class HeaderComponent implements OnInit {
   closeSearchOverlay(): void {
     setTimeout(() => {
       this.showSearchOverlay = false;
+      this.cdr.markForCheck();
     }, 200);
   }
 
@@ -195,23 +233,27 @@ export class HeaderComponent implements OnInit {
     this.showProfileModal = false;
   }
 
-  onUploadPhoto(event: any): void {
-    const file = event.target.files[0];
+  onUploadPhoto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) return;
 
     this.snackBar.open('Uploading photo...', '', { duration: 2000 });
-    userUploadProfilePhoto(this.http, this.config.rootUrl, { body: { file } }).subscribe({
-      next: (res) => {
-        if (res.body && this.userProfile) {
-          this.userProfile.profilePhotoUrl = res.body.photoUrl;
-          this.snackBar.open('Profile photo updated!', 'Close', { duration: 3000 });
+    userUploadProfilePhoto(this.http, this.config.rootUrl, { body: { file } })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res.body && this.userProfile) {
+            this.userProfile.profilePhotoUrl = res.body.photoUrl;
+            this.snackBar.open('Profile photo updated!', 'Close', { duration: 3000 });
+            this.cdr.markForCheck();
+          }
+        },
+        error: (err) => {
+          console.error('Failed to upload photo', err);
+          this.snackBar.open('Failed to upload photo', 'Close', { duration: 3000 });
         }
-      },
-      error: (err) => {
-        console.error('Failed to upload photo', err);
-        this.snackBar.open('Failed to upload photo', 'Close', { duration: 3000 });
-      }
-    });
+      });
   }
 
   onOpenSettings(): void {

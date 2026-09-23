@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
+import { goBack as navigateBack } from '../../../shared/utils/navigation.util';
 import { HttpClient } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -12,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { collectionGetAll } from '../../../../api/fn/collection/collection-get-all';
 import { collectionVerify } from '../../../../api/fn/collection/collection-verify';
 import { collectionApprove } from '../../../../api/fn/collection/collection-approve';
@@ -20,6 +22,7 @@ import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Collection } from '../../../../api/models/collection';
 import { BaseTableComponent } from '../../../shared/components/base-table.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { parseBlobJson } from '../../../shared/utils/api-response.util';
 
 @Component({
   selector: 'app-collection-verify',
@@ -38,7 +41,8 @@ import { ToastService } from '../../../core/services/toast.service';
     MatCardModule
   ],
   templateUrl: './collection-verify.component.html',
-  styleUrls: ['./collection-verify.component.css']
+  styleUrls: ['./collection-verify.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollectionVerifyComponent extends BaseTableComponent<Collection> implements OnInit {
   private http = inject(HttpClient);
@@ -46,13 +50,11 @@ export class CollectionVerifyComponent extends BaseTableComponent<Collection> im
   private toast = inject(ToastService);
   private location = inject(Location);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
+    navigateBack(this.location, this.router, '/dashboard');
   }
 
   displayedColumns: string[] = ['collectionCode', 'date', 'customer', 'collector', 'amount', 'status', 'actions'];
@@ -77,60 +79,78 @@ export class CollectionVerifyComponent extends BaseTableComponent<Collection> im
         case 'date': return item.collectionDate || '';
         case 'amount': return item.amountPaid || 0;
         case 'status': return item.verificationStatus || 0;
-        default: return (item as any)[property];
+        default: return (item as unknown as Record<string, unknown>)[property] as string | number;
       }
     };
     this.loadCollections();
   }
 
+  totalAmount = 0;
+
+  override applyFilter(column: string, event: Event) {
+    super.applyFilter(column, event);
+    this.updateTotalAmount();
+  }
+
+  updateTotalAmount(): void {
+    this.totalAmount = this.dataSource.filteredData
+      .map(t => t.amountPaid || 0)
+      .reduce((acc, value) => acc + value, 0);
+  }
+
   loadCollections() {
     this.isLoading = true;
-    collectionGetAll(this.http, this.config.rootUrl).subscribe({
-      next: async (response) => {
-        try {
-          const text = await response.body.text();
-          const collections: Collection[] = text ? JSON.parse(text) : [];
-          this.dataSource.data = collections;
-        } catch (e) {
-          console.error('Failed to parse collections', e);
+    collectionGetAll(this.http, this.config.rootUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: async (response) => {
+          this.dataSource.data = await parseBlobJson<Collection[]>(response.body, []);
+          this.updateTotalAmount();
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error loading collections', err);
+          this.isLoading = false;
+          this.cdr.markForCheck();
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading collections', err);
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   verifyCollection(id: number) {
-    collectionVerify(this.http, this.config.rootUrl, { id, body: {} }).subscribe({
-      next: () => {
-        this.toast.success('Collection Verified');
-        this.loadCollections();
-      },
-      error: () => this.toast.error('Failed to verify collection')
-    });
+    collectionVerify(this.http, this.config.rootUrl, { id, body: {} })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toast.success('Collection Verified');
+          this.loadCollections();
+        },
+        error: () => this.toast.error('Failed to verify collection')
+      });
   }
 
   approveCollection(id: number) {
-    collectionApprove(this.http, this.config.rootUrl, { id, body: {} }).subscribe({
-      next: () => {
-        this.toast.success('Collection Approved');
-        this.loadCollections();
-      },
-      error: () => this.toast.error('Failed to approve collection')
-    });
+    collectionApprove(this.http, this.config.rootUrl, { id, body: {} })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toast.success('Collection Approved');
+          this.loadCollections();
+        },
+        error: () => this.toast.error('Failed to approve collection')
+      });
   }
 
   rejectCollection(id: number) {
-    collectionReject(this.http, this.config.rootUrl, { id, body: {} }).subscribe({
-      next: () => {
-        this.toast.success('Collection Rejected');
-        this.loadCollections();
-      },
-      error: () => this.toast.error('Failed to reject collection')
-    });
+    collectionReject(this.http, this.config.rootUrl, { id, body: {} })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toast.success('Collection Rejected');
+          this.loadCollections();
+        },
+        error: () => this.toast.error('Failed to reject collection')
+      });
   }
 
   getStatusName(status: number | undefined): string {
@@ -147,8 +167,8 @@ export class CollectionVerifyComponent extends BaseTableComponent<Collection> im
     switch (status) {
       case 0: return 'pending';
       case 1: return 'verified';
-      case 2: return 'active'; // using .active from table-layout.css
-      case 3: return 'inactive'; // using .inactive from table-layout.css
+      case 2: return 'active';
+      case 3: return 'inactive';
       default: return '';
     }
   }

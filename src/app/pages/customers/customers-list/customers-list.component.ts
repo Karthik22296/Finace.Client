@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { goBack as navigateBack } from '../../../shared/utils/navigation.util';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -19,13 +20,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { customerGetAll } from '../../../../api/fn/customer/customer-get-all';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Customer } from '../../../../api/models/customer';
-import { CustomerCreateComponent } from '../customer-create/customer-create.component';
-import { LoanCreateComponent } from '../../loans/loan-create/loan-create.component';
 import { BaseTableComponent } from '../../../shared/components/base-table.component';
+import { parseBlobJson } from '../../../shared/utils/api-response.util';
+import { PhoneFormatPipe, CustomerCodePipe } from '../../../shared/pipes';
 
 @Component({
   selector: 'app-customers-list',
@@ -48,13 +49,13 @@ import { BaseTableComponent } from '../../../shared/components/base-table.compon
     MatSelectModule,
     MatDividerModule,
     MatSnackBarModule,
-    MatDatepickerModule
-  ],
-  providers: [
-    provideNativeDateAdapter()
+    MatDatepickerModule,
+    PhoneFormatPipe,
+    CustomerCodePipe
   ],
   templateUrl: './customers-list.component.html',
-  styleUrls: ['./customers-list.component.css']
+  styleUrls: ['./customers-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomersListComponent extends BaseTableComponent<Customer> implements OnInit {
   private http = inject(HttpClient);
@@ -63,6 +64,8 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   // Selection Model for table checkboxes
   selection = new SelectionModel<Customer>(true, []);
@@ -88,11 +91,7 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
   selectedDate: Date | null = null;
 
   goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
+    navigateBack(this.location, this.router, '/dashboard');
   }
 
   ngOnInit(): void {
@@ -117,22 +116,20 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
 
   loadCustomers() {
     this.isLoading = true;
-    customerGetAll(this.http, this.config.rootUrl).subscribe({
-      next: async (response) => {
-        try {
-          const text = await response.body.text();
-          const customers: Customer[] = text ? JSON.parse(text) : [];
-          this.dataSource.data = customers;
-        } catch (e) {
-          console.error('Failed to parse customers', e);
+    customerGetAll(this.http, this.config.rootUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: async (response) => {
+          this.dataSource.data = await parseBlobJson<Customer[]>(response.body, []);
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error loading customers', err);
+          this.isLoading = false;
+          this.cdr.markForCheck();
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading customers', err);
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   // ── KPI Summary Calculations ───────────────────────────
@@ -167,6 +164,8 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
     return num;
   }
 
+  // TODO: Replace hardcoded customer-ID-to-status mapping with API-driven loan status.
+  // These are development placeholders — the backend should return a loanStatus field on the Customer model.
   getCustomerLoanStatus(cust: Customer): string {
     if (cust.customerId === 1) return 'Active';
     if (cust.customerId === 2) return 'Active';
@@ -184,11 +183,11 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
     return 'Active';
   }
 
+  // TODO: Replace hardcoded customer-ID-to-outstanding mapping with actual loan balance from API.
   getCustomerOutstanding(cust: Customer): number {
     if (cust.loans && cust.loans.length > 0) {
       return cust.loans.reduce((acc, l) => acc + (l.balanceAmount || 0), 0);
     }
-    // Realistic representation based on customer ID for demo consistency
     if (cust.customerId === 1) return 45000;
     if (cust.customerId === 3) return 12500;
     if (cust.customerId === 4) return 75000;
@@ -230,6 +229,7 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
       date: this.selectedDate ? this.selectedDate.toISOString() : null
     };
     this.dataSource.filter = JSON.stringify(filterObj);
+    this.cdr.markForCheck();
   }
 
   resetFilters() {
@@ -239,6 +239,7 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
     this.selectedStatus = '';
     this.selectedDate = null;
     this.dataSource.filter = '';
+    this.cdr.markForCheck();
   }
 
   get activeFiltersCount(): number {
@@ -280,20 +281,28 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
   goToPage(page: number | string) {
     if (typeof page === 'number') {
       this.pageIndex = page - 1;
+      this.cdr.markForCheck();
     }
   }
 
   prevPage() {
-    if (this.pageIndex > 0) this.pageIndex--;
+    if (this.pageIndex > 0) {
+      this.pageIndex--;
+      this.cdr.markForCheck();
+    }
   }
 
   nextPage() {
-    if (this.pageIndex < this.totalPages - 1) this.pageIndex++;
+    if (this.pageIndex < this.totalPages - 1) {
+      this.pageIndex++;
+      this.cdr.markForCheck();
+    }
   }
 
   onPageSizeChange(size: number) {
     this.pageSize = size;
     this.pageIndex = 0;
+    this.cdr.markForCheck();
   }
 
   onMenuOpened(row: Customer) {
@@ -309,14 +318,15 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
     this.router.navigate(['/customers/new']);
   }
 
-  openCreateLoanForCustomer(customer: Customer) {
+  async openCreateLoanForCustomer(customer: Customer) {
+    const { LoanCreateComponent } = await import('../../loans/loan-create/loan-create.component');
     const dialogRef = this.dialog.open(LoanCreateComponent, {
       width: '600px',
       disableClose: true,
       data: { customerId: customer.customerId }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
       if (result === true) {
         this.router.navigate(['/loans']);
       }
@@ -343,12 +353,14 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
     customer.isActive = !customer.isActive;
     const msg = customer.isActive ? `Customer ${customer.fullName} marked as Active` : `Customer ${customer.fullName} marked as Inactive`;
     this.snackBar.open(msg, 'Close', { duration: 2500 });
+    this.cdr.markForCheck();
   }
 
   deleteCustomer(customer: Customer) {
     if (confirm(`Are you sure you want to delete ${customer.fullName}?`)) {
       this.dataSource.data = this.dataSource.data.filter(c => c.customerId !== customer.customerId);
       this.snackBar.open(`Customer ${customer.fullName} deleted`, 'Close', { duration: 2500 });
+      this.cdr.markForCheck();
     }
   }
 }

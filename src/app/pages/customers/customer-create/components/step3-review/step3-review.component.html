@@ -17,20 +17,20 @@
             </mat-card-header>
             <mat-card-content class="section-card-body review-compact-body">
               <div class="review-grid-pairs">
-                <div class="review-pair"><span class="r-lbl">Customer Type</span><span class="r-val">{{ customerForm.get('customerType')?.value }}</span></div>
-                <div class="review-pair"><span class="r-lbl">Gender</span><span class="r-val">{{ customerForm.get('gender')?.value }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Customer Type</span><span class="r-val">{{ f['customerType'] }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Gender</span><span class="r-val">{{ f['gender'] }}</span></div>
                 
-                <div class="review-pair"><span class="r-lbl">Title</span><span class="r-val">{{ customerForm.get('title')?.value }}</span></div>
-                <div class="review-pair"><span class="r-lbl">Mobile Number</span><span class="r-val">+91 {{ customerForm.get('mobileNumber')?.value }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Title</span><span class="r-val">{{ f['title'] }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Mobile Number</span><span class="r-val">+91 {{ f['mobileNumber'] }}</span></div>
                 
-                <div class="review-pair"><span class="r-lbl">Full Name</span><span class="r-val">{{ customerForm.get('fullName')?.value }}</span></div>
-                <div class="review-pair"><span class="r-lbl">Alternate Number</span><span class="r-val">{{ customerForm.get('alternateNumber')?.value ? '+91 ' + customerForm.get('alternateNumber')?.value : 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Full Name</span><span class="r-val">{{ f['fullName'] }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Alternate Number</span><span class="r-val">{{ f['alternateNumber'] ? '+91 ' + f['alternateNumber'] : 'N/A' }}</span></div>
 
-                <div class="review-pair"><span class="r-lbl">Date of Birth</span><span class="r-val">{{ customerForm.get('dateOfBirth')?.value | date:'dd MMM yyyy' }}</span></div>
-                <div class="review-pair"><span class="r-lbl">Email</span><span class="r-val">{{ customerForm.get('email')?.value || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Date of Birth</span><span class="r-val">{{ f['dateOfBirth'] | date:'dd MMM yyyy' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Email</span><span class="r-val">{{ f['email'] || 'N/A' }}</span></div>
 
                 <div class="review-pair"><span class="r-lbl transparent-label">&nbsp;</span><span class="r-val"></span></div>
-                <div class="review-pair"><span class="r-lbl">Marital Status</span><span class="r-val">{{ customerForm.get('maritalStatus')?.value || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Marital Status</span><span class="r-val">{{ f['maritalStatus'] || 'N/A' }}</span></div>
               </div>
             </mat-card-content>
           </mat-card>
@@ -50,11 +50,11 @@
             </mat-card-header>
             <mat-card-content class="section-card-body review-compact-body">
               <div class="review-grid-2col">
-                <div class="review-pair"><span class="r-lbl">Address Line 1</span><span class="r-val">{{ customerForm.get('addressLine1')?.value || 'N/A' }}</span></div>
-                <div class="review-pair"><span class="r-lbl">Address Line 2</span><span class="r-val">{{ customerForm.get('addressLine2')?.value || 'N/A' }}</span></div>
-                <div class="review-pair"><span class="r-lbl">City / Town</span><span class="r-val">{{ customerForm.get('city')?.value || 'N/A' }}</span></div>
-                <div class="review-pair"><span class="r-lbl">State</span><span class="r-val">{{ customerForm.get('state')?.value || 'N/A' }}</span></div>
-                <div class="review-pair"><span class="r-lbl">Pincode</span><span class="r-val">{{ customerForm.get('pincode')?.value || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Address Line 1</span><span class="r-val">{{ f['addressLine1'] || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Address Line 2</span><span class="r-val">{{ f['addressLine2'] || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">City / Town</span><span class="r-val">{{ f['city'] || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">State</span><span class="r-val">{{ f['state'] || 'N/A' }}</span></div>
+                <div class="review-pair"><span class="r-lbl">Pincode</span><span class="r-val">{{ f['pincode'] || 'N/A' }}</span></div>
               </div>
             </mat-card-content>
           </mat-card>
@@ -75,11 +75,12 @@
             <mat-card-content class="section-card-body review-compact-body">
               <div class="kyc-review-layout">
                 <div class="kyc-review-details">
-                  <div class="review-pair"><span class="r-lbl">ID Type</span><span class="r-val">{{ customerForm.get('idType')?.value }}</span></div>
-                  <div class="review-pair"><span class="r-lbl">ID Number</span><span class="r-val">{{ customerForm.get('idNumber')?.value }}</span></div>
+                  <div class="review-pair"><span class="r-lbl">ID Type</span><span class="r-val">{{ f['idType'] }}</span></div>
+                  <div class="review-pair"><span class="r-lbl">ID Number</span><span class="r-val">{{ f['idNumber'] }}</span></div>
                 </div>
                 
-                <div class="kyc-review-preview" *ngIf="idProofFile">
+                @if (idProofFile) {
+                <div class="kyc-review-preview">
                   <div class="doc-thumbnail-wrap review-thumbnail">
                     <div class="thumbnail-header">
                       <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem" class="emblem-img">
@@ -93,7 +94,7 @@
                         <mat-icon>qr_code_2</mat-icon>
                       </div>
                     </div>
-                    <div class="thumbnail-id-number">{{ customerForm.get('idNumber')?.value || '1234 5678 9012' }}</div>
+                    <div class="thumbnail-id-number">{{ f['idNumber'] || '1234 5678 9012' }}</div>
                   </div>
                   <div class="kyc-file-info">
                     <span class="file-name">{{ idProofFile.name }}</span>
@@ -104,6 +105,7 @@
                     </div>
                   </div>
                 </div>
+                }
               </div>
             </mat-card-content>
           </mat-card>
@@ -137,8 +139,11 @@
             </mat-card-header>
             <mat-card-content class="profile-photo-body no-padding-bottom">
                <div class="review-avatar-container">
-                 <img *ngIf="profilePhotoUrl" [src]="profilePhotoUrl" alt="Profile" class="review-avatar-img">
-                 <img *ngIf="!profilePhotoUrl" src="https://ui-avatars.com/api/?name=Arun+Kumar&background=cbd5e1&color=ffffff&size=150" alt="Profile placeholder" class="review-avatar-img">
+                 @if (profilePhotoUrl) {
+                   <img [src]="profilePhotoUrl" alt="Profile" class="review-avatar-img">
+                 } @else {
+                   <img src="https://ui-avatars.com/api/?name=Arun+Kumar&background=cbd5e1&color=ffffff&size=150" alt="Profile placeholder" class="review-avatar-img">
+                 }
                </div>
             </mat-card-content>
           </mat-card>
@@ -178,7 +183,7 @@
               </div>
             </mat-card-header>
             <mat-card-content class="section-card-body review-compact-body">
-               <p class="notes-text">{{ customerForm.get('notes')?.value || 'Prefers doorstep service. Available in the evenings after 6 PM.' }}</p>
+               <p class="notes-text">{{ f['notes'] || 'Prefers doorstep service. Available in the evenings after 6 PM.' }}</p>
             </mat-card-content>
           </mat-card>
 
@@ -197,28 +202,32 @@
             </mat-card-header>
             <mat-card-content class="section-card-body review-compact-body">
               <div class="review-additional-docs-list">
-                <div class="doc-preview-item" *ngIf="additionalDocs.length === 0">
+                @if (additionalDocs.length === 0) {
+                <div class="doc-preview-item">
                   <div class="doc-preview-icon"><img src="https://cdn-icons-png.flaticon.com/512/281/281760.png" width="24" height="24" alt="pan"></div>
                   <div class="doc-preview-info">
                     <span class="doc-title">PAN Card</span>
                     <span class="doc-meta">pan_card.jpg<br>320 KB</span>
                   </div>
                 </div>
-                <div class="doc-preview-item" *ngIf="additionalDocs.length === 0">
+                <div class="doc-preview-item">
                    <div class="doc-preview-icon"><img src="https://cdn-icons-png.flaticon.com/512/281/281760.png" width="24" height="24" alt="voter"></div>
                    <div class="doc-preview-info">
                      <span class="doc-title">Voter ID</span>
                      <span class="doc-meta">voter_id.pdf<br>410 KB</span>
                    </div>
                 </div>
+                }
 
-                <div class="doc-preview-item" *ngFor="let doc of additionalDocs">
+                @for (doc of additionalDocs; track doc.id) {
+                <div class="doc-preview-item">
                    <div class="doc-preview-icon"><mat-icon>description</mat-icon></div>
                    <div class="doc-preview-info">
                      <span class="doc-title">{{ doc.docType }}</span>
                      <span class="doc-meta">{{ doc.file?.name || 'No file' }}<br>{{ doc.file?.size || '' }}</span>
                    </div>
                 </div>
+                }
               </div>
             </mat-card-content>
           </mat-card>
@@ -229,8 +238,12 @@
               Back
             </button>
             <button mat-flat-button color="primary" type="submit" class="btn-save" [disabled]="customerForm.invalid || isLoading">
-              <mat-spinner *ngIf="isLoading" diameter="18" class="btn-spinner"></mat-spinner>
-              <mat-icon *ngIf="!isLoading">save</mat-icon>
+              @if (isLoading) {
+                <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+              }
+              @if (!isLoading) {
+                <mat-icon>save</mat-icon>
+              }
               <span>{{ isLoading ? 'Saving...' : 'Save Customer' }}</span>
             </button>
           </div>

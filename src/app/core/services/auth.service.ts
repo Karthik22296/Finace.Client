@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, from, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
@@ -16,11 +16,9 @@ export class AuthService {
   private authStatusSubject = new BehaviorSubject<boolean>(this.hasToken());
   public authStatus$ = this.authStatusSubject.asObservable();
 
-  constructor(
-    private router: Router,
-    private http: HttpClient,
-    private config: ApiConfiguration
-  ) { }
+  private router = inject(Router);
+  private http = inject(HttpClient);
+  private config = inject(ApiConfiguration);
 
   login(username: string, password: string): Observable<boolean> {
     return authLogin(this.http, this.config.rootUrl, { 

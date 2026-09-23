@@ -7,9 +7,13 @@
         <mat-icon>chevron_left</mat-icon> Back to Customers
       </button>
       <h1 class="page-title">Add New Customer</h1>
-      <p class="page-subtitle" *ngIf="currentStep === 1">Create a new customer profile to start their financial journey.</p>
-      <p class="page-subtitle" *ngIf="currentStep === 2">Upload identification and related documents to complete the customer profile.</p>
-      <p class="page-subtitle" *ngIf="currentStep === 3">Review all information and confirm customer creation.</p>
+      @if (currentStep === 1) {
+        <p class="page-subtitle">Create a new customer profile to start their financial journey.</p>
+      } @else if (currentStep === 2) {
+        <p class="page-subtitle">Upload identification and related documents to complete the customer profile.</p>
+      } @else if (currentStep === 3) {
+        <p class="page-subtitle">Review all information and confirm customer creation.</p>
+      }
     </div>
 
     <!-- Wizard Stepper Indicator -->
@@ -17,8 +21,11 @@
       <!-- Step 1 -->
       <div class="step-item" [class.step-active]="currentStep === 1" [class.step-completed]="currentStep > 1" (click)="goToStep(1)">
         <div class="step-number-badge">
-          <mat-icon *ngIf="currentStep > 1" class="chk-step-icon">check</mat-icon>
-          <span *ngIf="currentStep <= 1">1</span>
+          @if (currentStep > 1) {
+            <mat-icon class="chk-step-icon">check</mat-icon>
+          } @else {
+            <span>1</span>
+          }
         </div>
         <div class="step-text">
           <span class="step-title">Customer Details</span>
@@ -31,8 +38,11 @@
       <!-- Step 2 -->
       <div class="step-item" [class.step-active]="currentStep === 2" [class.step-completed]="currentStep > 2" (click)="goToStep(2)">
         <div class="step-number-badge">
-          <mat-icon *ngIf="currentStep > 2" class="chk-step-icon">check</mat-icon>
-          <span *ngIf="currentStep <= 2">2</span>
+          @if (currentStep > 2) {
+            <mat-icon class="chk-step-icon">check</mat-icon>
+          } @else {
+            <span>2</span>
+          }
         </div>
         <div class="step-text">
           <span class="step-title">Documents</span>
@@ -58,8 +68,8 @@
     <div class="create-grid-container">
 
       <!-- ── STEP 1: CUSTOMER DETAILS ────────────────────────────── -->
+      @if (currentStep === 1) {
       <app-step1-customer-details 
-        *ngIf="currentStep === 1"
         [customerForm]="customerForm"
         [branches]="branches"
         [statesList]="statesList"
@@ -70,10 +80,11 @@
         (cancel)="onCancel()"
         (photoSelected)="onPhotoSelected($event)">
       </app-step1-customer-details>
+      }
 
       <!-- ── STEP 2: DOCUMENTS (UPLOAD KYC) ───────────────────────── -->
+      @if (currentStep === 2) {
       <app-step2-documents
-        *ngIf="currentStep === 2"
         [customerForm]="customerForm"
         [idTypes]="idTypes"
         [additionalDocTypes]="additionalDocTypes"
@@ -91,10 +102,11 @@
         (removeAdditionalDoc)="removeAdditionalDoc($event)"
         (photoSelected)="onPhotoSelected($event)">
       </app-step2-documents>
+      }
 
       <!-- ── STEP 3: REVIEW & SAVE ───────────────────────────────── -->
+      @if (currentStep === 3) {
       <app-step3-review
-        *ngIf="currentStep === 3"
         [customerForm]="customerForm"
         [selectedBranchName]="selectedBranchName"
         [idProofFile]="idProofFile"
@@ -104,6 +116,7 @@
         (prev)="prevStep()"
         (editStep)="goToStep($event)">
       </app-step3-review>
+      }
 
     </div>
   </form>

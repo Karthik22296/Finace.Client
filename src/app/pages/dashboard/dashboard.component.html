@@ -93,10 +93,11 @@
         <div class="chart-header">
           <span class="chart-title">Collection Trend</span>
           <div class="chart-tabs">
-            <button *ngFor="let tab of trendTabs"
-                    class="chart-tab"
-                    [class.chart-tab--active]="activeTrendTab === tab"
-                    (click)="onSelectTrendTab(tab)">{{ tab }}</button>
+            @for (tab of trendTabs; track tab) {
+              <button class="chart-tab"
+                      [class.chart-tab--active]="activeTrendTab === tab"
+                      (click)="onSelectTrendTab(tab)">{{ tab }}</button>
+            }
           </div>
         </div>
         <div class="bar-chart">
@@ -104,13 +105,15 @@
             <span>20</span><span>15</span><span>10</span><span>5</span><span>0</span>
           </div>
           <div class="bars-area">
-            <div class="bar-group" *ngFor="let bar of chartBars">
-              <div class="bar-pair">
-                <div class="bar bar--collection" [style.height.%]="bar.collection"></div>
-                <div class="bar bar--target" [style.height.%]="bar.target"></div>
+            @for (bar of chartBars; track bar.label || $index) {
+              <div class="bar-group">
+                <div class="bar-pair">
+                  <div class="bar bar--collection" [style.height.%]="bar.collection"></div>
+                  <div class="bar bar--target" [style.height.%]="bar.target"></div>
+                </div>
+                <span class="bar-label">{{ bar.label }}</span>
               </div>
-              <span class="bar-label">{{ bar.label }}</span>
-            </div>
+            }
           </div>
         </div>
         <div class="chart-legend">
@@ -204,22 +207,24 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let act of recentActivities">
-              <td class="act-date">{{ act.date }}</td>
-              <td>
-                <a class="cust-link" [routerLink]="['/customers', act.customerId]">{{ act.customerName }}</a>
-              </td>
-              <td class="act-type">{{ act.activity }}</td>
-              <td class="act-amount">{{ act.amount }}</td>
-              <td>
-                <span class="status-chip"
-                      [class.chip--success]="act.status === 'Success'"
-                      [class.chip--pending]="act.status === 'Pending'"
-                      [class.chip--overdue]="act.status === 'Overdue'">
-                  {{ act.status }}
-                </span>
-              </td>
-            </tr>
+            @for (act of recentActivities; track $index) {
+              <tr>
+                <td class="act-date">{{ act.date }}</td>
+                <td>
+                  <a class="cust-link" [routerLink]="['/customers', act.customerId]">{{ act.customerName }}</a>
+                </td>
+                <td class="act-type">{{ act.activity }}</td>
+                <td class="act-amount">{{ act.amount }}</td>
+                <td>
+                  <span class="status-chip"
+                        [class.chip--success]="act.status === 'Success'"
+                        [class.chip--pending]="act.status === 'Pending'"
+                        [class.chip--overdue]="act.status === 'Overdue'">
+                    {{ act.status }}
+                  </span>
+                </td>
+              </tr>
+            }
           </tbody>
         </table>
       </mat-card-content>
@@ -233,18 +238,20 @@
           <button class="view-all-link-btn" (click)="onViewAllReminders()">View All</button>
         </div>
         <div class="reminder-list">
-          <div class="reminder-item" *ngFor="let r of reminders" (click)="onReminderClick(r)" [class.reminder-item--completed]="r.isCompleted" style="cursor: pointer;">
-            <div class="reminder-time-col">
-              <span class="reminder-time">{{ r.time }}</span>
+          @for (r of reminders; track r.id || $index) {
+            <div class="reminder-item" (click)="onReminderClick(r)" [class.reminder-item--completed]="r.isCompleted" style="cursor: pointer;">
+              <div class="reminder-time-col">
+                <span class="reminder-time">{{ r.time }}</span>
+              </div>
+              <div class="reminder-icon-wrap" [class]="'ri-' + r.type">
+                <mat-icon>{{ r.isCompleted ? 'check_circle' : r.icon }}</mat-icon>
+              </div>
+              <div class="reminder-body">
+                <div class="reminder-title" [style.text-decoration]="r.isCompleted ? 'line-through' : 'none'">{{ r.title }}</div>
+                <div class="reminder-sub">{{ r.sub }}</div>
+              </div>
             </div>
-            <div class="reminder-icon-wrap" [class]="'ri-' + r.type">
-              <mat-icon>{{ r.isCompleted ? 'check_circle' : r.icon }}</mat-icon>
-            </div>
-            <div class="reminder-body">
-              <div class="reminder-title" [style.text-decoration]="r.isCompleted ? 'line-through' : 'none'">{{ r.title }}</div>
-              <div class="reminder-sub">{{ r.sub }}</div>
-            </div>
-          </div>
+          }
         </div>
         <!-- Quote -->
         <div class="dash-quote">

@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { goBack as navigateBack } from '../../../shared/utils/navigation.util';
 import { HttpClient } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -12,11 +13,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { loanGetAll } from '../../../../api/fn/loan/loan-get-all';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Loan } from '../../../../api/models/loan';
-import { LoanCreateComponent } from '../loan-create/loan-create.component';
 import { BaseTableComponent } from '../../../shared/components/base-table.component';
+import { parseBlobJson } from '../../../shared/utils/api-response.util';
 
 @Component({
   selector: 'app-loans-list',
@@ -36,7 +38,8 @@ import { BaseTableComponent } from '../../../shared/components/base-table.compon
     MatCardModule
   ],
   templateUrl: './loans-list.component.html',
-  styleUrls: ['./loans-list.component.css']
+  styleUrls: ['./loans-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoansListComponent extends BaseTableComponent<Loan> implements OnInit {
   private http = inject(HttpClient);
@@ -44,13 +47,11 @@ export class LoansListComponent extends BaseTableComponent<Loan> implements OnIn
   private dialog = inject(MatDialog);
   private location = inject(Location);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
+    navigateBack(this.location, this.router, '/dashboard');
   }
 
   displayedColumns: string[] = ['loanNumber', 'customerName', 'loanAmount', 'balanceAmount', 'startDate', 'status', 'actions'];
@@ -74,7 +75,7 @@ export class LoansListComponent extends BaseTableComponent<Loan> implements OnIn
       switch(property) {
         case 'customerName': return item.customer?.fullName?.toLowerCase() || '';
         case 'status': return item.isClosed ? 1 : 0;
-        default: return (item as any)[property];
+        default: return (item as unknown as Record<string, unknown>)[property] as string | number;
       }
     };
     this.loadLoans();
@@ -82,33 +83,31 @@ export class LoansListComponent extends BaseTableComponent<Loan> implements OnIn
 
   loadLoans() {
     this.isLoading = true;
-    loanGetAll(this.http, this.config.rootUrl).subscribe({
-      next: async (response) => {
-        try {
-          const text = await response.body.text();
-          const loans: Loan[] = text ? JSON.parse(text) : [];
-          this.dataSource.data = loans;
-        } catch (e) {
-          console.error('Failed to parse loans', e);
+    loanGetAll(this.http, this.config.rootUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: async (response) => {
+          this.dataSource.data = await parseBlobJson<Loan[]>(response.body, []);
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error loading loans', err);
+          this.isLoading = false;
+          this.cdr.markForCheck();
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading loans', err);
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
-  openCreateLoanDialog() {
+  async openCreateLoanDialog() {
+    const { LoanCreateComponent } = await import('../loan-create/loan-create.component');
     const dialogRef = this.dialog.open(LoanCreateComponent, {
       width: '600px',
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
       if (result === true) {
-        // Refresh the list if a new loan was successfully created
         this.loadLoans();
       }
     });

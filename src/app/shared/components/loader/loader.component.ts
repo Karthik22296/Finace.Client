@@ -8,9 +8,11 @@ import { LoaderService } from '../../../core/services/loader.service';
   standalone: true,
   imports: [CommonModule, MatProgressSpinnerModule],
   template: `
-    <div class="global-loader-overlay" *ngIf="loaderService.isLoading()">
-      <mat-spinner diameter="50"></mat-spinner>
-    </div>
+    @if (loaderService.isLoading()) {
+      <div class="global-loader-overlay">
+        <mat-spinner diameter="50"></mat-spinner>
+      </div>
+    }
   `,
   styles: [`
     .global-loader-overlay {

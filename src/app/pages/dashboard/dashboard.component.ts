@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiConfiguration } from '../../../api/api-configuration';
 import { reportsDashboardSummary } from '../../../api/fn/reports/reports-dashboard-summary';
 import { reminderGetReminders } from '../../../api/fn/reminder/reminder-get-reminders';
@@ -13,8 +14,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../core/services/auth.service';
-import { CustomerCreateComponent } from '../customers/customer-create/customer-create.component';
-import { LoanCreateComponent } from '../loans/loan-create/loan-create.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,7 +30,8 @@ import { LoanCreateComponent } from '../loans/loan-create/loan-create.component'
     DecimalPipe
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit {
   private http = inject(HttpClient);
@@ -40,6 +40,8 @@ export class DashboardComponent implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   // ── Live Calculated State ─────────────────────────────────
   isLoading = true;
@@ -59,35 +61,11 @@ export class DashboardComponent implements OnInit {
   recentActivities: DashboardActivityDto[] = [];
   reminders: ReminderDto[] = [];
 
-  // ── Greeting ───────────────────────────────────────────────
-  get greeting(): string {
-    const h = new Date().getHours();
-    if (h < 12) return 'Good Morning';
-    if (h < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  }
-
-  get userName(): string {
-    const role = this.authService.getRole();
-    return role === 'Admin' ? 'Administrator' : 'Collector';
-  }
-
-  get todayFormatted(): string {
-    return new Date().toLocaleDateString('en-IN', {
-      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-    });
-  }
-
-  // ── Dynamic Donut Gradient ────────────────────────────────
-  get donutGradient(): string {
-    const greenEnd = this.activeLoanPct;
-    const yellowEnd = greenEnd + this.overdueLoanPct;
-    return `conic-gradient(
-      #34a853 0% ${greenEnd}%,
-      #fbbc04 ${greenEnd}% ${yellowEnd}%,
-      #ea4335 ${yellowEnd}% 100%
-    )`;
-  }
+  // ── Display Fields (computed once) ────────────────────────
+  greeting = '';
+  userName = '';
+  todayFormatted = '';
+  donutGradient = '';
 
   // ── Chart ──────────────────────────────────────────────────
   trendTabs = ['7 Days', '30 Days', '6 Months', '1 Year'];
@@ -95,53 +73,79 @@ export class DashboardComponent implements OnInit {
 
   // ── Lifecycle ──────────────────────────────────────────────
   ngOnInit(): void {
+    const h = new Date().getHours();
+    this.greeting = h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening';
+    const role = this.authService.getRole();
+    this.userName = role === 'Admin' ? 'Administrator' : 'Collector';
+    this.todayFormatted = new Date().toLocaleDateString('en-IN', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
     this.loadDashboardData();
     this.loadReminders();
   }
 
   loadDashboardData(): void {
     this.isLoading = true;
-    reportsDashboardSummary(this.http, this.config.rootUrl).subscribe({
-      next: (res) => {
-        const summary: DashboardSummaryDto | null = res.body || null;
-        if (summary) {
-          this.totalCustomers = summary.totalCustomers || 0;
-          this.totalActiveLoans = summary.totalActiveLoans || 0;
-          this.todaysTarget = summary.todaysTarget || 0;
-          this.collectedAmount = summary.collectedAmount || 0;
-          this.shortfall = summary.shortfall || 0;
-          this.collectionProgress = summary.collectionProgress || 0;
-          this.totalPortfolioValue = summary.totalPortfolioValue || 0;
+    reportsDashboardSummary(this.http, this.config.rootUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const summary: DashboardSummaryDto | null = res.body || null;
+          if (summary) {
+            this.totalCustomers = summary.totalCustomers || 0;
+            this.totalActiveLoans = summary.totalActiveLoans || 0;
+            this.todaysTarget = summary.todaysTarget || 0;
+            this.collectedAmount = summary.collectedAmount || 0;
+            this.shortfall = summary.shortfall || 0;
+            this.collectionProgress = summary.collectionProgress || 0;
+            this.totalPortfolioValue = summary.totalPortfolioValue || 0;
 
-          this.activeLoanPct = summary.activeLoanPct ?? 80;
-          this.overdueLoanPct = summary.overdueLoanPct ?? 15;
-          this.npaLoanPct = summary.npaLoanPct ?? 5;
+            this.activeLoanPct = summary.activeLoanPct ?? 80;
+            this.overdueLoanPct = summary.overdueLoanPct ?? 15;
+            this.npaLoanPct = summary.npaLoanPct ?? 5;
 
-          this.chartBars = summary.trendBars || [];
-          this.recentActivities = summary.recentActivities || [];
+            // Recompute donut gradient from API data
+            const greenEnd = this.activeLoanPct;
+            const yellowEnd = greenEnd + this.overdueLoanPct;
+            this.donutGradient = `conic-gradient(
+              #34a853 0% ${greenEnd}%,
+              #fbbc04 ${greenEnd}% ${yellowEnd}%,
+              #ea4335 ${yellowEnd}% 100%
+            )`;
+
+            this.chartBars = summary.trendBars || [];
+            this.recentActivities = summary.recentActivities || [];
+          }
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Failed to fetch dashboard summary from API', err);
+          this.snackBar.open('Failed to load dashboard metrics.', 'Close', { duration: 3000 });
+          this.isLoading = false;
+          this.cdr.markForCheck();
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Failed to fetch dashboard summary from API', err);
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   loadReminders(): void {
-    reminderGetReminders(this.http, this.config.rootUrl).subscribe({
-      next: (res) => {
-        if (res.body && res.body.length > 0) {
-          this.reminders = res.body;
-        } else {
+    reminderGetReminders(this.http, this.config.rootUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res.body && res.body.length > 0) {
+            this.reminders = res.body;
+          } else {
+            this.setFallbackReminders();
+          }
+          this.cdr.markForCheck();
+        },
+        error: () => {
           this.setFallbackReminders();
+          this.cdr.markForCheck();
         }
-      },
-      error: () => {
-        this.setFallbackReminders();
-      }
-    });
+      });
   }
 
   private setFallbackReminders(): void {
@@ -157,6 +161,7 @@ export class DashboardComponent implements OnInit {
   onSelectTrendTab(tab: string): void {
     this.activeTrendTab = tab;
     this.snackBar.open(`Collection Trend filter changed to: ${tab}`, 'Close', { duration: 2500 });
+    this.cdr.markForCheck();
   }
 
   onKpiClick(type: 'customers' | 'loans' | 'collections' | 'portfolio'): void {
@@ -175,13 +180,14 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/customers/new']);
   }
 
-  openNewLoanDialog(): void {
+  async openNewLoanDialog(): Promise<void> {
+    const { LoanCreateComponent } = await import('../loans/loan-create/loan-create.component');
     const dialogRef = this.dialog.open(LoanCreateComponent, {
       width: '600px',
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
       if (result === true) {
         this.loadDashboardData();
       }
@@ -194,17 +200,21 @@ export class DashboardComponent implements OnInit {
 
   onReminderClick(reminder: ReminderDto): void {
     if (reminder.id === undefined) return;
-    reminderToggleComplete(this.http, this.config.rootUrl, { id: reminder.id }).subscribe({
-      next: () => {
-        reminder.isCompleted = !reminder.isCompleted;
-        const msg = reminder.isCompleted ? `Task completed: ${reminder.title}` : `Task reopened: ${reminder.title}`;
-        this.snackBar.open(msg, 'Close', { duration: 2500 });
-      },
-      error: () => {
-        reminder.isCompleted = !reminder.isCompleted;
-        this.snackBar.open(`Task status toggled locally: ${reminder.title}`, 'Close', { duration: 2500 });
-      }
-    });
+    reminderToggleComplete(this.http, this.config.rootUrl, { id: reminder.id })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          reminder.isCompleted = !reminder.isCompleted;
+          const msg = reminder.isCompleted ? `Task completed: ${reminder.title}` : `Task reopened: ${reminder.title}`;
+          this.snackBar.open(msg, 'Close', { duration: 2500 });
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          reminder.isCompleted = !reminder.isCompleted;
+          this.snackBar.open(`Task status toggled locally: ${reminder.title}`, 'Close', { duration: 2500 });
+          this.cdr.markForCheck();
+        }
+      });
   }
 }
 

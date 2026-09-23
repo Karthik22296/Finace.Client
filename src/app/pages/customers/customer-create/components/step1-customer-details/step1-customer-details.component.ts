@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { BranchOption } from '../../customer-create.component';
 
 @Component({
   selector: 'app-step1-customer-details',
@@ -28,11 +29,12 @@ import { MatChipsModule } from '@angular/material/chips';
     MatChipsModule
   ],
   templateUrl: './step1-customer-details.component.html',
-  styleUrls: ['./step1-customer-details.component.css']
+  styleUrls: ['./step1-customer-details.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Step1CustomerDetailsComponent {
   @Input({ required: true }) customerForm!: FormGroup;
-  @Input() branches: any[] = [];
+  @Input() branches: BranchOption[] = [];
   @Input() statesList: string[] = [];
   @Input() profilePhotoUrl: string | null = null;
   @Input() registrationDate: Date = new Date();

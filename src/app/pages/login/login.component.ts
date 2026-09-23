@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 
@@ -26,17 +27,23 @@ import { CommonModule } from '@angular/common';
     MatCheckboxModule
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
-  loginForm: FormGroup = this.fb.group({
-    username: ['', Validators.required],
-    password: ['', Validators.required],
-    rememberMe: [false]
+  loginForm = new FormGroup<{
+    username: FormControl<string>;
+    password: FormControl<string>;
+    rememberMe: FormControl<boolean>;
+  }>({
+    username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    rememberMe: new FormControl(false, { nonNullable: true })
   });
 
   isLoading = false;
@@ -53,20 +60,25 @@ export class LoginComponent {
       this.isLoading = true;
       this.error = '';
 
-      const { username, password } = this.loginForm.value;
+      const username = this.loginForm.controls.username.value;
+      const password = this.loginForm.controls.password.value;
 
-      this.authService.login(username, password).subscribe({
-        next: () => {
-          this.router.navigate(['/dashboard']);
-        },
-        error: () => {
-          this.error = 'Invalid credentials. Please try again.';
-          this.isLoading = false;
-        },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
+      this.authService.login(username, password)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/dashboard']);
+          },
+          error: () => {
+            this.error = 'Invalid credentials. Please try again.';
+            this.isLoading = false;
+            this.cdr.markForCheck();
+          },
+          complete: () => {
+            this.isLoading = false;
+            this.cdr.markForCheck();
+          }
+        });
     }
   }
 }

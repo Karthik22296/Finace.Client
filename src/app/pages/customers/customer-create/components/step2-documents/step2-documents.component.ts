@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { UploadedFile, AdditionalDocItem } from '../../customer-create.component';
 
 @Component({
   selector: 'app-step2-documents',
@@ -23,14 +24,15 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule
   ],
   templateUrl: './step2-documents.component.html',
-  styleUrls: ['./step2-documents.component.css']
+  styleUrls: ['./step2-documents.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Step2DocumentsComponent {
   @Input({ required: true }) customerForm!: FormGroup;
   @Input() idTypes: string[] = [];
   @Input() additionalDocTypes: string[] = [];
-  @Input() idProofFile: any = null;
-  @Input() additionalDocs: any[] = [];
+  @Input() idProofFile: UploadedFile | null = null;
+  @Input() additionalDocs: AdditionalDocItem[] = [];
   @Input() profilePhotoUrl: string | null = null;
   @Input() isIdNumberVisible = false;
 

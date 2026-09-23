@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
+import { goBack as navigateBack } from '../../shared/utils/navigation.util';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -13,12 +14,13 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiConfiguration } from '../../../api/api-configuration';
 import { reportsCustomerLedger } from '../../../api/fn/reports/reports-customer-ledger';
 import { reportsHighRisk } from '../../../api/fn/reports/reports-high-risk';
 import { reportsDailyCollection } from '../../../api/fn/reports/reports-daily-collection';
 import { downloadBlob } from '../../shared/utils/download.util';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-reports',
@@ -35,25 +37,23 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatNativeDateModule,
     MatSelectModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatProgressSpinnerModule
   ],
   templateUrl: './reports.component.html',
-  styleUrl: './reports.component.css'
+  styleUrl: './reports.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportsComponent {
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
-  private snackBar = inject(MatSnackBar);
+  private toast = inject(ToastService);
   private location = inject(Location);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
+    navigateBack(this.location, this.router, '/dashboard');
   }
 
   // States
@@ -79,7 +79,7 @@ export class ReportsComponent {
 
   downloadCustomerLedger() {
     if (!this.ledgerForm.customerId) {
-      this.snackBar.open('Please enter a Customer ID', 'Close', { duration: 3000 });
+      this.toast.error('Please enter a Customer ID');
       return;
     }
 
@@ -88,15 +88,17 @@ export class ReportsComponent {
       customerId: this.ledgerForm.customerId,
       fromDate: this.ledgerForm.fromDate ? this.ledgerForm.fromDate.toISOString().split('T')[0] : null,
       toDate: this.ledgerForm.toDate ? this.ledgerForm.toDate.toISOString().split('T')[0] : null
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         downloadBlob(res.body, `Customer_Ledger_${this.ledgerForm.customerId}.pdf`);
         this.isLedgerLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error(err);
-        this.snackBar.open('Error generating report', 'Close', { duration: 3000 });
+        this.toast.error('Error generating report');
         this.isLedgerLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -105,22 +107,24 @@ export class ReportsComponent {
     this.isHighRiskLoading = true;
     reportsHighRisk(this.http, this.config.rootUrl, {
       branchId: this.highRiskForm.branchId
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         downloadBlob(res.body, 'High_Risk_Defaulters.pdf');
         this.isHighRiskLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error(err);
-        this.snackBar.open('Error generating report', 'Close', { duration: 3000 });
+        this.toast.error('Error generating report');
         this.isHighRiskLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   downloadDailyCollection() {
     if (!this.dailyCollectionForm.date) {
-      this.snackBar.open('Please select a date', 'Close', { duration: 3000 });
+      this.toast.error('Please select a date');
       return;
     }
 
@@ -128,15 +132,17 @@ export class ReportsComponent {
     reportsDailyCollection(this.http, this.config.rootUrl, {
       date: this.dailyCollectionForm.date.toISOString().split('T')[0],
       branchId: this.dailyCollectionForm.branchId
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         downloadBlob(res.body, `Daily_Collection_${this.dailyCollectionForm.date.toISOString().split('T')[0]}.pdf`);
         this.isDailyCollectionLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error(err);
-        this.snackBar.open('Error generating report', 'Close', { duration: 3000 });
+        this.toast.error('Error generating report');
         this.isDailyCollectionLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }

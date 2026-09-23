@@ -2,9 +2,11 @@
 
 <mat-dialog-content>
   <div class="form-container">
-    <div class="loading-shade" *ngIf="isLoading">
-      <mat-spinner diameter="40"></mat-spinner>
-    </div>
+    @if (isLoading) {
+      <div class="loading-shade">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    }
 
     <form [formGroup]="collectionForm" class="customer-form">
       <div class="loan-summary">
@@ -17,8 +19,12 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Amount Paid</mat-label>
           <input matInput type="number" formControlName="amountPaid" placeholder="Amount collected" min="1">
-          <mat-error *ngIf="collectionForm.get('amountPaid')?.hasError('required')">Amount is required</mat-error>
-          <mat-error *ngIf="collectionForm.get('amountPaid')?.hasError('min')">Amount must be greater than 0</mat-error>
+          @if (collectionForm.get('amountPaid')?.hasError('required')) {
+            <mat-error>Amount is required</mat-error>
+          }
+          @if (collectionForm.get('amountPaid')?.hasError('min')) {
+            <mat-error>Amount must be greater than 0</mat-error>
+          }
         </mat-form-field>
       </div>
 
@@ -47,8 +53,12 @@
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close [disabled]="isLoading">Cancel</button>
   <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="collectionForm.invalid || isLoading" class="action-button-with-spinner">
-    <mat-spinner *ngIf="isLoading" diameter="20" class="btn-spinner"></mat-spinner>
-    <mat-icon *ngIf="!isLoading">receipt</mat-icon>
+    @if (isLoading) {
+      <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+    }
+    @if (!isLoading) {
+      <mat-icon>receipt</mat-icon>
+    }
     <span>{{ isLoading ? 'Recording...' : 'Record Payment' }}</span>
   </button>
 </mat-dialog-actions>

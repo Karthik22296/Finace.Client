@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { ApiConfiguration } from '../../../api/api-configuration';
 
 export interface LookupValue {
@@ -17,8 +17,17 @@ export interface LookupValue {
 export class LookupService {
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
+  private cache = new Map<number, Observable<LookupValue[]>>();
 
   getLookupValues(lookupTypeId: number): Observable<LookupValue[]> {
-    return this.http.get<LookupValue[]>(`${this.config.rootUrl}/api/lookups/${lookupTypeId}`);
+    if (!this.cache.has(lookupTypeId)) {
+      this.cache.set(
+        lookupTypeId,
+        this.http.get<LookupValue[]>(`${this.config.rootUrl}/api/lookups/${lookupTypeId}`).pipe(
+          shareReplay(1)
+        )
+      );
+    }
+    return this.cache.get(lookupTypeId)!;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Optional, Inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -11,11 +11,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { loanCreate } from '../../../../api/fn/loan/loan-create';
 import { customerGetAll } from '../../../../api/fn/customer/customer-get-all';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { ToastService } from '../../../core/services/toast.service';
 import { Customer } from '../../../../api/models/customer';
+import { parseBlobJson } from '../../../shared/utils/api-response.util';
 
 @Component({
   selector: 'app-loan-create',
@@ -32,7 +34,8 @@ import { Customer } from '../../../../api/models/customer';
     MatDialogModule
   ],
   templateUrl: './loan-create.component.html',
-  styleUrls: ['./loan-create.component.css']
+  styleUrls: ['./loan-create.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoanCreateComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -43,12 +46,13 @@ export class LoanCreateComponent implements OnInit {
   private toastService = inject(ToastService);
   private location = inject(Location);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   isLoading = false;
   customers: Customer[] = [];
   dailyDueAmount = 0;
 
-  // Format today as YYYY-MM-DD
   todayDate = new Date().toISOString().substring(0, 10);
   defaultLoanNumber = 'LN-' + Math.floor(1000 + Math.random() * 9000);
 
@@ -56,7 +60,7 @@ export class LoanCreateComponent implements OnInit {
     customerId: [null as number | null, [Validators.required]],
     loanNumber: [this.defaultLoanNumber, [Validators.required]],
     loanAmount: [10000, [Validators.required, Validators.min(100)]],
-    interestRate: [20, [Validators.required, Validators.min(0)]], // 20% flat interest default
+    interestRate: [20, [Validators.required, Validators.min(0)]],
     startDate: [this.todayDate, [Validators.required]]
   });
 
@@ -67,30 +71,29 @@ export class LoanCreateComponent implements OnInit {
       this.loanForm.patchValue({ customerId: this.data.customerId });
     }
     
-    // Automatically calculate daily due amount when amount or interest changes
-    this.loanForm.valueChanges.subscribe(() => {
-      this.calculateDailyDue();
-    });
+    this.loanForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.calculateDailyDue();
+      });
     this.calculateDailyDue();
   }
 
   loadActiveCustomers() {
-    customerGetAll(this.http, this.config.rootUrl, { isActive: true }).subscribe({
-      next: async (response) => {
-        try {
-          const text = await response.body.text();
-          this.customers = text ? JSON.parse(text) : [];
+    customerGetAll(this.http, this.config.rootUrl, { isActive: true })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: async (response) => {
+          this.customers = await parseBlobJson<Customer[]>(response.body, []);
           if (this.data && this.data.customerId) {
             this.loanForm.patchValue({ customerId: this.data.customerId });
           }
-        } catch (e) {
-          console.error('Failed to parse customers', e);
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error loading customers', err);
         }
-      },
-      error: (err) => {
-        console.error('Error loading customers', err);
-      }
-    });
+      });
   }
 
   calculateDailyDue() {
@@ -99,6 +102,7 @@ export class LoanCreateComponent implements OnInit {
     
     const totalRepayment = principal + (principal * (rate / 100));
     this.dailyDueAmount = totalRepayment / 100;
+    this.cdr.markForCheck();
   }
 
   onSubmit() {
@@ -116,7 +120,7 @@ export class LoanCreateComponent implements OnInit {
           dailyDueAmount: this.dailyDueAmount,
           startDate: dateStr
         }
-      }).subscribe({
+      }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.isLoading = false;
           this.toastService.success('Loan created successfully');
@@ -130,6 +134,7 @@ export class LoanCreateComponent implements OnInit {
           this.isLoading = false;
           console.error('Error creating loan', err);
           this.toastService.error('Failed to create loan');
+          this.cdr.markForCheck();
         }
       });
     }

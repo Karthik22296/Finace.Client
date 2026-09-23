@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-sidenav',
   imports: [RouterLink, RouterLinkActive, MatListModule, MatIconModule],
   templateUrl: './sidenav.component.html',
-  styleUrl: './sidenav.component.css'
+  styleUrl: './sidenav.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidenavComponent {
   @Output() navClick = new EventEmitter<void>();

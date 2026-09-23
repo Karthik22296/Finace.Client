@@ -9,8 +9,10 @@
     </div>
   </div>
 
-  <div class="route-container" *ngIf="!isLoading">
-    <mat-card class="route-card" *ngFor="let loan of activeLoans">
+  @if (!isLoading) {
+  <div class="route-container">
+    @for (loan of activeLoans; track loan.loanId) {
+    <mat-card class="route-card">
       <mat-card-header>
         <div mat-card-avatar class="avatar">
           {{ loan.customer?.fullName?.charAt(0) || '?' }}
@@ -32,15 +34,21 @@
         </button>
       </mat-card-actions>
     </mat-card>
+    }
 
-    <div class="no-data" *ngIf="activeLoans.length === 0">
+    @if (activeLoans.length === 0) {
+    <div class="no-data">
       <mat-icon class="no-data-icon">done_all</mat-icon>
       <h3>All caught up!</h3>
       <p>No active loans require collection today.</p>
     </div>
+    }
   </div>
+  }
 
-  <div class="loading-shade" *ngIf="isLoading">
-    <mat-spinner diameter="40"></mat-spinner>
-  </div>
+  @if (isLoading) {
+    <div class="loading-shade">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
 </div>

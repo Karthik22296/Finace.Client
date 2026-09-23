@@ -10,13 +10,15 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Customer</mat-label>
           <mat-select formControlName="customerId" placeholder="Select Customer">
-            <mat-option *ngFor="let customer of customers" [value]="customer.customerId">
-              {{ customer.fullName }} (#{{ customer.customerId }})
-            </mat-option>
+            @for (customer of customers; track customer.customerId) {
+              <mat-option [value]="customer.customerId">
+                {{ customer.fullName }} (#{{ customer.customerId }})
+              </mat-option>
+            }
           </mat-select>
-          <mat-error *ngIf="loanForm.get('customerId')?.hasError('required')">
-            Customer is required
-          </mat-error>
+          @if (loanForm.get('customerId')?.hasError('required')) {
+            <mat-error>Customer is required</mat-error>
+          }
         </mat-form-field>
       </div>
 
@@ -25,17 +27,17 @@
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Loan Number</mat-label>
           <input matInput formControlName="loanNumber" placeholder="e.g. LN-001">
-          <mat-error *ngIf="loanForm.get('loanNumber')?.hasError('required')">
-            Required
-          </mat-error>
+          @if (loanForm.get('loanNumber')?.hasError('required')) {
+            <mat-error>Required</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Start Date</mat-label>
           <input matInput type="date" formControlName="startDate">
-          <mat-error *ngIf="loanForm.get('startDate')?.hasError('required')">
-            Required
-          </mat-error>
+          @if (loanForm.get('startDate')?.hasError('required')) {
+            <mat-error>Required</mat-error>
+          }
         </mat-form-field>
       </div>
 
@@ -44,20 +46,20 @@
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Principal Amount (₹)</mat-label>
           <input matInput type="number" formControlName="loanAmount" placeholder="e.g. 10000">
-          <mat-error *ngIf="loanForm.get('loanAmount')?.hasError('required')">
-            Required
-          </mat-error>
-          <mat-error *ngIf="loanForm.get('loanAmount')?.hasError('min')">
-            Min amount is 100
-          </mat-error>
+          @if (loanForm.get('loanAmount')?.hasError('required')) {
+            <mat-error>Required</mat-error>
+          }
+          @if (loanForm.get('loanAmount')?.hasError('min')) {
+            <mat-error>Min amount is 100</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Flat Interest Rate (%)</mat-label>
           <input matInput type="number" formControlName="interestRate" placeholder="20">
-          <mat-error *ngIf="loanForm.get('interestRate')?.hasError('required')">
-            Required
-          </mat-error>
+          @if (loanForm.get('interestRate')?.hasError('required')) {
+            <mat-error>Required</mat-error>
+          }
         </mat-form-field>
       </div>
 
@@ -80,8 +82,11 @@
 <mat-dialog-actions align="end">
   <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
   <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="loanForm.invalid || isLoading" class="action-button-with-spinner">
-    <mat-spinner *ngIf="isLoading" diameter="20" class="btn-spinner"></mat-spinner>
-    <mat-icon *ngIf="!isLoading">monetization_on</mat-icon>
+    @if (isLoading) {
+      <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+    } @else {
+      <mat-icon>monetization_on</mat-icon>
+    }
     <span>{{ isLoading ? 'Creating...' : 'Create Loan' }}</span>
   </button>
 </mat-dialog-actions>
