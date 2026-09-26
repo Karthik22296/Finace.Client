@@ -1,4 +1,4 @@
-name: Global AI PR Review
+name: Code Review
 
 on:
   pull_request:
