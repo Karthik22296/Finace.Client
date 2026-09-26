@@ -1,0 +1,11 @@
+name: Global AI PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    uses: Karthik22296/pr-review-agent/.github/workflows/pr-review.yml@feature/initial-pr-review-agent
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
