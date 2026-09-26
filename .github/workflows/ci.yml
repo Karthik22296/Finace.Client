@@ -11,8 +11,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
-  statuses: write
 
 jobs:
   build:
@@ -31,14 +29,14 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run Tests
         run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
         continue-on-error: true # Tests won't fail the build if not fully set up
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         continue-on-error: true # Prevents build failure if Sonar secrets are pending setup
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -53,6 +51,7 @@ jobs:
       contents: read
       pull-requests: write
       statuses: write
-    uses: Karthik22296/.github/.github/workflows/pr-review.yml@main
-    secrets: inherit
+    uses: Karthik22296/.github/.github/workflows/pr-review.yml@232c9b92ce8cc784945111e21913e2f8e4e7020f # main
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 

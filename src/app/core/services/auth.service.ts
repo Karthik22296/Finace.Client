@@ -22,14 +22,14 @@ function decodeJwt(token: string): Record<string, unknown> | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    let base64 = parts[1].replaceAll('-', '+').replaceAll('_', '/');
     while (base64.length % 4) {
       base64 += '=';
     }
     const jsonPayload = decodeURIComponent(
       atob(base64)
         .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .map(c => '%' + ('00' + (c.codePointAt(0) ?? 0).toString(16)).slice(-2))
         .join('')
     );
     return JSON.parse(jsonPayload) as Record<string, unknown>;
@@ -46,11 +46,12 @@ function parseUserFromToken(token: string): AuthUser | null {
     ?? claims['role']
     ?? claims['roles'];
 
-  const roles: string[] = Array.isArray(rawRoles)
-    ? rawRoles.map(String)
-    : typeof rawRoles === 'string' && rawRoles
-      ? [rawRoles]
-      : [];
+  let roles: string[] = [];
+  if (Array.isArray(rawRoles)) {
+    roles = rawRoles.map(String);
+  } else if (typeof rawRoles === 'string' && rawRoles) {
+    roles = [rawRoles];
+  }
 
   const primaryRole = roles.length > 0 ? roles[0] : 'Collector';
 
@@ -78,9 +79,9 @@ export class AuthService {
   private readonly ROLE_KEY = 'auth_role';
   private readonly USER_KEY = 'auth_user';
 
-  private router = inject(Router);
-  private http = inject(HttpClient);
-  private config = inject(ApiConfiguration);
+  private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly config = inject(ApiConfiguration);
 
   // Modern Signal-based state
   readonly currentUser = signal<AuthUser | null>(this.getStoredUser());
@@ -92,7 +93,7 @@ export class AuthService {
   readonly userRole = computed(() => this.currentUser()?.role ?? null);
 
   // Backward-compatible Observable stream
-  private authStatusSubject = new BehaviorSubject<boolean>(this.hasValidToken());
+  private readonly authStatusSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   public authStatus$ = this.authStatusSubject.asObservable();
 
   // Single-flight refresh token cache
