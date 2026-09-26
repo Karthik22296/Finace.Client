@@ -76,7 +76,8 @@ export class DashboardComponent implements OnInit {
     const h = new Date().getHours();
     this.greeting = h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening';
     const role = this.authService.getRole();
-    this.userName = role === 'Admin' ? 'Administrator' : 'Collector';
+    const sessionUser = this.authService.currentUser();
+    this.userName = sessionUser?.fullName || (role === 'Admin' ? 'Administrator' : 'Collector');
     this.todayFormatted = new Date().toLocaleDateString('en-IN', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });

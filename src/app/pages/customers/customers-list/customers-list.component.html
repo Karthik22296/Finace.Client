@@ -107,9 +107,9 @@
       <!-- Search Box -->
       <mat-form-field appearance="outline" class="filter-search-field" subscriptSizing="dynamic">
         <mat-icon matPrefix class="search-prefix-icon">search</mat-icon>
-        <input matInput [(ngModel)]="searchQuery" (keyup.enter)="applyFilters()" placeholder="Search customer name, mobile, or ID...">
+        <input matInput [ngModel]="searchQuery" (input)="onSearchInput($any($event.target).value)" (keyup.enter)="applyFilters()" placeholder="Search customer name, mobile, or ID...">
         @if (searchQuery) {
-          <button mat-icon-button matSuffix (click)="searchQuery=''; applyFilters()" class="search-clear-btn" aria-label="Clear search">
+          <button mat-icon-button matSuffix (click)="onSearchInput('')" class="search-clear-btn" aria-label="Clear search">
             <mat-icon>close</mat-icon>
           </button>
         }
@@ -342,15 +342,27 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row clickable-row" [class.active-menu-row]="activeMenuRowId === row.customerId"></tr>
 
-        <!-- Empty State -->
+        <!-- Empty or Error State -->
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell no-data-cell" colspan="9">
             @if (!isLoading) {
-            <div class="empty-state">
-              <mat-icon class="empty-icon">search_off</mat-icon>
-              <h3>No Customers Found</h3>
-              <p>Try adjusting your search query or filters.</p>
-            </div>
+              @if (hasError) {
+                <div class="empty-state error-state">
+                  <mat-icon class="empty-icon error-icon" color="warn">error_outline</mat-icon>
+                  <h3>Unable to Load Customers</h3>
+                  <p>{{ errorMessage || 'An unexpected network error occurred while loading customer records.' }}</p>
+                  <button mat-stroked-button color="primary" class="retry-btn" (click)="loadCustomers()">
+                    <mat-icon>refresh</mat-icon>
+                    Retry
+                  </button>
+                </div>
+              } @else {
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">search_off</mat-icon>
+                  <h3>No Customers Found</h3>
+                  <p>Try adjusting your search query or filters.</p>
+                </div>
+              }
             }
           </td>
         </tr>

@@ -105,6 +105,8 @@ export class HeaderComponent implements OnInit {
   // ── Computed display values ────────────────────────────────
   get userName(): string {
     if (this.userProfile?.fullName) return this.userProfile.fullName;
+    const sessionUser = this.authService.currentUser();
+    if (sessionUser?.fullName) return sessionUser.fullName;
     const role = this.authService.getRole();
     return role === 'Admin' ? 'Administrator' : 'Field Collector';
   }
@@ -127,6 +129,8 @@ export class HeaderComponent implements OnInit {
 
   get userRole(): string {
     if (this.userProfile?.roles?.length) return this.userProfile.roles.join(', ');
+    const sessionUser = this.authService.currentUser();
+    if (sessionUser?.roles?.length) return sessionUser.roles.join(', ');
     return this.authService.getRole() === 'Admin' ? 'Branch Manager' : 'Collector';
   }
 

@@ -82,18 +82,18 @@ export class LoansListComponent extends BaseTableComponent<Loan> implements OnIn
   }
 
   loadLoans() {
-    this.isLoading = true;
+    this.startLoading();
     loanGetAll(this.http, this.config.rootUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: async (response) => {
           this.dataSource.data = await parseBlobJson<Loan[]>(response.body, []);
           this.isLoading = false;
+          this.clearError();
           this.cdr.markForCheck();
         },
         error: (err) => {
-          console.error('Error loading loans', err);
-          this.isLoading = false;
+          this.setError(err, 'Failed to load loan records. Please verify your connection.');
           this.cdr.markForCheck();
         }
       });

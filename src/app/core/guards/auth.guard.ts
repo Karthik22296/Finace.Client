@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -10,14 +12,24 @@ export class AuthGuard implements CanActivate {
   private router = inject(Router);
 
   canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): boolean {
-    
-    if (this.authService.hasToken()) {
+    _route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): boolean | UrlTree | Observable<boolean | UrlTree> {
+    if (this.authService.hasValidToken()) {
       return true;
     }
 
-    this.router.navigate(['/login']);
-    return false;
+    if (this.authService.hasRefreshToken() && this.authService.isTokenExpired()) {
+      return this.authService.refreshToken().pipe(
+        map(() => true),
+        catchError(() => of(this.router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } })))
+      );
+    }
+
+    return this.router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
   }
 }
+
+export const authGuard: CanActivateFn = (_route, state) => {
+  return inject(AuthGuard).canActivate(_route, state);
+};

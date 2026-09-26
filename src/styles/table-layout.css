@@ -194,6 +194,32 @@ mat-card.table-card {
   font-size: 14px;
 }
 
+.empty-state.error-state {
+  color: var(--color-danger, #ea4335);
+}
+
+.empty-state.error-state .error-icon {
+  color: #ea4335;
+  opacity: 0.85;
+}
+
+.empty-state.error-state h3 {
+  color: #c5221f;
+}
+
+.empty-state.error-state p {
+  color: #5f6368;
+  max-width: 480px;
+  margin-bottom: 16px;
+}
+
+.empty-state.error-state .retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
 /* Modern border styling for table */
 .bordered-table {
   border-collapse: collapse;

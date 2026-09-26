@@ -99,7 +99,7 @@ export class CollectionVerifyComponent extends BaseTableComponent<Collection> im
   }
 
   loadCollections() {
-    this.isLoading = true;
+    this.startLoading();
     collectionGetAll(this.http, this.config.rootUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -107,11 +107,11 @@ export class CollectionVerifyComponent extends BaseTableComponent<Collection> im
           this.dataSource.data = await parseBlobJson<Collection[]>(response.body, []);
           this.updateTotalAmount();
           this.isLoading = false;
+          this.clearError();
           this.cdr.markForCheck();
         },
         error: (err) => {
-          console.error('Error loading collections', err);
-          this.isLoading = false;
+          this.setError(err, 'Failed to load collections for verification. Please verify your connection.');
           this.cdr.markForCheck();
         }
       });

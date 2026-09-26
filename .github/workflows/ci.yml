@@ -5,8 +5,14 @@ on:
     branches:
       - main
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - main
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
 
 jobs:
   build:
@@ -34,12 +40,19 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         continue-on-error: true # Prevents build failure if Sonar secrets are pending setup
-        with:
-          args: >
-            -Dsonar.organization=${{ github.repository_owner }}
-            -Dsonar.projectKey=${{ github.repository_owner }}_${{ github.event.repository.name }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Build Application
         run: npm run build
+
+  code-review:
+    name: Code Review
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+    uses: Karthik22296/.github/.github/workflows/pr-review.yml@main
+    secrets: inherit
+

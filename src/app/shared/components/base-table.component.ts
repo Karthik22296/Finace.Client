@@ -7,6 +7,8 @@ import { MatSort } from '@angular/material/sort';
 export abstract class BaseTableComponent<T> implements AfterViewInit {
   dataSource = new MatTableDataSource<T>();
   isLoading = true;
+  hasError = false;
+  errorMessage: string | null = null;
   filterValues: Record<string, string> = {};
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -15,6 +17,27 @@ export abstract class BaseTableComponent<T> implements AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  setError(error: unknown, fallback = 'Failed to load data. Please check your connection and try again.'): void {
+    this.isLoading = false;
+    this.hasError = true;
+    if (typeof error === 'string') {
+      this.errorMessage = error;
+    } else {
+      const serverMessage = (error as { error?: { message?: string } })?.error?.message;
+      this.errorMessage = typeof serverMessage === 'string' && serverMessage ? serverMessage : fallback;
+    }
+  }
+
+  clearError(): void {
+    this.hasError = false;
+    this.errorMessage = null;
+  }
+
+  startLoading(): void {
+    this.isLoading = true;
+    this.clearError();
   }
 
   /**
@@ -32,13 +55,4 @@ export abstract class BaseTableComponent<T> implements AfterViewInit {
       this.dataSource.paginator.firstPage();
     }
   }
-
-  /**
-   * You should define your custom filterPredicate in ngOnInit of your subclass.
-   * Example:
-   * this.dataSource.filterPredicate = (data: T, filter: string) => {
-   *   const searchTerms = JSON.parse(filter);
-   *   return data.field.includes(searchTerms.field);
-   * };
-   */
 }
