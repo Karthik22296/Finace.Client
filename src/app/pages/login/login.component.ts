@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,6 +33,7 @@ import { CommonModule } from '@angular/common';
 export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
 
@@ -67,7 +68,8 @@ export class LoginComponent {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.router.navigate(['/dashboard']);
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+            this.router.navigateByUrl(returnUrl);
           },
           error: () => {
             this.error = 'Invalid credentials. Please try again.';
