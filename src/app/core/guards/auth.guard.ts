@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
   private router = inject(Router);
 
   canActivate(
-    route: ActivatedRouteSnapshot,
+    _route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean | UrlTree | Observable<boolean | UrlTree> {
     if (this.authService.hasValidToken()) {
@@ -30,6 +30,6 @@ export class AuthGuard implements CanActivate {
   }
 }
 
-export const authGuard: CanActivateFn = (route, state) => {
-  return inject(AuthGuard).canActivate(route, state);
+export const authGuard: CanActivateFn = (_route, state) => {
+  return inject(AuthGuard).canActivate(_route, state);
 };

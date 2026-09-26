@@ -24,10 +24,9 @@ export abstract class BaseTableComponent<T> implements AfterViewInit {
     this.hasError = true;
     if (typeof error === 'string') {
       this.errorMessage = error;
-    } else if (error && typeof error === 'object' && 'message' in error) {
-      this.errorMessage = String((error as { message: string }).message);
     } else {
-      this.errorMessage = fallback;
+      const serverMessage = (error as { error?: { message?: string } })?.error?.message;
+      this.errorMessage = typeof serverMessage === 'string' && serverMessage ? serverMessage : fallback;
     }
   }
 

@@ -8,13 +8,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  // Exclude authentication endpoints from token attachment and refresh loops
-  const isAuthEndpoint = req.url.includes('/api/auth/login') ||
+  // Exclude auth endpoints from token attachment (except logout which may attach current token)
+  const isAuthNoTokenEndpoint = req.url.includes('/api/auth/login') ||
     req.url.includes('/api/auth/refresh-token') ||
     req.url.includes('/api/auth/register');
 
+  // Any auth endpoint (including logout) must never trigger a refresh loop on 401
+  const isRefreshExemptEndpoint = isAuthNoTokenEndpoint || req.url.includes('/api/auth/logout');
+
   let authReq = req;
-  if (token && !isAuthEndpoint) {
+  if (token && !isAuthNoTokenEndpoint) {
     authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -25,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       // Single-flight refresh token flow on 401 Unauthorized for non-auth requests
-      if (error.status === 401 && !isAuthEndpoint) {
+      if (error.status === 401 && !isRefreshExemptEndpoint) {
         return authService.refreshToken().pipe(
           switchMap((newToken) => {
             const retryReq = req.clone({

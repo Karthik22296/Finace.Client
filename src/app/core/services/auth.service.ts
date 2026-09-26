@@ -64,7 +64,7 @@ function parseUserFromToken(token: string): AuthUser | null {
     fullName: (claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ?? claims['name'] ?? claims['unique_name']) as string | undefined,
     role: primaryRole,
     roles,
-    branchId: isNaN(branchId as number) ? null : branchId,
+    branchId: typeof branchId === 'number' && !Number.isNaN(branchId) ? branchId : null,
     tokenExp: exp
   };
 }
@@ -192,7 +192,9 @@ export class AuthService {
         return newAccessToken;
       }),
       catchError(err => {
-        this.logout();
+        if (err?.status === 401 || err?.status === 403) {
+          this.logout();
+        }
         return throwError(() => err);
       }),
       finalize(() => {
@@ -205,13 +207,11 @@ export class AuthService {
   }
 
   logout(): void {
-    try {
-      authLogout(this.http, this.config.rootUrl).subscribe({
-        error: () => { /* Best-effort server notification */ }
-      });
-    } catch {
-      // Ignore network errors on logout
-    }
+    authLogout(this.http, this.config.rootUrl).subscribe({
+      error: () => {
+        // Best-effort server notification: ignore network or auth errors during client logout
+      }
+    });
 
     this.clearSession();
     this.router.navigate(['/login']);
@@ -245,7 +245,7 @@ export class AuthService {
     const token = this.getToken();
     if (!token) return true;
     const user = parseUserFromToken(token);
-    if (!user?.tokenExp) return false;
+    if (!user || typeof user.tokenExp !== 'number') return true;
     // 10-second skew window
     return user.tokenExp * 1000 <= Date.now() + 10000;
   }

@@ -68,8 +68,15 @@ export class LoginComponent {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-            this.router.navigateByUrl(returnUrl);
+            const rawReturnUrl = this.route.snapshot.queryParams['returnUrl'];
+            const safeReturnUrl = typeof rawReturnUrl === 'string' &&
+              rawReturnUrl.startsWith('/') &&
+              !rawReturnUrl.startsWith('//') &&
+              !rawReturnUrl.includes(':') &&
+              !rawReturnUrl.includes('\\')
+                ? rawReturnUrl
+                : '/dashboard';
+            this.router.navigateByUrl(safeReturnUrl);
           },
           error: () => {
             this.error = 'Invalid credentials. Please try again.';
