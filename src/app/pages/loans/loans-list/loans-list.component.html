@@ -144,14 +144,28 @@
         <tr mat-header-row *matHeaderRowDef="filterColumns" class="search-row"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row clickable-row" [routerLink]="['/loans', row.loanId]"></tr>
 
-        <!-- Row shown when there is no matching data. -->
+        <!-- Row shown when there is no matching data or on error. -->
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell no-data-cell" colspan="7">
-            <div class="empty-state">
-              <mat-icon class="empty-icon">account_balance_wallet</mat-icon>
-              <h3>No Loans Found</h3>
-              <p>Try adjusting your search filters.</p>
-            </div>
+            @if (!isLoading) {
+              @if (hasError) {
+                <div class="empty-state error-state">
+                  <mat-icon class="empty-icon error-icon" color="warn">error_outline</mat-icon>
+                  <h3>Unable to Load Loans</h3>
+                  <p>{{ errorMessage || 'An unexpected network error occurred while loading loan records.' }}</p>
+                  <button mat-stroked-button color="primary" class="retry-btn" (click)="loadLoans()">
+                    <mat-icon>refresh</mat-icon>
+                    Retry
+                  </button>
+                </div>
+              } @else {
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">account_balance_wallet</mat-icon>
+                  <h3>No Loans Found</h3>
+                  <p>Try adjusting your search filters.</p>
+                </div>
+              }
+            }
           </td>
         </tr>
       </table>

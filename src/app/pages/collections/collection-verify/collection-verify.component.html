@@ -148,15 +148,27 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row clickable-row"></tr>
         <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
         
-        <!-- Empty State -->
+        <!-- Empty or Error State -->
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell no-data-cell" colspan="7">
             @if (!isLoading) {
-            <div class="empty-state">
-              <mat-icon class="empty-icon">check_circle_outline</mat-icon>
-              <h3>No Collections Found</h3>
-              <p>There are no collections matching your filters.</p>
-            </div>
+              @if (hasError) {
+                <div class="empty-state error-state">
+                  <mat-icon class="empty-icon error-icon" color="warn">error_outline</mat-icon>
+                  <h3>Unable to Load Collections</h3>
+                  <p>{{ errorMessage || 'An unexpected network error occurred while loading collections for verification.' }}</p>
+                  <button mat-stroked-button color="primary" class="retry-btn" (click)="loadCollections()">
+                    <mat-icon>refresh</mat-icon>
+                    Retry
+                  </button>
+                </div>
+              } @else {
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">check_circle_outline</mat-icon>
+                  <h3>No Collections Found</h3>
+                  <p>There are no collections matching your filters.</p>
+                </div>
+              }
             }
           </td>
         </tr>

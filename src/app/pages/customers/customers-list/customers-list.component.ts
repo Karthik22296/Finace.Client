@@ -21,6 +21,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { customerGetAll } from '../../../../api/fn/customer/customer-get-all';
 import { ApiConfiguration } from '../../../../api/api-configuration';
 import { Customer } from '../../../../api/models/customer';
@@ -89,6 +91,7 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
   selectedCustomerType = '';
   selectedStatus = '';
   selectedDate: Date | null = null;
+  private searchSubject = new Subject<string>();
 
   goBack(): void {
     navigateBack(this.location, this.router, '/dashboard');
@@ -111,22 +114,36 @@ export class CustomersListComponent extends BaseTableComponent<Customer> impleme
       return Boolean(matchesSearch && matchesType && matchesStatus && matchesDate);
     };
 
+    // Debounced search handling to avoid recalculating filter predicates on each keystroke
+    this.searchSubject.pipe(
+      debounceTime(250),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.applyFilters();
+    });
+
     this.loadCustomers();
   }
 
+  onSearchInput(value: string): void {
+    this.searchQuery = value;
+    this.searchSubject.next(value);
+  }
+
   loadCustomers() {
-    this.isLoading = true;
+    this.startLoading();
     customerGetAll(this.http, this.config.rootUrl)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: async (response) => {
           this.dataSource.data = await parseBlobJson<Customer[]>(response.body, []);
           this.isLoading = false;
+          this.clearError();
           this.cdr.markForCheck();
         },
         error: (err) => {
-          console.error('Error loading customers', err);
-          this.isLoading = false;
+          this.setError(err, 'Failed to load customers from server. Please verify your connection.');
           this.cdr.markForCheck();
         }
       });
